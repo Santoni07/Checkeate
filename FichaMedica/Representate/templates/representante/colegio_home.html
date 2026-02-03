@@ -2,143 +2,193 @@
 {% load static %}
 
 {% block content %}
-<main class="px-3" style="position: relative; min-height: 100vh;">
+
+<main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
     <style>
-        main::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
-            background-size: cover;
-            opacity: 0.2;
-            z-index: -1;
+    main::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
+        background-size: cover;
+        opacity: 0.15;
+        z-index: -1;
+    }
+
+    .table thead th {
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
         }
+        .table thead {
+            display: none;
+        }
+        .table tbody, .table tr, .table td {
+            display: block;
+            width: 100%;
+        }
+        .table tr {
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 5px;
+        }
+        .table td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: none;
+        }
+        .table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            display: block;
+            text-transform: uppercase;
+            color: #009fe3;
+        }
+    }
     </style>
 
-    <div class="container my-4" style="position: relative; z-index: 1;">
+    <div style="position: relative; z-index: 1;">
+        <div class="container my-4">
+
+            <!-- Header -->
             <div class="d-flex align-items-center justify-content-start mb-4 gap-3">
                 {% if colegio.imagen %}
-                    <img src="{{ colegio.imagen.url }}" alt="Logo Colegio"  style="max-width: 100px; max-height: 100px;">
+                    <img src="{{ colegio.imagen.url }}" alt="Logo Colegio"
+                         style="max-width: 100px; max-height: 100px; mix-blend-mode: multiply;">
                 {% else %}
-                    <div class="d-flex align-items-center justify-content-center bg-light rounded shadow-sm" style="width: 100px; height: 100px; font-size: 0.9rem; color: #777;">
+                    <div class="d-flex align-items-center justify-content-center bg-light rounded shadow-sm"
+                         style="width: 100px; height: 100px; font-size: 0.9rem; color: #777;">
                         Sin logo
                     </div>
                 {% endif %}
-
                 <h1 class="fw-bold text-dark m-0 display-5">{{ colegio.nombre }}</h1>
             </div>
 
-        <div class="bg-light p-4 rounded shadow-sm">
-            <h2 class="text-center text-info fw-bold">Buscar Estudiante</h2>
-            <form method="get" class="row g-3 align-items-end justify-content-center">
+            <!-- 🔹 Botón de Estadísticas -->
+            <div class="text-end mb-3">
+                <a href="{% url 'estadisticas_colegio' %}" class="btn btn-info fw-bold">
+                    📊 Ver Estadísticas
+                </a>
+            </div>
 
-    <!-- Título y select de tipo de persona -->
-    <div class="col-md-2">
-        <label class="form-label fw-bold">Alumnos</label>
-        <select name="tipo" class="form-select">
-            <option value="">Individual</option>
-            <option value="alumno" {% if request.GET.tipo == "alumno" %}selected{% endif %}>Todos</option>
-        </select>
-    </div>
+            <!-- Buscador -->
+            <div class="bg-light p-4 rounded shadow-sm">
+                <h2 class="text-left fw-bold text-secondary">🔍 Buscar Estudiante</h2>
+                <hr>
+                <form method="get" class="row g-3 align-items-end justify-content-center">
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Alumnos</label>
+                        <select name="tipo" class="form-select">
+                            <option value="">Individual</option>
+                            <option value="alumno" {% if request.GET.tipo == "alumno" %}selected{% endif %}>Todos</option>
+                        </select>
+                    </div>
 
-    <!-- Input de búsqueda -->
-    <div class="col-md-3">
-        <label class="form-label">Nombre, Apellido o DNI</label>
-        <input type="text" name="buscar" class="form-control" placeholder="Buscar..." value="{{ request.GET.buscar }}">
-    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Nombre, Apellido o DNI</label>
+                        <input type="text" name="buscar" class="form-control" placeholder="Buscar..." value="{{ request.GET.buscar }}">
+                    </div>
 
-    <!-- Estado CUS -->
-    <div class="col-md-2">
-        <label class="form-label">Estado</label>
-        <select name="estado" class="form-select">
-            <option value="">Todos los estados</option>
-            <option value="APROBADA" {% if request.GET.estado == "APROBADA" %}selected{% endif %}>Aprobada</option>
-            <option value="RECHAZADA" {% if request.GET.estado == "RECHAZADA" %}selected{% endif %}>Rechazada</option>
-            <option value="PROCESO" {% if request.GET.estado == "PROCESO" %}selected{% endif %}>En Proceso</option>
-            <option value="VENCIDO" {% if request.GET.estado == "VENCIDO" %}selected{% endif %}>Vencida</option>
-        </select>
-    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="">Todos los estados</option>
+                            <option value="APROBADA" {% if request.GET.estado == "APROBADA" %}selected{% endif %}>Aprobada</option>
+                            <option value="RECHAZADA" {% if request.GET.estado == "RECHAZADA" %}selected{% endif %}>Rechazada</option>
+                            <option value="PROCESO" {% if request.GET.estado == "PROCESO" %}selected{% endif %}>En Proceso</option>
+                            <option value="VENCIDO" {% if request.GET.estado == "VENCIDO" %}selected{% endif %}>Vencida</option>
+                        </select>
+                    </div>
 
-    <!-- Año -->
-    <div class="col-md-2">
-        <label class="form-label">Año</label>
-        <select name="anio" class="form-select">
-            <option value="">Todos los años</option>
-            {% for y in anios %}
-                <option value="{{ y }}" {% if request.GET.anio == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
-            {% endfor %}
-        </select>
-    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Año</label>
+                        <select name="anio" class="form-select">
+                            <option value="">Todos los años</option>
+                            {% for y in anios %}
+                                <option value="{{ y }}" {% if request.GET.anio == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-    <!-- Botón Buscar -->
-    <div class="col-md-1">
-        <button type="submit" class="btn btn-primary w-100">Buscar</button>
-    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-outline-secondary w-100 fw-bold">Buscar</button>
+                    </div>
+                    <div class="col-md-1">
+                        <a href="{% url 'colegio_home' %}" class="btn btn-outline-secondary w-100 fw-bold">Refrescar</a>
+                    </div>
+                </form>
+            </div>
 
-    <!-- Botón Refrescar -->
-    <div class="col-md-1">
-        <a href="{% url 'colegio_home' %}" class="btn btn-primary w-100">Refrescar</a>
-    </div>
-</form>
-        </div>
-
-        <div class="table-responsive mt-4">
-            <h2 class="text-center text-info fw-bold">Listado de Estudiantes</h2>
-            <table class="table table-bordered table-hover shadow-sm">
-                <thead class="table-info text-center">
-                    <tr>
-                        <th>Apellido</th>
-                        <th>Nombre</th>
-                        <th>DNI</th>
-                        <th>Fecha Nac.</th>
-                        <th>Estado CUS</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for estudiante in estudiantes %}
-                        {% with estudiante.cus.last as cus %}
-                            <tr class="text-center">
-                                <td>{{ estudiante.apellido }}</td>
-                                <td>{{ estudiante.nombre }}</td>
-                                <td>{{ estudiante.dni }}</td>
-                                <td>{{ estudiante.fecha_nacimiento|date:"d/m/Y" }}</td>
-                                <td>
-                                    {% if cus %}
-                                        {{ cus.estado }}
-                                    {% else %}
-                                        <span class="text-muted">Sin CUS</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if cus and cus.estado == 'APROBADA' %}
-                                        <a href="{% url 'cus_views' cus.id %}" class="btn btn-success btn-sm">Ver</a>
-                                        <a href="{% url 'cus_views' cus.id %}?descargar_pdf=true" class="btn btn-outline-primary btn-sm">PDF</a>
-                                    {% elif cus and cus.estado == 'VENCIDO' %}
-
-                                    <a href="{% url 'cus_views' cus.id %}" class="btn btn-success btn-sm">Ver</a>
-
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endwith %}
-                    {% empty %}
+            <!-- Tabla -->
+            <div class="table-responsive mt-4">
+                <h2 class="text-left fw-bold text-secondary">📋 Listado de Estudiantes</h2>
+                <br>
+                <table class="table table-bordered table-hover shadow-sm">
+                    <thead class="table-primary text-center">
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No se encontraron estudiantes.</td>
+                            <th>Apellido</th>
+                            <th>Nombre</th>
+                            <th>DNI</th>
+                            <th>Fecha Nac.</th>
+                            <th>Estado CUS</th>
+                            <th>Acción</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-                  {% if tipo == "alumno" and total_alumnos is not None and total_aprobados is not None %}
-                <div class="mt-3 alert alert-info text-center fw-bold">
-                    Total de alumnos inscriptos: {{ total_alumnos }} |
-                    Alumnos con CUS aprobado: {{ total_aprobados }}
-                </div>
-            {% endif %}
+                    </thead>
+                    <tbody>
+                        {% for estudiante in estudiantes %}
+                            {% with estudiante.cus.last as cus %}
+                                <tr class="text-center">
+                                    <td data-label="Apellido">{{ estudiante.apellido }}</td>
+                                    <td data-label="Nombre">{{ estudiante.nombre }}</td>
+                                    <td data-label="DNI">{{ estudiante.dni }}</td>
+                                    <td data-label="Fecha Nac.">{{ estudiante.fecha_nacimiento|date:"d/m/Y" }}</td>
+                                    <td data-label="Estado">
+                                        {% if cus %}
+                                            <span class="fw-bold text-secondary">{{ cus.estado }}</span>
+                                        {% else %}
+                                            <span class="text-muted">Sin CUS</span>
+                                        {% endif %}
+                                    </td>
+                                    <td data-label="Acción">
+                                        {% if cus and cus.estado == 'APROBADA' %}
+                                            <a href="{% url 'cus_views' cus.id %}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                            <a href="{% url 'cus_views' cus.id %}?descargar_pdf=true" class="btn btn-sm btn-outline-secondary">PDF</a>
+                                        {% elif cus and cus.estado == 'VENCIDO' %}
+                                            <a href="{% url 'cus_views' cus.id %}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        {% else %}
+                                            <span class="badge bg-light text-secondary border">Pendiente / Rechazado</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endwith %}
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No se encontraron estudiantes.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if tipo == "alumno" and total_alumnos is not None and total_aprobados is not None %}
+                    <div class="mt-3 alert alert-info text-center fw-bold">
+                        Total de alumnos inscriptos: {{ total_alumnos }} |
+                        Alumnos con CUS aprobado: {{ total_aprobados }}
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </main>
+
 {% endblock %}

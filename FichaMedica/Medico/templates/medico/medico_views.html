@@ -3,7 +3,7 @@
 
 {% block content %}
 <style>
-   
+
     .card-body{
         background-color: #f0f0f0;
     }
@@ -14,42 +14,52 @@
 
 
     <section id="content">
-        <header class="d-flex align-items-center ms-4 me-4 mt-4 mb-4">
-            <a href="#" class="logo d-flex align-items-center me-auto">
-                <img src="{% static 'core/img/milogo.jpg' %}" alt="Logo" style="width: 80px;" class="logo_header">
-                <h1 class="sitename ms-2">TU APTO</h1>
-            </a>
-        </header>
 
-        
+
+
         <div class="row align-items-center mb-2">
-            <!-- Columna central para la descripción -->
-            <div class="col-md-9 d-flex justify-content-center flex-column text-center">
-                <h4>{{ jugador_info.torneo_descripcion }}</h4>
-                <div>
-                    <p><strong>{{ jugador_info.torneo_direccion }}</strong></p>
-                    <p>Tel: <strong>{{ jugador_info.torneo_telefono }}</strong></p>
-                </div>
-            </div>
-    
-            <!-- Columna derecha para el logo del torneo -->
-        <div class="col-md-3 text-center">
-            {% if jugador_info.imagen_torneo %}
-                <img src="{{ jugador_info.imagen_torneo }}" class="logo-torneo img-fluid" alt="imagen">
-            {% else %}
-                <p>No hay logo disponible</p>
-            {% endif %}
-        </div>
-    </div>
-    <hr>
+  <!-- Columna central -->
+  <div class="col-md-9 d-flex justify-content-center flex-column text-center">
+    {% if jugador_info.es_torneo %}
+      <h4>{{ jugador_info.torneo_descripcion }}</h4>
+      <div>
+        <p><strong>{{ jugador_info.torneo_direccion }}</strong></p>
+        <p>Tel: <strong>{{ jugador_info.torneo_telefono }}</strong></p>
+      </div>
+    {% elif jugador_info.es_competencia %}
+      <h4>{{ jugador_info.competencia_nombre }}</h4>
+      <div>
+        {% if jugador_info.competencia_descripcion %}
+          <p>{{ jugador_info.competencia_descripcion }}</p>
+        {% endif %}
+        <p><strong>{{ jugador_info.competencia_direccion|default:"" }}</strong></p>
+        <p>Tel: <strong>{{ jugador_info.competencia_telefono|default:"" }}</strong></p>
+      </div>
+    {% endif %}
+  </div>
 
-    
-    
+  <!-- Logo (torneos y competencias) -->
+  <div class="col-md-3 text-center">
+  {% if jugador_info.es_torneo and jugador_info.imagen_torneo %}
+    <img src="{{ jugador_info.imagen_torneo }}" class="logo-torneo img-fluid" alt="logo torneo">
+  {% elif jugador_info.es_competencia and jugador_info.imagen_competencia %}
+    <img src="{{ jugador_info.imagen_competencia }}" class="logo-torneo img-fluid" alt="logo competencia">
+  {% else %}
+    <p>No hay logo disponible</p>
+  {% endif %}
+</div>
+</div>
+<hr>
+
+
+
+
+
 
 
         <div class="container mt-5">
             <h1 class="text-center mb-4">Ficha Médica</h1>
-            
+
 
 
             <!-- Información Personal -->
@@ -67,7 +77,7 @@
                             <p>Dirección: <strong>{{ jugador_info.direccion }}</strong></p>
                         </div>
                         <div class="col-md-6 text-center">
-                            
+
                             <p>Teléfono: <strong>{{ jugador_info.telefono }}</strong></p>
                             <p>Grupo Sanguíneo: <strong>{{ jugador_info.grupo_sanguineo }}</strong></p>
                             <p>Cobertura Médica: <strong>{{ jugador_info.cobertura_medica }}</strong></p>
@@ -79,26 +89,30 @@
 
                             <!-- Equipos y Categorías -->
                     <div class="card mb-4">
-                        <div class="card-header text-center">
-                            <h2>Equipos y Categorías</h2>
-                        </div>
-                        <div class="card-body">
-                           
-                                <div class="row text-center">
-                                    <div class="col-md-4">
-                                        <p>Torneo: <strong>{{ jugador_info.torneo }}</strong></p>
-                                    </div>
-                                    
-                                    <div class="col-md-4">
-                                        <p>Categoría: <strong>{{ jugador_info.categoria }}</strong></p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p>Equipo: <strong>{{ jugador_info.equipo }}</strong></p>
-                                    </div>
-                                </div>
-                            
-                            
-                        </div>
+                      <div class="card-header text-center">
+                        <h2>
+                          {% if jugador_info.es_torneo %}Equipos y Categorías{% else %}Competencia{% endif %}
+                        </h2>
+                      </div>
+                      <div class="card-body">
+                        {% if jugador_info.es_torneo %}
+                          <div class="row text-center">
+                            <div class="col-md-4">
+                              <p>Torneo: <strong>{{ jugador_info.torneo }}</strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <p>Categoría: <strong>{{ jugador_info.categoria }}</strong></p>
+                            </div>
+                            <div class="col-md-4">
+                              <p>Equipo: <strong>{{ jugador_info.equipo }}</strong></p>
+                            </div>
+                          </div>
+                        {% elif jugador_info.es_competencia %}
+                          <div class="text-center">
+                            <p>Competencia: <strong>{{ jugador_info.competencia_nombre }}</strong></p>
+                          </div>
+                        {% endif %}
+                      </div>
                     </div>
 
             <!-- Antecedentes -->
@@ -213,7 +227,7 @@
                                 </div>
                             </div>
                             <hr>
-                            
+
                             <!-- Consentimiento con estilo -->
                             <div class="consentimiento text-center p-3 mt-4" style="background-color: #f8f9fa; border-left: 5px solid #28a745; border-radius: 5px;">
                                 <h4 class="text-success">Consentimiento</h4>
@@ -222,7 +236,7 @@
                                     Asimismo, manifiesta su conformidad para actuar como jugador y participar en todas las actividades derivadas de dicha competencia, asumiendo plena responsabilidad por la veracidad de la información consignada en el presente documento.
                                 </p>
                             </div>
- 
+
                     {% endfor %}
 
                 </div>
@@ -234,138 +248,158 @@
                     <h2>Formularios Médicos</h2>
                 </div>
                 <div class="card-body">
-                    
+
                     <!-- Electro Basal -->
                     <div class="col-12 mb-3">
-                        <h3>Electro Basal</h3>
-                        <div class="row">
-                            <!-- Columna Izquierda -->
-                            <div class="col-md-6">
-                                {% if jugador_info.electro_basal_form %}
-                                <p><strong>Ritmo:</strong> {{ jugador_info.electro_basal_form.ritmo.value }}</p>
-                                <p><strong>PQ:</strong> {{ jugador_info.electro_basal_form.PQ.value }}</p>
-                                <p><strong>Frecuencia:</strong> {{ jugador_info.electro_basal_form.frecuencia.value }}</p>
-                            {% else %}
-                                <p><strong>Ritmo:</strong> No disponible</p>
-                                <p><strong>PQ:</strong> No disponible</p>
-                                <p><strong>Frecuencia:</strong> No disponible</p>
-                            {% endif %}
-                            
-                            
-                            </div>
-                    
-                            <!-- Columna Derecha -->
-                            <div class="col-md-6">
-                                <p><strong>Arritmias:</strong> {{ jugador_info.electro_basal_form.arritmias.value.value }}</p>
-                                <p><strong>Eje QRS:</strong> {{ jugador_info.electro_basal_form.ejeQRS.value }}</p>
-                                <p><strong>Trazado Normal:</strong> {{ jugador_info.electro_basal_form.trazadoNormal.value|yesno:"Sí,No" }}</p>
-                                <p><strong>Observaciones:</strong> {{ jugador_info.electro_basal_form.observaciones.value }}</p>
-                            </div>
-                        </div>
-                    </div>
+  <h3>Electro Basal</h3>
+  {% if jugador_info.electro_basal_form %}
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Ritmo:</strong> {{ jugador_info.electro_basal_form.ritmo.value }}</p>
+        <p><strong>PQ:</strong> {{ jugador_info.electro_basal_form.PQ.value }}</p>
+        <p><strong>Frecuencia:</strong> {{ jugador_info.electro_basal_form.frecuencia.value }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Arritmias:</strong> {{ jugador_info.electro_basal_form.arritmias.value }}</p>
+        <p><strong>Eje QRS:</strong> {{ jugador_info.electro_basal_form.ejeQRS.value }}</p>
+        <p><strong>Trazado Normal:</strong> {{ jugador_info.electro_basal_form.trazadoNormal.value|yesno:"Sí,No" }}</p>
+        <p><strong>Observaciones:</strong> {{ jugador_info.electro_basal_form.observaciones.value }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted">No disponible.</p>
+  {% endif %}
+</div>
+
                     <hr>
                 <!-- Electro Esfuerzo -->
-                        <div class="col-12 mb-3">
-                            <h3>Electro Esfuerzo</h3>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Observaciones :</strong> {{ jugador_info.electro_esfuerzo_form.observaciones.value }}</p>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="col-12 mb-3">
+  <h3>Electro Esfuerzo</h3>
+  {% if jugador_info.electro_esfuerzo_form %}
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Observaciones :</strong> {{ jugador_info.electro_esfuerzo_form.observaciones.value }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted">No disponible.</p>
+  {% endif %}
+</div>
+
                         <hr>
                         <!-- Cardiovascular -->
                         <div class="col-12 mb-3">
-                            <h3 >Cardiovascular</h3>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Auscultacion :</strong> {{ jugador_info.cardiovascular_form.auscultacion.value }}</p>
-                                    <p><strong>Soplos :</strong> {{ jugador_info.cardiovascular_form.soplos.value }}</p>
-                                    <p><strong>R1 :</strong> {{ jugador_info.cardiovascular_form.R1.value }}</p>
-                                    <p><strong>Tension arterial :</strong> {{ jugador_info.cardiovascular_form.tension_arterial.value }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    
-                                    <p><strong>R2 :</strong> {{ jugador_info.cardiovascular_form.R2.value }}</p>
-                                    <p><strong>Observaciones :</strong> {{ jugador_info.cardiovascular_form.observaciones.value }}</p>
-                                    <p><strong>Ruidos agregados :</strong> {{ jugador_info.cardiovascular_form.ruidos_agregados.value }}</p>
-                                </div>
-                            </div>
-                        </div>
+  <h3>Cardiovascular</h3>
+  {% if jugador_info.cardiovascular_form %}
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Auscultación :</strong> {{ jugador_info.cardiovascular_form.auscultacion.value }}</p>
+        <p><strong>Soplos :</strong> {{ jugador_info.cardiovascular_form.soplos.value }}</p>
+        <p><strong>R1 :</strong> {{ jugador_info.cardiovascular_form.R1.value }}</p>
+        <p><strong>Tensión arterial :</strong> {{ jugador_info.cardiovascular_form.tension_arterial.value }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>R2 :</strong> {{ jugador_info.cardiovascular_form.R2.value }}</p>
+        <p><strong>Observaciones :</strong> {{ jugador_info.cardiovascular_form.observaciones.value }}</p>
+        <p><strong>Ruidos agregados :</strong> {{ jugador_info.cardiovascular_form.ruidos_agregados.value }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted">No disponible.</p>
+  {% endif %}
+</div>
+
                         <hr>
                         <!-- Oftalmológico -->
-                        <div class="col-12 mb-3">
-                            <h3>Oftalmológico</h3>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Od :</strong> {{ jugador_info.oftalmologico_form.od.value }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Oi :</strong> {{ jugador_info.oftalmologico_form.oi.value }}</p>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="col-12 mb-3">
+  <h3>Oftalmológico</h3>
+  {% if jugador_info.oftalmologico_form %}
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>OD :</strong> {{ jugador_info.oftalmologico_form.od.value }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>OI :</strong> {{ jugador_info.oftalmologico_form.oi.value }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted">No disponible.</p>
+  {% endif %}
+</div>
+
                         <hr>
                         <!-- Laboratorio -->
-                        <div class="col-12 mb-3">
-                            <h3>Laboratorio</h3>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Citologico :</strong> {{ jugador_info.laboratorio_form.citologico.value }}</p>
-                                    <p><strong>Orina :</strong> {{ jugador_info.laboratorio_form.orina.value }}</p>
-                                    <p><strong>Colesterol :</strong> {{ jugador_info.laboratorio_form.colesterol.value }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Uremia :</strong> {{ jugador_info.laboratorio_form.uremia.value }}</p>
-                                    <p><strong>Glucemia :</strong> {{ jugador_info.laboratorio_form.glucemia.value }}</p>
-                                    <p><strong>Otros :</strong> {{ jugador_info.laboratorio_form.otros.value }}</p>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="col-12 mb-3">
+  <h3>Laboratorio</h3>
+  {% if jugador_info.laboratorio_form %}
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Citológico :</strong> {{ jugador_info.laboratorio_form.citologico.value }}</p>
+        <p><strong>Orina :</strong> {{ jugador_info.laboratorio_form.orina.value }}</p>
+        <p><strong>Colesterol :</strong> {{ jugador_info.laboratorio_form.colesterol.value }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Uremia :</strong> {{ jugador_info.laboratorio_form.uremia.value }}</p>
+        <p><strong>Glucemia :</strong> {{ jugador_info.laboratorio_form.glucemia.value }}</p>
+        <p><strong>Otros :</strong> {{ jugador_info.laboratorio_form.otros.value }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted">No disponible.</p>
+  {% endif %}
+</div>
+
                         <hr>
                         <!-- Torax -->
                         <div class="col-12 mb-3">
-                            <h3>Torax</h3>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    
-                                    <p><strong>Observaciones:</strong> {{ jugador_info.torax_form.observaciones.value }}</p>
-                                   
-                                </div>
-                            </div>
-                        </div>
+  <h3>Tórax</h3>
+  {% if jugador_info.torax_form %}
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Observaciones:</strong> {{ jugador_info.torax_form.observaciones.value }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted">No disponible.</p>
+  {% endif %}
+</div>
+
 
                         <hr>
                         <!-- Otros examenes cinicos -->
-                        <div class="col-12 mb-3">
-                            <h3>Otros examenes Clinicos</h3>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Respiratorio:</strong> {{ jugador_info.otros_examenes_form.respiratorio_observaciones.value }}</p>
-                                    <p><strong>Renal:</strong> {{ jugador_info.otros_examenes_form.renal_observaciones.value }}</p>
-                                    <p><strong>Digestivo:</strong> {{ jugador_info.otros_examenes_form.digestivo_observaciones.value }}</p>
-                                    <p><strong>Osteoarticular:</strong> {{ jugador_info.otros_examenes_form.osteoarticular_observaciones.value }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    
-                
-                    
+                      <div class="col-12 mb-3">
+  <h3>Otros exámenes clínicos</h3>
+  {% if jugador_info.otros_examenes_form %}
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Respiratorio:</strong> {{ jugador_info.otros_examenes_form.respiratorio_observaciones.value }}</p>
+        <p><strong>Renal:</strong> {{ jugador_info.otros_examenes_form.renal_observaciones.value }}</p>
+        <p><strong>Digestivo:</strong> {{ jugador_info.otros_examenes_form.digestivo_observaciones.value }}</p>
+        <p><strong>Osteoarticular:</strong> {{ jugador_info.otros_examenes_form.osteoarticular_observaciones.value }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-muted">No disponible.</p>
+  {% endif %}
+</div>
+
+
+
                 </div>
             </div>
             <!-- Firma del Apto -->
                 <div class="card mt-4 mb-4 shadow-sm">
                     <div class="p-4">
                         <p class="text-justify">
-                            Habiendo tomado conocimiento de los "Antecedentes de Enfermedad" consignados en el anverso, realizados los estudios citados precedentemente y efectuada la evaluación clínico/médica correspondiente, el Sr. 
-                            <strong>{{ jugador_info.nombre }} {{ jugador_info.apellido }}</strong>, 
+                            Habiendo tomado conocimiento de los "Antecedentes de Enfermedad" consignados en el anverso, realizados los estudios citados precedentemente y efectuada la evaluación clínico/médica correspondiente, el Sr.
+                            <strong>{{ jugador_info.nombre }} {{ jugador_info.apellido }}</strong>,
                         </p>
                         <p class="text-justify">
-                            D.N.I. Nro. <strong>{{ jugador_info.dni }}</strong>, declaro que queda 
+                            D.N.I. Nro. <strong>{{ jugador_info.dni }}</strong>, declaro que queda
                             <strong>{{ registro_medico.estado }}</strong> su apto médico para la práctica deportiva.
                         </p>
 
-                        
+
                             <!-- Columna para la fecha -->
                             <div>
                                 <p class="text-justify">
@@ -390,7 +424,7 @@
                                     <p><em>Firma y sello del Médico</em></p>
                                 </div>
                             </div>
-                            
+
 
                         <hr class="mt-4">
 
@@ -400,21 +434,24 @@
                         </p>
                     </div>
                 </div>
+<div class="qr-validacion mt-4 text-center">
+                    <p><em>Escanee para validar este certificado:</em></p>
+                    <img src="{{ qr_code }}" alt="QR de validación" style="max-width:120px;">
+                </div>
 
-                
 
         </div>
     </section>
     <div class="mt-4 text-center d-flex justify-content-center">
-        
+
            <!-- Botón Volver -->
-           
+
            {% if rol_usuario == "medico" %}
             <a href="{% url 'medico_home' %}" class="btn btn-secondary me-3">Volver</a>
             {% elif rol_usuario == "jugador" %}
             <a href="{% url 'menu_jugador' %}" class="btn btn-secondary me-3">Volver</a>
             {% endif %}
-            
+
         <!-- Botón Descargar -->
         <form method="get" action="{% url 'ficha_medica' registro_medico.id %}">
             <input type="hidden" name="descargar_pdf" value="true">

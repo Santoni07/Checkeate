@@ -1,0 +1,210 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="sport-hero-band">
+  <div class="container inner d-flex justify-content-center">
+    <h2 class="mb-0 text-center">
+      <i class="bi bi-file-earmark-medical me-2"></i>
+      Ver Antecedentes Apto General de
+      {{ apto.jugador.persona.profile.nombre }}
+      {{ apto.jugador.persona.profile.apellido }}
+      {% if apto.actividad %}
+        <small class="ms-2">(Actividad: {{ apto.actividad.nombre }})</small>
+      {% endif %}
+    </h2>
+  </div>
+</div>
+
+<main class="px-3" style="position: relative; min-height: 100vh;">
+  <style>
+    :root{
+      --sport-navy:#0d47a1;
+      --sport-royal:#1565c0;
+      --sport-grass:#2e7d32;
+      --sport-lime:#43a047;
+      --card-border:#e7eef4;
+    }
+
+    .sport-hero-band h2{
+      margin:0;
+      font-weight:700;
+      letter-spacing:.3px;
+      text-shadow: 0 1px 1px rgba(0,0,0,.15);
+    }
+    .sport-hero-band{
+      padding: 18px 16px;
+      display:flex; justify-content:center; align-items:center;
+      background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+      border-bottom: 1px solid rgba(255,255,255,.15);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+    }
+
+    main::before{
+      content:''; position: fixed; inset:0; z-index:-1;
+      background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
+      background-size: cover; opacity:.35;
+    }
+
+    .sport-wrap{ position: relative; z-index:1; }
+    .sport-container{
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 40px;
+      background-color: #fff;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    }
+
+    .sport-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+    @media (max-width: 992px){ .sport-grid{ grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 576px){ .sport-grid{ grid-template-columns: 1fr; } }
+
+    .sport-card{
+      background:#fff; padding:20px;
+      border:1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      height:100%; display:flex; flex-direction:column;
+    }
+    .sport-card h3{
+      margin:0 0 10px 0; font-size:1.05rem;
+      color: var(--sport-royal); font-weight:700; letter-spacing:.2px;
+    }
+    .sport-card p{ margin:.35rem 0; color:#213047; }
+    .sport-card span{ font-weight:700; color:#1f2a44; }
+
+    .btn-sport-primary{
+      background-color: var(--sport-royal) !important;
+      border-color: var(--sport-royal) !important;
+      color:#fff !important; font-weight:700;
+      box-shadow: 0 6px 14px rgba(21,101,192,.18);
+    }
+    .btn-sport-primary:hover{ background-color:#0f5aad !important; border-color:#0f5aad !important; }
+
+    .btn-sport-success{
+      background-color: var(--sport-grass) !important;
+      border-color: var(--sport-grass) !important;
+      color:#fff !important; font-weight:700;
+      box-shadow: 0 6px 14px rgba(46,125,50,.18);
+    }
+    .btn-sport-success:hover{ background-color:var(--sport-lime) !important; border-color:var(--sport-lime) !important; }
+  </style>
+
+  <div class="sport-wrap">
+    <div class="sport-container">
+
+      {% if antecedentes %}
+        {% for antecedente in antecedentes %}
+        <div class="sport-grid mb-4">
+
+          <!-- Operaciones y medicación -->
+          <div class="sport-card">
+            <h3>Operaciones y Medicación</h3>
+            <p><span>¿Fue operado?</span> {{ antecedente.fue_operado|yesno:"Sí,No" }}</p>
+            <p><span>¿Toma medicación?</span> {{ antecedente.toma_medicacion|yesno:"Sí,No" }}</p>
+            <p><span>¿Estuvo internado?</span> {{ antecedente.estuvo_internado|yesno:"Sí,No" }}</p>
+          </div>
+
+          <!-- Condiciones crónicas -->
+          <div class="sport-card">
+            <h3>Condiciones Crónicas</h3>
+            <p><span>¿Es diabético?</span> {{ antecedente.es_diabetico|yesno:"Sí,No" }}</p>
+            <p><span>¿Es asmático?</span> {{ antecedente.es_asmatico|yesno:"Sí,No" }}</p>
+            <p><span>¿Es alérgico?</span> {{ antecedente.es_alergico|yesno:"Sí,No" }}</p>
+            <p><span>Observaciones de alergias:</span> {{ antecedente.alerg_observ|default:"-" }}</p>
+          </div>
+
+          <!-- Neurológico y columna -->
+          <div class="sport-card">
+            <h3>Neurológico y Columna</h3>
+            <p><span>¿Sufre hormigueos?</span> {{ antecedente.sufre_hormigueos|yesno:"Sí,No" }}</p>
+            <p><span>¿Epilepsia?</span> {{ antecedente.antecedente_epilepsia|yesno:"Sí,No" }}</p>
+            <p><span>¿Desviación de columna?</span> {{ antecedente.desviacion_columna|yesno:"Sí,No" }}</p>
+          </div>
+
+          <!-- Dolores y fracturas -->
+          <div class="sport-card">
+            <h3>Dolores y Fracturas</h3>
+            <p><span>¿Dolores articulares?</span> {{ antecedente.dolores_articulares|yesno:"Sí,No" }}</p>
+            <p><span>¿Dolor de cintura?</span> {{ antecedente.dolor_cintura|yesno:"Sí,No" }}</p>
+            <p><span>¿Fracturas?</span> {{ antecedente.fracturas|yesno:"Sí,No" }}</p>
+          </div>
+
+          <!-- Respiratorio y traumatismos -->
+          <div class="sport-card">
+            <h3>Problemas Respiratorios</h3>
+            <p><span>¿Falta de aire?</span> {{ antecedente.falta_aire|yesno:"Sí,No" }}</p>
+            <p><span>¿Dolor en el pecho?</span> {{ antecedente.dolor_pecho|yesno:"Sí,No" }}</p>
+            <p><span>¿Traumatismos de cráneo?</span> {{ antecedente.traumatismos_craneo|yesno:"Sí,No" }}</p>
+            <p><span>¿Pérdida de conocimiento?</span> {{ antecedente.perdida_conocimiento|yesno:"Sí,No" }}</p>
+          </div>
+
+          <!-- Cardiovasculares -->
+          <div class="sport-card">
+            <h3>Cardiovasculares</h3>
+            <p><span>¿Presión arterial?</span> {{ antecedente.presion_arterial|yesno:"Sí,No" }}</p>
+            <p><span>¿Muerte súbita familiar?</span> {{ antecedente.muerte_subita_familiar|yesno:"Sí,No" }}</p>
+            <p><span>¿Enfermedad cardíaca familiar?</span> {{ antecedente.enfermedad_cardiaca_familiar|yesno:"Sí,No" }}</p>
+            <p><span>¿Soplo cardíaco?</span> {{ antecedente.soplo_cardiaco|yesno:"Sí,No" }}</p>
+          </div>
+
+          <!-- Riesgos deportivos -->
+          <div class="sport-card">
+            <h3>Riesgos en Competencia</h3>
+            <p><span>¿Debe abstenerse de competencia?</span> {{ antecedente.abstenerse_competencia|yesno:"Sí,No" }}</p>
+            <p><span>¿Antecedentes coronarios familiares?</span> {{ antecedente.antecedentes_coronarios_familiares|yesno:"Sí,No" }}</p>
+            <p><span>¿Fuma o antecedentes de hipertensión o diabetes?</span> {{ antecedente.fumar_hipertension_diabetes|yesno:"Sí,No" }}</p>
+            <p><span>Observaciones:</span> {{ antecedente.fhd_observacion|default:"-" }}</p>
+          </div>
+
+          <!-- Consumo de sustancias -->
+          <div class="sport-card">
+            <h3>Consumo de Sustancias</h3>
+            <p><span>¿Consumo de cocaína o anabólicos?</span> {{ antecedente.consumo_cocaina_anabolicos|yesno:"Sí,No" }}</p>
+            <p><span>Observaciones:</span> {{ antecedente.cca_observaciones|default:"-" }}</p>
+          </div>
+        </div>
+
+        <!-- Botones por antecedente -->
+        <div class="d-flex justify-content-center mt-3 gap-3 flex-wrap">
+          {% if apto.consentimiento_persona == "No" %}
+            <a href="{% url 'aptos_generales:antecedentes_update' apto.id %}"
+               class="btn btn-sport-success btn-sm"
+               style="min-width:220px; padding:10px 0; font-size:1rem;">
+              Modificar Antecedente
+            </a>
+          {% endif %}
+        </div>
+
+        {% endfor %}
+      {% else %}
+        <p class="text-center">No hay antecedentes cargados para este apto.</p>
+        <div class="text-center mt-3">
+          <a href="{% url 'aptos_generales:antecedentes_create' apto.id %}" class="btn btn-sport-success">Cargar Antecedentes</a>
+        </div>
+      {% endif %}
+
+      <!-- Volver -->
+      <div class="d-flex justify-content-center mt-4">
+        <a href="{% url 'menu_paciente' %}"
+           class="btn btn-sport-primary btn-sm"
+           style="min-width:220px; padding:10px 0; font-size:1rem;">
+          Volver al Menú del Jugador
+        </a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+{% endblock %}
+

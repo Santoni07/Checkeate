@@ -2,152 +2,222 @@
 
 {% block content %}
 <style>
-    .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-        border-radius: 8px;
-        padding: 10px 15px;
+    :root {
+        --blue-main: #00A2D3;
+        --blue-dark: #007ea8;
+        --gray-dark: #444;
     }
 
     .form-card {
-        background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-        max-width: 600px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        max-width: 650px;
         margin: 40px auto;
+        overflow: hidden;
+        border: 1px solid rgba(0,162,211,0.15);
     }
 
-    .form-card h2 {
-        color: #00A2D3;
-        font-weight: bold;
+    .form-header {
+        background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
+        padding: 20px;
         text-align: center;
-        margin-bottom: 25px;
     }
 
-    .form-card .btn-primary {
-        background-color: #00A2D3;
+    .form-header h2 {
+        color: #fff;
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+
+    .form-body {
+        padding: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--gray-dark);
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--blue-main);
+        box-shadow: 0 0 0 3px rgba(0,162,211,0.15);
+    }
+
+    .toggle-password {
+        background: transparent;
         border: none;
+        color: var(--blue-dark);
+        font-size: 1.2rem;
+        margin-left: -35px;
+        z-index: 5;
+    }
+
+    .btn-primary {
+        background: transparent;
+        border: 2px solid var(--blue-main);
+        color: var(--blue-main);
+        font-weight: 600;
         border-radius: 30px;
-        padding: 10px 30px;
-        font-size: 18px;
-        font-weight: 500;
+        padding: 10px 28px;
+        transition: all 0.3s;
+        width: 200px;
     }
 
-    .form-card .btn-primary:hover {
-        background-color: #007ea8;
+    .btn-primary:hover {
+        background: var(--blue-main);
+        color: #fff;
     }
 
-    .alert {
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-size: 15px;
-        margin-bottom: 20px;
+    .btn-outline-secondary {
+        border: 2px solid #aaa;
+        color: #666;
+        border-radius: 30px;
+        padding: 10px 28px;
+        font-weight: 600;
+        transition: all 0.3s;
+        width: 200px;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #666;
+        color: #fff;
+    }
+
+    @media (max-width: 768px) {
+        .form-body { padding: 20px; }
+        .btn-primary, .btn-outline-secondary { width: 100%; }
     }
 </style>
 
 <div class="form-card">
-    <h2>Cambiar Contraseña</h2>
+    <div class="form-header">
+        <h2>Cambiar Contraseña</h2>
+        {% if profile %}
+            <p class="text-white fw-bold mt-2">Rol actual: {{ profile.rol|title }}</p>
+        {% else %}
+            <p class="text-white fw-bold mt-2">Rol no definido</p>
+        {% endif %}
+    </div>
 
+    <div class="form-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3 row align-items-center">
+                <label class="col-md-4 col-form-label">Contraseña Actual</label>
+                <div class="col-md-8 d-flex align-items-center">
+                    {{ form.old_password }}
+                    <button type="button" class="toggle-password"><i class="bi bi-eye-slash"></i></button>
+                </div>
+                {{ form.old_password.errors }}
+            </div>
+
+            <div class="mb-3 row align-items-center">
+                <label class="col-md-4 col-form-label">Nueva Contraseña</label>
+                <div class="col-md-8 d-flex align-items-center">
+                    {{ form.new_password1 }}
+                    <button type="button" class="toggle-password"><i class="bi bi-eye-slash"></i></button>
+                </div>
+                {{ form.new_password1.errors }}
+            </div>
+
+            <div class="mb-3 row align-items-center">
+                <label class="col-md-4 col-form-label">Confirmar Contraseña</label>
+                <div class="col-md-8 d-flex align-items-center">
+                    {{ form.new_password2 }}
+                    <button type="button" class="toggle-password"><i class="bi bi-eye-slash"></i></button>
+                </div>
+                {{ form.new_password2.errors }}
+            </div>
+
+            <div class="d-flex justify-content-center mt-4 gap-3 flex-wrap">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                {% if profile.rol == 'jugador' %}
+                    <a href="{% url 'menu_jugador' %}" class="btn btn-outline-secondary">Volver</a>
+                {% elif profile.rol == 'medico' %}
+                    <a href="{% url 'medico_home' %}" class="btn btn-outline-secondary">Volver</a>
+                {% elif profile.rol == 'representante' %}
+                    <a href="{% url 'representante_home' %}" class="btn btn-outline-secondary">Volver</a>
+                {% elif profile.rol == 'actividad' %}
+                    <a href="{% url 'representante_actividad_general_home' %}" class="btn btn-outline-secondary">Volver</a>
+                {% elif profile.rol == 'paciente' %}
+                <a href="{% url 'menu_paciente' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+                {% elif profile.rol == 'estudiante' %}
+                <a href="{% url 'menu_estudiante' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+                {% else %}
+                    <a href="{% url 'menu_jugador' %}" class="btn btn-outline-secondary">Volver</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">Éxito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Contraseña modificada con éxito.</p>
+      </div>
+      <div class="modal-footer">
+        {% if profile.rol == 'jugador' %}
+            <a href="{% url 'menu_jugador' %}" class="btn btn-success">Aceptar</a>
+        {% elif profile.rol == 'medico' %}
+            <a href="{% url 'medico_home' %}" class="btn btn-success">Aceptar</a>
+        {% elif profile.rol == 'representante' %}
+            <a href="{% url 'representante_home' %}" class="btn btn-success">Aceptar</a>
+        {% elif profile.rol == 'actividad' %}
+            <a href="{% url 'representante_actividad_general_home' %}" class="btn btn-success">Aceptar</a>
+        {% elif profile.rol == 'paciente' %}
+                <a href="{% url 'menu_paciente' %}" class="btn btn-outline-secondary fw-bold">Aceptar</a>
+        {% elif profile.rol == 'estudiante' %}
+                <a href="{% url 'menu_estudiante' %}" class="btn btn-outline-secondary fw-bold">Aceptar</a>
+        {% else %}
+            <a href="{% url 'menu_jugador' %}" class="btn btn-success">Aceptar</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Toggle de contraseñas
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const input = this.previousElementSibling;
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            }
+        });
+    });
+
+    // Mostrar modal si hay mensaje de éxito
     {% if messages %}
         {% for message in messages %}
-            {% if message.tags == 'success' %}
-                <!-- Modal -->
-                <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-success text-white">
-                                <h5 class="modal-title" id="successModalLabel">Éxito</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                            </div>
-                            <div class="modal-body text-center">
-                                <p class="mb-0">¡Contraseña cambiada con éxito!</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Script para mostrar el modal -->
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                        successModal.show();
-                    });
-                </script>
-            {% else %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
+            {% if message.tags == "success" %}
+                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
             {% endif %}
         {% endfor %}
     {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-
-        {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {% for error in form.non_field_errors %}
-                    <p class="mb-0">{{ error }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <div class="d-flex justify-content-center mt-4 gap-3 flex-wrap">
-                
-
-                {% if profile.rol == 'jugador' %}
-                    <a href="{% url 'menu_jugador' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold">Volver</a>
-                {% elif profile.rol == 'medico' %}
-                    <a href="{% url 'medico_home' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold">Volver</a>
-                {% elif profile.rol == 'representante' %}
-                    <a href="{% url 'representante_home' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold">Volver</a>
-                {% else %}
-                    <a href="{% url 'menu_jugador' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold">Volver</a>
-                {% endif %}
-            </div>
-    </form>
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const passwordFields = document.querySelectorAll('input[type="password"]');
-
-        passwordFields.forEach(function (input) {
-            // Crear contenedor padre
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('position-relative');
-            input.parentNode.insertBefore(wrapper, input);
-            wrapper.appendChild(input);
-
-            // Crear ícono del ojo
-            const toggleIcon = document.createElement('i');
-            toggleIcon.classList.add('bi', 'bi-eye-slash', 'position-absolute');
-            toggleIcon.style.right = '15px';
-            toggleIcon.style.top = '50%';
-            toggleIcon.style.transform = 'translateY(-50%)';
-            toggleIcon.style.cursor = 'pointer';
-            toggleIcon.style.fontSize = '18px';
-
-            wrapper.appendChild(toggleIcon);
-
-            // Toggle visibilidad
-            toggleIcon.addEventListener('click', function () {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    toggleIcon.classList.remove('bi-eye-slash');
-                    toggleIcon.classList.add('bi-eye');
-                } else {
-                    input.type = 'password';
-                    toggleIcon.classList.remove('bi-eye');
-                    toggleIcon.classList.add('bi-eye-slash');
-                }
-            });
-        });
-    });
+});
 </script>
 {% endblock %}

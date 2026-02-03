@@ -1,10 +1,11 @@
 from datetime import timezone
 from django.contrib import admin
 from .models import (
-    AntecedenteEnfermedades, RegistroMedico, EstudiosMedico, ElectroBasal, 
-    ElectroEsfuerzo, Cardiovascular, Laboratorio, Torax, Oftalmologico, 
+    AntecedenteEnfermedades, RegistroMedico, EstudiosMedico, ElectroBasal,
+    ElectroEsfuerzo, Cardiovascular, Laboratorio, Torax, Oftalmologico,
     OtrosExamenesClinicos, EliminacionFichaMedica
 )
+
 
 @admin.register(AntecedenteEnfermedades)
 class AntecedenteEnfermedadesAdmin(admin.ModelAdmin):
@@ -13,9 +14,49 @@ class AntecedenteEnfermedadesAdmin(admin.ModelAdmin):
 
 @admin.register(RegistroMedico)
 class RegistroMedicoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'jugador', 'torneo', 'estado', 'fecha_creacion', 'fecha_caducidad')
-    list_filter = ('estado', 'torneo')
-    search_fields = ('jugador__persona__nombre', 'jugador__persona__apellido', 'torneo__nombre')
+    # Muestra ambas posibilidades en una sola vista
+    list_display = (
+        'id',
+        'jugador_nombre',
+        'tipo_evento',
+        'evento',
+        'estado',
+        'fecha_creacion',
+        'fecha_caducidad',
+    )
+    list_filter = ('estado', 'torneo', 'competencia')
+    search_fields = (
+        'jugador__persona__profile__nombre',     # ajusta si tus relaciones difieren
+        'jugador__persona__profile__apellido',
+        'torneo__nombre',
+        'competencia__nombre',
+    )
+    ordering = ('-fecha_creacion',)
+    list_select_related = ('jugador__persona__profile', 'torneo', 'competencia')
+    autocomplete_fields = ('jugador', 'torneo', 'competencia')  # opcional, si tenés muchos
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('jugador__persona__profile', 'torneo', 'competencia')
+
+    # ====== helpers para columnas derivadas ======
+    def jugador_nombre(self, obj):
+        p = obj.jugador.persona.profile
+        return f"{p.apellido}, {p.nombre}"
+    jugador_nombre.short_description = "Jugador"
+    jugador_nombre.admin_order_field = 'jugador__persona__profile__apellido'
+
+    def tipo_evento(self, obj):
+        return "Torneo" if obj.torneo_id else "Competencia"
+    tipo_evento.short_description = "Tipo"
+
+    def evento(self, obj):
+        return obj.torneo.nombre if obj.torneo_id else (obj.competencia.nombre if obj.competencia_id else "—")
+    evento.short_description = "Evento"
+    evento.admin_order_field = 'torneo__nombre'  # Django usará este; si es competencia, no ordenará perfecto.
+
+
+
 
 @admin.register(EstudiosMedico)
 class EstudiosMedicoAdmin(admin.ModelAdmin):
@@ -27,10 +68,9 @@ class EstudiosMedicoAdmin(admin.ModelAdmin):
     def is_expired(self, obj):
         """ Verifica si el estudio está vencido """
         return obj.fecha_caducidad and obj.fecha_caducidad < timezone.now().date()
-    
+
     is_expired.boolean = True
     is_expired.short_description = "Vencido"
-
 
 @admin.register(ElectroBasal)
 class ElectroBasalAdmin(admin.ModelAdmin):

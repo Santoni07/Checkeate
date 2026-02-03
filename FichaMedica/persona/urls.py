@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import medicos_inscriptos_view
 
 
 urlpatterns = [
@@ -14,17 +15,23 @@ urlpatterns = [
     path('perfil/', views.perfil, name='perfil'),
      # URL para cambiar el email
     path('modificar_email/', views.cambiar_email, name='modificar_email'),
-    
+    # URL para menu_aptosGenerales
+    path("menu_paciente/", views.menu_paciente, name="menu_paciente"),
     # URL para cambiar la contraseña
     path('modificar_contrasena/', views.cambiar_contraseña, name='modificar_contrasena'),
-   
-    
+    path('medicos/', medicos_inscriptos_view, name='medicos_inscriptos'),
+    path("eventos/", views.listado_eventos_view, name="listado_eventos"),
+
+
+
     path('modificar_perfil/', views.modificar_perfil, name='modificar_perfil'),
-    
+
     # URL para inscribirse en un nuevo torneo
     path('inscribirse-a-torneo/', views.inscribirse_a_torneo, name='inscribirse_a_torneo'),
-    
+    path("actividad/<int:actividad_id>/inscribirse/", views.inscribirse_actividad, name="inscribirse_actividad"),
+    path("inscribirse_actividad/", views.inscribirse_actividad_view, name="inscribirse_actividad_view"),
+
 ]
-""" 
+"""
  path('seleccionar_torneo/', seleccionar_torneo, name='seleccionar_torneo'),
     path('selecciona_categoria_y_equipo/', seleccionar_categoria_equipo, name='selecciona_categoria_equipo'), """

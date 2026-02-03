@@ -1,0 +1,270 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
+    <style>
+    main::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{% static "core/img/home1.png" %}');
+        background-size: cover;
+        opacity: 0.15;
+        z-index: -1;
+    }
+
+    /* ✅ Estilo uniforme para todos los encabezados de tabla */
+    .table thead th {
+        font-weight: 600;   /* menos grueso que bold */
+        font-size: 0.95rem; /* mismo tamaño en todos */
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table thead {
+            display: none;
+        }
+        .table tbody, .table tr, .table td {
+            display: block;
+            width: 100%;
+        }
+        .table tr {
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 5px;
+        }
+        .table td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: none;
+        }
+        .table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            display: block;
+            text-transform: uppercase;
+            color: #009fe3;
+        }
+    }
+    /* 🔔 Botón NUEVO */
+.btn-nuevo {
+    position: relative;
+    border: 2px solid #0d6efd;
+    color: #0d6efd;
+    background-color: #f8fbff;
+    font-weight: 700;
+}
+
+/* Badge NUEVO */
+.btn-nuevo::after {
+    content: "NUEVO";
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc3545;
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+
+/* Pulso sutil */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(13,110,253,.4); }
+    70% { box-shadow: 0 0 0 8px rgba(13,110,253,0); }
+    100% { box-shadow: 0 0 0 0 rgba(13,110,253,0); }
+}
+
+.btn-nuevo {
+    animation: pulse 2s infinite;
+}
+</style>
+
+
+    <div style="position: relative; z-index: 1;">
+        <div class="container my-4">
+
+            <!-- Header con logo de la actividad -->
+            <div class="d-flex align-items-center justify-content-start mb-4 gap-3">
+                {% if actividad.imagen %}
+                    <img src="{{ actividad.imagen.url }}"
+     alt="Actividad {{ actividad.nombre }}"
+     style="max-width: 100px; max-height: 100px; mix-blend-mode: multiply;">
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center bg-light rounded shadow-sm"
+                         style="width: 100px; height: 100px; font-size: 0.9rem; color: #777;">
+                        Sin logo
+                    </div>
+                {% endif %}
+                <h1 class="fw-bold text-dark m-0 display-5">Bienvenido: {{ actividad.nombre }}</h1>
+
+
+            </div>
+
+           <!-- Panel resumen -->
+            <div class="row text-center mb-4">
+                <div class="col-md-4">
+                    <div class="card border-primary shadow-sm bg-light">
+                        <div class="card-body text-secondary fw-bold">
+                            ✅ Aprobados: {{ resumen.aprobados }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-info shadow-sm bg-light">
+                        <div class="card-body text-secondary fw-bold">
+                            ⏳ En Proceso: {{ resumen.proceso }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-secondary shadow-sm bg-light">
+                        <div class="card-body text-secondary fw-bold">
+                            ❌ Rechazados: {{ resumen.rechazados }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Buscador -->
+            <div class="bg-light p-4 rounded shadow-sm">
+                <h2 class="text-left  fw-bold">Buscador de Aptos Generales</h2>
+                   <hr>
+                <form method="get" action="{% url 'representante_actividad_general_home' %}" class="row g-3 justify-content-center">
+
+                    <!-- Buscar -->
+                    <div class="col-md-4">
+                        <label for="search_query" class="form-label fw-bold">Buscar Nombre, Apellido o DNI</label>
+                        <input type="text" name="search_query" id="search_query" class="form-control"
+                               placeholder="Ingrese Nombre, Apellido o DNI"
+                               value="{{ request.GET.search_query|default:'' }}">
+                    </div>
+
+                    <!-- Estado múltiple -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Estado del Apto</label>
+                        <div class="d-flex flex-column">
+                            <label><input type="checkbox" name="filter_estado" value="APROBADA" {% if "APROBADA" in selected_estados %}checked{% endif %}> <span class="text-secondary">Aprobado</span></label>
+                            <label><input type="checkbox" name="filter_estado" value="PROCESO" {% if "PROCESO" in selected_estados %}checked{% endif %}> <span class="text-secondary">En Proceso</span></label>
+                            <label><input type="checkbox" name="filter_estado" value="RECHAZADO" {% if "RECHAZADO" in selected_estados %}checked{% endif %}> <span class="text-secondary">Rechazado</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Rango de fechas -->
+                    <div class="col-md-4">
+                        <label for="fecha_inicio" class="form-label fw-bold">Rango de fechas</label>
+                        <div class="d-flex gap-2">
+                            <input type="date" name="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio|default:'' }}">
+                            <input type="date" name="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin|default:'' }}">
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                <div class="col-md-12 text-center d-flex justify-content-center gap-2 flex-wrap mt-3">
+                    <button type="submit" class="btn btn-outline-secondary fw-bold">🔍 Buscar</button>
+                    <button type="button" class="btn btn-outline-secondary fw-bold"
+                            onclick="location.href='{{ request.path }}'">
+                        ♻️ Refrescar
+                    </button>
+                    <a href="?filter_estado=APROBADA" class="btn btn-outline-secondary fw-bold">✅ Ver Aprobados</a>
+                    <a href="?filter_estado=PROCESO" class="btn btn-outline-secondary fw-bold">⏳ Ver en Proceso</a>
+                    <a href="?filter_estado=RECHAZADO" class="btn btn-outline-secondary fw-bold">❌ Ver Rechazados</a>
+                    <!-- ⭐ NUEVO: Aptos Externos -->
+{% if actividad.nombre|lower == "aquavel" %}
+  <a href="{% url 'aptos_externos_listado_actividad' %}"
+     class="btn btn-nuevo fw-bold">
+     📄 Aptos Externos
+  </a>
+{% endif %}
+                </div>
+                </form>
+            </div>
+
+            <!-- Tabla -->
+<div class="table-responsive mt-4">
+    <h2 class="text-left fw-bold">Lista de Aptos Generales</h2>
+    <br>
+    <table class="table table-bordered table-hover shadow-sm">
+        <thead class="table-primary text-center">
+            <tr>
+                <th>Apellido</th>
+                <th>Nombre</th>
+                <th>DNI</th>
+                <th>Estado del Apto</th>
+                <th>Fecha Inscripción</th>
+                <th>Fecha Vencimiento</th>
+                <th>Acciones</th>
+                <th>Estudios</th> <!-- ✅ Nueva columna -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for jugador in jugadores_info %}
+                <tr class="text-center">
+                    <td data-label="Apellido">{{ jugador.apellido }}</td>
+                    <td data-label="Nombre">{{ jugador.nombre }}</td>
+                    <td data-label="DNI">{{ jugador.dni }}</td>
+                    <td data-label="Estado">
+                        <span class="fw-bold
+                            {% if jugador.apto_estado == 'APROBADA' %}text-success
+                            {% elif jugador.apto_estado == 'RECHAZADO' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ jugador.apto_estado }}
+                        </span>
+                    </td>
+                    <td data-label="Inscripción">{{ jugador.fecha_creacion|date:"d/m/Y" }}</td>
+                    <td data-label="Vencimiento">{{ jugador.fecha_caducidad|date:"d/m/Y"|default:"-" }}</td>
+
+                    <!-- ✅ Columna Acciones -->
+                    <td data-label="Acciones">
+                        {% if jugador.apto_estado == 'APROBADA' %}
+                            <a href="{% url 'ficha_apto_general_view' jugador.apto_id %}"
+                               class="btn btn-sm btn-outline-primary" target="_blank">Ver Apto</a>
+                        {% else %}
+                            <span class="badge bg-light text-primary border">Pendiente / Rechazado</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- ✅ Nueva Columna: Estudios -->
+                    <td data-label="Estudios">
+                        {% if jugador.apto_estado == 'APROBADA' %}
+                            {% if jugador.estudios_count and jugador.estudios_count > 0 %}
+                                <a href="{% url 'ver_estudios_representante' %}?apto_id={{ jugador.apto_id }}"
+                                   class="btn btn-sm btn-outline-success" target="_blank">
+                                   Ver Estudios
+                                </a>
+                            {% else %}
+                                <span class="text-muted">No tiene estudios</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No se encontraron resultados.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+

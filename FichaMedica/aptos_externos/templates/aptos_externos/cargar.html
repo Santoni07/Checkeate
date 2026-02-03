@@ -1,0 +1,211 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Cargar Apto Externo | Checkeate{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- TÍTULO -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-primary">
+      📄 Cargar Apto Externo
+    </h2>
+    <p class="text-muted">
+      Buscá primero a la persona por DNI
+    </p>
+  </div>
+
+  <!-- BUSCADOR DNI -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-8">
+          <input
+            type="text"
+            name="dni"
+            value="{{ dni|default:'' }}"
+            class="form-control"
+            placeholder="Ingresá el DNI del paciente"
+            maxlength="8"
+            required
+          >
+        </div>
+        <div class="col-md-4 d-grid">
+          <button class="btn btn-primary">
+            🔍 Buscar paciente por DNI
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if persona %}
+  <!-- DATOS PERSONA -->
+  <div class="card shadow-sm mb-4 border-primary">
+    <div class="card-body">
+      <h5 class="fw-bold mb-1">
+        👤 {{ persona.profile.apellido }}, {{ persona.profile.nombre }}
+      </h5>
+      <p class="mb-0 text-muted">
+        DNI: {{ persona.profile.dni }}
+      </p>
+    </div>
+  </div>
+
+  <!-- FORMULARIO APTO -->
+  <div class="card shadow-sm border-success">
+    <div class="card-header bg-success text-white fw-semibold">
+      📎 Datos del Apto Externo
+    </div>
+
+    <div class="card-body">
+      <form method="post"
+            enctype="multipart/form-data"
+            id="form-apto-externo">
+
+        {% csrf_token %}
+        <input type="hidden" name="persona_id" value="{{ persona.id }}">
+
+        <!-- ACTIVIDAD / TORNEO -->
+        <div class="row">
+          <div class="col-md-6">
+            {{ form.actividad.label_tag }}
+            {{ form.actividad }}
+          </div>
+          <div class="col-md-6">
+            {{ form.torneo.label_tag }}
+            {{ form.torneo }}
+          </div>
+        </div>
+
+        <!-- COMPETENCIA -->
+        <div class="mt-3" id="competencia-container">
+          {{ form.competencia.label_tag }}
+          {{ form.competencia }}
+        </div>
+
+        <hr>
+
+        <!-- ARCHIVO -->
+        <div class="mb-3">
+          {{ form.archivo_pdf.label_tag }}
+          {{ form.archivo_pdf }}
+        </div>
+
+        <!-- FECHAS -->
+        <div class="row">
+          <div class="col-md-6">
+            {{ form.fecha_emision.label_tag }}
+            {{ form.fecha_emision }}
+          </div>
+          <div class="col-md-6">
+            {{ form.fecha_vencimiento.label_tag }}
+            {{ form.fecha_vencimiento }}
+          </div>
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div class="mt-4">
+          <h6 class="fw-bold mb-2">📝 Observaciones administrativas</h6>
+          {{ form.observaciones }}
+        </div>
+
+        <!-- BOTONES -->
+        <div class="d-flex justify-content-between gap-2 mt-4 flex-wrap">
+
+          <!-- Volver -->
+          <a href="{% url 'aptos_externos_listado_actividad' %}"
+             class="btn btn-outline-secondary fw-bold">
+            ↩️ Volver al listado
+          </a>
+
+          <!-- Guardar (abre modal) -->
+          <button type="button"
+                  class="btn btn-success fw-bold"
+                  data-bs-toggle="modal"
+                  data-bs-target="#confirmGuardarModal">
+            💾 Guardar Apto Externo
+          </button>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMACIÓN -->
+  <div class="modal fade" id="confirmGuardarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Confirmar guardado</h5>
+          <button type="button"
+                  class="btn-close btn-close-white"
+                  data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body text-center">
+          <p class="fw-bold mb-1">¿Deseás guardar este Apto Externo?</p>
+          <p class="text-muted mb-0">
+            El documento quedará asociado a esta persona.
+          </p>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button"
+                  class="btn btn-outline-secondary"
+                  data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit"
+                  form="form-apto-externo"
+                  class="btn btn-success fw-bold">
+            ✅ Confirmar y Guardar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+
+<!-- JS TOGGLE CAMPOS -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const actividad = document.getElementById("id_actividad");
+  const torneo = document.getElementById("id_torneo");
+  const competencia = document.getElementById("id_competencia");
+  const competenciaContainer = document.getElementById("competencia-container");
+
+  function toggleCampos() {
+    if (actividad && actividad.value) {
+      torneo.value = "";
+      torneo.disabled = true;
+      competenciaContainer.style.display = "none";
+    } else {
+      torneo.disabled = false;
+    }
+
+    if (torneo && torneo.value) {
+      competenciaContainer.style.display = "block";
+    } else {
+      if (competencia) competencia.value = "";
+      competenciaContainer.style.display = "none";
+    }
+  }
+
+  if (actividad) actividad.addEventListener("change", toggleCampos);
+  if (torneo) torneo.addEventListener("change", toggleCampos);
+
+  toggleCampos();
+});
+</script>
+
+{% endblock %}
+
+

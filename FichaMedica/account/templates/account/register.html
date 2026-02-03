@@ -1,3 +1,5 @@
+
+
 {% extends 'core/base.html' %}
 {% load static %}
 {% load widget_tweaks %}
@@ -70,8 +72,9 @@
                                     <div id="dniExistenteMensaje" class="text-danger small mt-1" style="display: none;"></div>
                                 </div>
                                 <div class="mb-2 input-field">
-                                    <label class="form-label fw-bold">{{ user_form.fecha_nacimiento.label }}</label>
-                                    {{ user_form.fecha_nacimiento|add_class:"form-control" }}
+                                  <label class="form-label fw-bold">{{ user_form.fecha_nacimiento.label }}</label>
+                                  {{ user_form.fecha_nacimiento|add_class:"form-control" }}
+                                  <div class="fecha-error text-danger small mt-1"></div>
                                 </div>
                                 <div class="mb-2 input-field">
                                     <label class="form-label fw-bold">{{ user_form.password2.label }}</label>
@@ -97,11 +100,27 @@
                                 {% endif %}
                             </div>
 
-                            <div class="mb-2 form-check">
-                                <input type="checkbox" id="termsCheckbox" class="form-check-input">
-                                <label for="termsCheckbox" class="form-check-label">Acepto los <a href="{% url 'terminos_condiciones' %}" style="text-decoration: none;">Términos y Condiciones</a></label>
-                                <div id="termsError" class="text-danger small d-none">Debe aceptar los términos y condiciones</div>
+                            <div class="mb-3 p-3 border rounded shadow-sm"
+                                 style="background: rgba(21,101,192,.08); border-color: var(--sport-royal);">
+
+                                <div class="form-check d-flex align-items-center">
+                                    <input type="checkbox" id="termsCheckbox" class="form-check-input"
+                                           style="transform: scale(1.6); margin-right: 12px; cursor: pointer;">
+
+                                    <label for="termsCheckbox" class="form-check-label fw-bold" style="cursor: pointer;">
+                                        ✔️ Acepto los
+                                        <a href="{% url 'terminos_condiciones' %}" target="_blank" rel="noopener noreferrer"
+                                           class="fw-bold" style="text-decoration: underline; color: var(--sport-royal);">
+                                           Términos y Condiciones
+                                        </a>
+                                    </label>
+                                </div>
+
+                                <div id="termsError" class="text-danger small d-none mt-2">
+                                    ⚠️ Debe aceptar los términos y condiciones
+                                </div>
                             </div>
+
 
                             <div class="d-grid mt-2">
                                 <input type="submit" value="Crear cuenta" class="btn btn-primary w-100">
@@ -120,6 +139,68 @@
     </div>
 
 <script>
+
+// ✅ Validar DNI (solo números y longitud entre 7 y 8)
+document.addEventListener("input", function (e) {
+    if (e.target.name === "dni") {
+        const dniInput = e.target;
+        const dniMensaje = document.getElementById("dniExistenteMensaje");
+        const valor = dniInput.value.trim();
+
+        if (!/^\d+$/.test(valor)) {
+            dniMensaje.style.display = "block";
+            dniMensaje.textContent = "El DNI solo puede contener números.";
+            dniInput.classList.add("is-invalid");
+        } else if (valor.length < 7 || valor.length > 8) {
+            dniMensaje.style.display = "block";
+            dniMensaje.textContent = "El DNI debe tener entre 7 y 8 dígitos.";
+            dniInput.classList.add("is-invalid");
+        } else {
+            dniMensaje.style.display = "none";
+            dniInput.classList.remove("is-invalid");
+        }
+    }
+});
+
+// ✅ Validar fecha de nacimiento (entre 10 y 100 años)
+document.addEventListener("change", function (e) {
+    if (e.target.name === "fecha_nacimiento") {
+        const fechaInput = e.target;
+        const fechaValor = new Date(fechaInput.value);
+        const hoy = new Date();
+
+        // Buscar o crear contenedor de error
+        let errorMsg = fechaInput.parentNode.querySelector(".fecha-error");
+        if (!errorMsg) {
+            errorMsg = document.createElement("div");
+            errorMsg.classList.add("fecha-error", "text-danger", "small", "mt-1");
+            fechaInput.insertAdjacentElement("afterend", errorMsg);
+        }
+
+        // Si no hay fecha válida, limpiar
+        if (isNaN(fechaValor)) {
+            fechaInput.classList.remove("is-invalid");
+            errorMsg.textContent = "";
+            return;
+        }
+
+        // Calcular edad
+        const edad =
+            hoy.getFullYear() -
+            fechaValor.getFullYear() -
+            (hoy < new Date(hoy.getFullYear(), fechaValor.getMonth(), fechaValor.getDate()) ? 1 : 0);
+
+        // Validar rango
+        if (edad < 10 || edad > 100) {
+            fechaInput.classList.add("is-invalid");
+            errorMsg.textContent = "La fecha de nacimiento no es válida. Debe tener entre 10 y 100 años.";
+        } else {
+            fechaInput.classList.remove("is-invalid");
+            errorMsg.textContent = "";
+        }
+    }
+});
+
     function verificarEmail() {
         const emailInput = document.querySelector('input[name="email"]');
         const email = emailInput.value;

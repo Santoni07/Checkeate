@@ -1,0 +1,138 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  :root{
+    --sport-navy:#0d47a1;
+    --sport-royal:#1565c0;
+    --sport-grass:#2e7d32;
+  }
+  .sport-hero-band{
+    padding:18px 16px;
+    display:flex; justify-content:center; align-items:center;
+    background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+    color:#fff; font-weight:700;
+    border-bottom:1px solid rgba(255,255,255,.15);
+  }
+  .sport-table thead th{
+    background: var(--sport-royal); color:#fff;
+  }
+</style>
+
+<div class="sport-hero-band">
+  <h2><i class="bi bi-activity"></i> Inscribirme a una Actividad General</h2>
+</div>
+
+<main class="px-3" style="position:relative; min-height:100vh;">
+  <style>
+    main::before{
+      content:''; position:absolute; inset:0; z-index:-1;
+      background: url('{% static "core/img/home1.png" %}') no-repeat center center;
+      background-size: cover; opacity:.35;
+    }
+  </style>
+
+  <div class="container my-5">
+    <div class="card shadow border-0">
+      <div class="card-header text-white text-center py-3" style="background-color: var(--sport-royal);">
+        <h2 class="mb-0">Actividades Disponibles</h2>
+      </div>
+      <div class="card-body bg-white">
+        {% if actividades %}
+          <div class="table-responsive">
+            <table class="table table-bordered sport-table">
+              <thead>
+                <tr class="text-center">
+                  <th>Actividad</th>
+                  <th>Descripción</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for actividad in actividades %}
+                  <tr class="text-center">
+                    <td>{{ actividad.nombre }}</td>
+                    <td>{{ actividad.descripcion }}</td>
+                    <td>
+                      {% if actividad.id in inscritas_ids %}
+                        <span class="badge bg-secondary">
+                          <i class="bi bi-check-circle"></i> Ya inscrito
+                        </span>
+                      {% else %}
+                        <button type="button"
+                                class="btn btn-success btn-sm btn-inscribirme"
+                                data-nombre="{{ actividad.nombre }}"
+                                data-url="{% url 'inscribirse_actividad' actividad.id %}">
+                          <i class="bi bi-check2-circle"></i> Inscribirme
+                        </button>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="alert alert-warning text-center">
+            <i class="bi bi-info-circle"></i> No hay actividades disponibles por el momento.
+          </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+          <a href="{% url 'menu_paciente' %}" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-arrow-left-circle"></i> Volver al Menú
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title text-dark">Confirmar Inscripción</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p id="confirmText"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button id="confirmBtn" class="btn btn-success">Sí, inscribirme</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
+  let confirmBtn = document.getElementById("confirmBtn");
+  let confirmText = document.getElementById("confirmText");
+
+  document.querySelectorAll(".btn-inscribirme").forEach(btn => {
+    btn.addEventListener("click", function(){
+      let nombre = this.dataset.nombre;
+      let url = this.dataset.url;
+
+      confirmText.textContent = `¿Está seguro de inscribirse a "${nombre}"?`;
+
+      confirmBtn.onclick = () => {
+        confirmModal.hide();
+        // Redirige al backend → Django crea apto y hace redirect a antecedentes_create
+        window.location.href = url;
+      };
+
+      confirmModal.show();
+    });
+  });
+});
+</script>
+
+{% endblock %}
+

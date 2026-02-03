@@ -1,0 +1,49 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Error del sistema | Checkeate{% endblock %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+  <div class="text-center p-4 p-md-5 rounded shadow-sm"
+       style="max-width: 540px; background-color: #ffffff;">
+
+    <!-- LOGO -->
+    <div class="mb-4">
+      <img src="{% static 'core/img/milogo3.png' %}"
+           alt="Checkeate"
+           style="max-width: 160px;">
+    </div>
+
+    <!-- TÍTULO -->
+    <h1 class="fw-bold text-danger mb-3">
+      Ocurrió un error inesperado
+    </h1>
+
+    <!-- MENSAJE -->
+    <p class="text-muted fs-5 mb-4">
+      Algo no salió como esperábamos.
+      <br>
+      Nuestro equipo ya fue notificado y estamos trabajando para solucionarlo.
+    </p>
+
+    <!-- MENSAJE TRANQUILIZADOR -->
+    <div class="alert alert-info mb-4">
+      Tus datos están seguros y no se perdió información.
+      <br>
+      Podés intentar nuevamente en unos minutos.
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="d-grid gap-2">
+                  <a href="{% url 'logout' %}?next={% url 'login' %}"
+   class="btn btn-primary btn-lg">
+  Volver al inicio
+</a>
+
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

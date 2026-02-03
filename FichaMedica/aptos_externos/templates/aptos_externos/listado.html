@@ -1,0 +1,220 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Aptos Externos | Checkeate{% endblock %}
+
+{% block content %}
+<main class="px-3" style="min-height:100vh;">
+
+<style>
+:root {
+  --primary:#1565c0;
+  --success:#2e7d32;
+  --danger:#c62828;
+  --gray:#6c757d;
+}
+
+/* ===== TITULO ===== */
+.page-title {
+  font-size: 2rem;
+  font-weight: 800;
+}
+@media (max-width: 576px) {
+  .page-title { font-size: 1.5rem; }
+}
+</style>
+
+<div class="container py-4">
+
+  <!-- ================== HEADER ================== -->
+  <div class="mb-3">
+    <h1 class="page-title text-primary">
+      🏃 Aptos Externos – {{ actividad.nombre }}
+    </h1>
+    <p class="text-muted">
+      Listado de aptos físicos externos cargados para esta actividad
+    </p>
+  </div>
+
+  <!-- ================== ACCIONES ================== -->
+  <div class="d-flex gap-2 flex-wrap mb-4">
+    <a href="{% url 'aptos_externos_cargar' %}"
+       class="btn btn-success fw-bold">
+       ➕ Cargar Apto Externo
+    </a>
+
+    <a href="{% url 'representante_actividad_general_home' %}"
+       class="btn btn-outline-secondary fw-bold">
+       ⬅ Volver al Home
+    </a>
+  </div>
+
+  <!-- ================== BUSCADOR DNI ================== -->
+<form method="get" class="card shadow-sm p-3 mb-4">
+  <div class="row g-2 align-items-center">
+
+    <!-- DNI -->
+    <div class="col-md-6">
+      <input type="text"
+             name="dni"
+             value="{{ dni|default:'' }}"
+             class="form-control"
+             placeholder="Buscar por DNI">
+    </div>
+
+    <!-- Buscar -->
+    <div class="col-md-3 d-grid">
+      <button class="btn btn-primary fw-bold">
+        🔍 Buscar
+      </button>
+    </div>
+
+    <!-- Refrescar -->
+    <div class="col-md-3 d-grid">
+      <a href="{% url 'aptos_externos_listado_actividad' %}"
+         class="btn btn-outline-secondary fw-bold">
+        ♻️ Refrescar
+      </a>
+    </div>
+
+  </div>
+</form>
+
+  <!-- ================== FILTROS ================== -->
+  <div class="d-flex gap-2 flex-wrap mb-4">
+    <a href="?{% if dni %}dni={{ dni }}&{% endif %}estado=TODOS"
+       class="btn btn-sm {% if not estado or estado == 'TODOS' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+       📋 Todos
+    </a>
+
+    <a href="?{% if dni %}dni={{ dni }}&{% endif %}estado=VIGENTE"
+       class="btn btn-sm {% if estado == 'VIGENTE' %}btn-success{% else %}btn-outline-success{% endif %}">
+       🟢 Vigentes
+    </a>
+
+    <a href="?{% if dni %}dni={{ dni }}&{% endif %}estado=VENCIDO"
+       class="btn btn-sm {% if estado == 'VENCIDO' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+       🔴 Vencidos
+    </a>
+  </div>
+
+  <!-- ================== RESUMEN ================== -->
+  {% if estado or dni %}
+  <div class="row text-center mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-primary">
+        <div class="card-body fw-bold text-secondary">
+          📄 Total: {{ total_count }}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-success">
+        <div class="card-body fw-bold text-secondary">
+          🟢 Vigentes: {{ vigentes_count }}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-danger">
+        <div class="card-body fw-bold text-secondary">
+          🔴 Vencidos: {{ vencidos_count }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ================== LISTADO ================== -->
+  {% if aptos %}
+  <div class="list-group">
+
+    {% for apto in aptos %}
+    <div class="list-group-item mb-3 rounded shadow-sm
+        {% if apto.fecha_vencimiento >= today %}
+          border-start border-success border-4
+        {% else %}
+          border-start border-danger border-4
+        {% endif %}">
+
+      <div class="row align-items-center gy-3">
+
+        <!-- PERSONA -->
+        <div class="col-12 col-md-3">
+          <div class="fw-bold">
+            👤 {{ apto.persona.profile.apellido }}, {{ apto.persona.profile.nombre }}
+          </div>
+          <div class="text-muted small">
+            DNI {{ apto.persona.profile.dni }}
+          </div>
+        </div>
+
+        <!-- FECHAS -->
+        <div class="col-12 col-md-3">
+          <div class="small text-muted">📅 Emisión</div>
+          <div class="fw-semibold">
+            {{ apto.fecha_emision|date:"d/m/Y" }}
+          </div>
+
+          <div class="small text-muted mt-1">⏳ Vence</div>
+          <div class="fw-semibold">
+            {{ apto.fecha_vencimiento|date:"d/m/Y" }}
+          </div>
+        </div>
+
+        <!-- ESTADO -->
+        <div class="col-12 col-md-2 text-md-center">
+          {% if apto.fecha_vencimiento >= today %}
+            <span class="badge bg-success px-3 py-2">
+              🟢 Vigente
+            </span>
+          {% else %}
+            <span class="badge bg-danger px-3 py-2">
+              🔴 Vencido
+            </span>
+          {% endif %}
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div class="col-12 col-md-2">
+          {% if apto.observaciones %}
+            <small class="text-muted">
+              📝 {{ apto.observaciones|truncatechars:60 }}
+            </small>
+          {% else %}
+            <small class="text-muted">Sin observaciones</small>
+          {% endif %}
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="col-12 col-md-2 text-md-end">
+          <a href="{{ apto.archivo_pdf.url }}"
+             target="_blank"
+             class="btn btn-outline-primary fw-bold w-100 w-md-auto">
+            📄 Ver / Descargar PDF
+          </a>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+  {% else %}
+    {% if estado or dni %}
+      <div class="alert alert-info text-center">
+        ℹ️ No hay resultados para los filtros aplicados.
+      </div>
+    {% else %}
+      <div class="alert alert-secondary text-center">
+        🔍 Usá el buscador por DNI o los filtros para ver aptos externos.
+      </div>
+    {% endif %}
+  {% endif %}
+
+</div>
+</main>
+{% endblock %}
+
+
+

@@ -2,117 +2,231 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="card shadow">
-    <div class="card-header bg-info text-white">
-      <h3 class="text-center">Inscribirme a un Torneo</h3>
-    </div>
-    <div class="card-body">
-      {% if torneos_disponibles %}
-        <form method="POST" id="formInscripcion">
-          {% csrf_token %}
 
-          <!-- Selección de Torneo -->
-          <div class="mb-3">
-            <label for="torneo_id" class="form-label">Seleccioná un Torneo:</label>
-            <select name="torneo_id" id="torneo_id" class="form-select" required>
-              <option value="">-- Seleccioná un torneo --</option>
-              {% for torneo in torneos_disponibles %}
-                <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
-              {% endfor %}
-            </select>
-          </div>
+<style>
+  /* Paleta deportiva que venimos usando */
+  :root{
+    --sport-navy:#0d47a1;
+    --sport-royal:#1565c0;
+    --sport-grass:#2e7d32;
+    --sport-lime:#43a047;
+  }
 
-          <!-- Selección de Categoría -->
-          <div class="mb-3 d-none" id="categoriaContainer">
-            <label for="categoria_id" class="form-label">Seleccioná una Categoría:</label>
-            <select name="categoria_id" id="categoria_id" class="form-select" required>
-              <option value="">-- Seleccioná una categoría --</option>
-            </select>
-          </div>
+  /* Banda pegada al header */
+  .sport-hero-band h2{
+    margin:0; font-weight:700; letter-spacing:.3px;
+    text-shadow: 0 1px 1px rgba(0,0,0,.15);
+  }
+  .sport-hero-band{
+    padding:18px 16px;
+    display:flex; justify-content:center; align-items:center;
+    background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+    border-bottom:1px solid rgba(255,255,255,.15);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+    color:#fff;
+  }
 
-          <!-- Selección de Equipo -->
-          <div class="mb-3 d-none" id="equipoContainer">
-            <label for="equipo_id" class="form-label">Seleccioná un Equipo:</label>
-            <select name="equipo_id" id="equipo_id" class="form-select" required>
-              <option value="">-- Seleccioná un equipo --</option>
-            </select>
-          </div>
+  /* Tabla estilo Consultar Apto */
+  .sport-table thead th{
+    background: var(--sport-royal) !important;
+    color:#fff; border-color: rgba(255,255,255,.25) !important;
+    text-transform: uppercase; letter-spacing:.02em;
+  }
+  .sport-table tr th,
+  .sport-table tr td{
+    vertical-align: middle;
+  }
+  .sport-table .form-select{
+    min-width: 240px;
+  }
 
-          <!-- Botón de envío -->
-          <div class="text-center d-none" id="botonContainer">
-            <button type="submit" class="btn btn-primary">Confirmar Inscripción</button>
-          </div>
-        </form>
-      {% else %}
-        <p class="text-muted text-center">Ya estás inscripto en todos los torneos disponibles.</p>
-      {% endif %}
-    </div>
+  /* Móvil: tabla apilada */
+  @media (max-width: 768px){
+    .sport-table{ display:block; }
+    .sport-table thead{ display:none; }
+    .sport-table tbody, .sport-table tr, .sport-table td{ display:block; width:100%; }
+    .sport-table tr{ margin-bottom:1rem; border:1px solid #dee2e6; border-radius:8px; padding:.5rem; }
+    .sport-table td{ border:0 !important; padding:.35rem .25rem !important; }
+    .sport-table td::before{
+      content: attr(data-label);
+      display:block; font-weight:700; color: var(--sport-royal);
+      margin-bottom:.15rem; text-transform: uppercase;
+    }
+  }
+</style>
+
+<!-- Banda superior -->
+<div class="sport-hero-band">
+  <div class="container inner d-flex justify-content-center">
+    <h2 class="mb-0 text-center">
+      <i class="bi bi-trophy"></i> Inscribirme a un Torneo o Competencia
+    </h2>
   </div>
 </div>
+
+<main class="px-3" style="position:relative; min-height:100vh; width:100%; margin:0; padding:0;">
+  <style>
+    main::before{
+      content:''; position:absolute; inset:0; z-index:-1;
+      background: url('{% static "core/img/home1.png" %}') no-repeat center center;
+      background-size: cover; opacity:.35;
+    }
+  </style>
+
+  <div style="position: relative; z-index: 1;">
+    <div class="container my-5">
+      <div class="card shadow border-0">
+        <div class="card-header text-white text-center py-4 rounded-top" style="background-color: var(--sport-royal);">
+          <h2 class="mb-0 text-light">Torneos y Competencias Disponibles</h2>
+        </div>
+
+        <div class="card-body bg-white rounded-bottom">
+          {% if torneos_disponibles %}
+            <form method="POST" id="formInscripcion">
+              {% csrf_token %}
+
+              <div class="table-responsive">
+                <table class="table table-bordered align-middle sport-table">
+                  <thead>
+                    <tr class="text-center">
+                      <th style="width: 28%;">Campo</th>
+                      <th>Selección</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Torneo -->
+                    <tr>
+                      <td data-label="Campo" class="fw-semibold">Torneo</td>
+                      <td data-label="Selección">
+                        <select name="torneo_id" id="torneo_id" class="form-select" required>
+                          <option value="">-- Seleccioná un torneo --</option>
+                          {% for torneo in torneos_disponibles %}
+                            <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
+                          {% endfor %}
+                        </select>
+                      </td>
+                    </tr>
+
+                    <!-- Categoría (se muestra al elegir torneo) -->
+                    <tr id="rowCategoria" class="d-none">
+                      <td data-label="Campo" class="fw-semibold">Categoría</td>
+                      <td data-label="Selección">
+                        <select name="categoria_id" id="categoria_id" class="form-select" required>
+                          <option value="">-- Seleccioná una categoría --</option>
+                        </select>
+                      </td>
+                    </tr>
+
+                    <!-- Equipo (se muestra al elegir categoría) -->
+                    <tr id="rowEquipo" class="d-none">
+                      <td data-label="Campo" class="fw-semibold">Equipo</td>
+                      <td data-label="Selección">
+                        <select name="equipo_id" id="equipo_id" class="form-select" required>
+                          <option value="">-- Seleccioná un equipo --</option>
+                        </select>
+                      </td>
+                    </tr>
+
+                    <!-- Acciones (aparece al elegir equipo) -->
+                    <tr id="rowAccion" class="d-none">
+                      <td data-label="Campo" class="fw-semibold">Acción</td>
+                      <td data-label="Selección">
+                        <button type="submit" class="btn btn-success">
+                          <i class="bi bi-check2-circle"></i> Confirmar Inscripción
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </form>
+          {% else %}
+            <div class="alert alert-warning text-center" role="alert">
+              <i class="bi bi-info-circle-fill"></i> Ya estás inscripto en todos los torneos disponibles.
+            </div>
+          {% endif %}
+
+          <!-- Botón de volver -->
+          <div class="text-center mt-4">
+            <a href="{% url 'menu_jugador' %}" class="btn btn-outline-primary btn-lg">
+              <i class="bi bi-arrow-left-circle"></i> Volver al Menú
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- JS dinámico -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const torneoSelect = document.getElementById("torneo_id");
-      const categoriaSelect = document.getElementById("categoria_id");
-      const equipoSelect = document.getElementById("equipo_id");
-    
-      const categoriaContainer = document.getElementById("categoriaContainer");
-      const equipoContainer = document.getElementById("equipoContainer");
-      const botonContainer = document.getElementById("botonContainer");
-    
-      torneoSelect.addEventListener("change", function () {
-        const torneoId = this.value;
-        categoriaSelect.innerHTML = '<option value="">-- Cargando categorías --</option>';
-        equipoSelect.innerHTML = '<option value="">-- Seleccioná un equipo --</option>';
-        categoriaContainer.classList.add("d-none");
-        equipoContainer.classList.add("d-none");
-        botonContainer.classList.add("d-none");
-    
-        if (torneoId) {
-          fetch(`/persona/fetch_categorias/${torneoId}/`)
-            .then(response => response.json())
-            .then(data => {
-              categoriaSelect.innerHTML = '<option value="">-- Seleccioná una categoría --</option>';
-              data.categorias.forEach(categoria => {
-                const option = document.createElement("option");
-                option.value = categoria.id;
-                option.textContent = categoria.nombre;
-                categoriaSelect.appendChild(option);
-              });
-              categoriaContainer.classList.remove("d-none");
+  document.addEventListener("DOMContentLoaded", function () {
+    const torneoSelect = document.getElementById("torneo_id");
+    const categoriaSelect = document.getElementById("categoria_id");
+    const equipoSelect = document.getElementById("equipo_id");
+
+    const rowCategoria = document.getElementById("rowCategoria");
+    const rowEquipo = document.getElementById("rowEquipo");
+    const rowAccion = document.getElementById("rowAccion");
+
+    torneoSelect.addEventListener("change", function () {
+      const torneoId = this.value;
+
+      // Reset
+      categoriaSelect.innerHTML = '<option value="">-- Cargando categorías --</option>';
+      equipoSelect.innerHTML = '<option value="">-- Seleccioná un equipo --</option>';
+      rowCategoria.classList.add("d-none");
+      rowEquipo.classList.add("d-none");
+      rowAccion.classList.add("d-none");
+
+      if (torneoId) {
+        fetch(`/persona/fetch_categorias/${torneoId}/`)
+          .then(response => response.json())
+          .then(data => {
+            categoriaSelect.innerHTML = '<option value="">-- Seleccioná una categoría --</option>';
+            data.categorias.forEach(categoria => {
+              const option = document.createElement("option");
+              option.value = categoria.id;
+              option.textContent = categoria.nombre;
+              categoriaSelect.appendChild(option);
             });
-        }
-      });
-    
-      categoriaSelect.addEventListener("change", function () {
-        const categoriaId = this.value;
-        equipoSelect.innerHTML = '<option value="">-- Cargando equipos --</option>';
-        equipoContainer.classList.add("d-none");
-        botonContainer.classList.add("d-none");
-    
-        if (categoriaId) {
-          fetch(`/persona/fetch_equipos/${categoriaId}/`)
-            .then(response => response.json())
-            .then(data => {
-              equipoSelect.innerHTML = '<option value="">-- Seleccioná un equipo --</option>';
-              data.equipos.forEach(equipo => {
-                const option = document.createElement("option");
-                option.value = equipo.id;
-                option.textContent = equipo.nombre;
-                equipoSelect.appendChild(option);
-              });
-              equipoContainer.classList.remove("d-none");
-            });
-        }
-      });
-    
-      equipoSelect.addEventListener("change", function () {
-        if (this.value) {
-          botonContainer.classList.remove("d-none");
-        } else {
-          botonContainer.classList.add("d-none");
-        }
-      });
+            rowCategoria.classList.remove("d-none");
+          });
+      }
     });
-    </script>
+
+    categoriaSelect.addEventListener("change", function () {
+      const categoriaId = this.value;
+
+      // Reset
+      equipoSelect.innerHTML = '<option value="">-- Cargando equipos --</option>';
+      rowEquipo.classList.add("d-none");
+      rowAccion.classList.add("d-none");
+
+      if (categoriaId) {
+        fetch(`/persona/fetch_equipos/${categoriaId}/`)
+          .then(response => response.json())
+          .then(data => {
+            equipoSelect.innerHTML = '<option value="">-- Seleccioná un equipo --</option>';
+            data.equipos.forEach(equipo => {
+              const option = document.createElement("option");
+              option.value = equipo.id;
+              option.textContent = equipo.nombre;
+              equipoSelect.appendChild(option);
+            });
+            rowEquipo.classList.remove("d-none");
+          });
+      }
+    });
+
+    equipoSelect.addEventListener("change", function () {
+      if (this.value) {
+        rowAccion.classList.remove("d-none");
+      } else {
+        rowAccion.classList.add("d-none");
+      }
+    });
+  });
+</script>
+
 {% endblock %}

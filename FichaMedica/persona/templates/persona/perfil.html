@@ -1,76 +1,167 @@
 {% extends 'core/base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
-            <!-- Título principal -->
-            <h2 class="text-center fw-bold mb-4" style="color: #00A2D3;">Datos Personales</h2>
 
-            <!-- Encabezado celeste -->
-            <div class="bg-info text-white fw-semibold text-center rounded-top py-2">
-                Información Personal
-            </div>
+<style>
+  /* Paleta deportiva */
+  :root{
+    --sport-navy:#0d47a1;
+    --sport-royal:#1565c0;
+    --sport-grass:#2e7d32;
+    --sport-lime:#43a047;
+    --sport-accent:#fdd835;
+  }
 
-            <!-- Tabla con tus campos originales -->
-            <div class="table-responsive">
-                <table class="table table-bordered m-0">
-                    <tbody class="align-middle">
-                        <tr>
-                            <th class="bg-light text-start" style="width: 40%;">Nombre</th>
-                            <td>{{ profile.nombre }} {{ profile.apellido }}</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light text-start">DNI</th>
-                            <td>{{ profile.dni }}</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light text-start">Email</th>
-                            <td>{{ profile.email }}</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light text-start">Fecha de Nacimiento</th>
-                            <td>{{ profile.fecha_nacimiento }}</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light text-start">Dirección</th>
-                            <td>{{ persona.direccion }}</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light text-start">Teléfono</th>
-                            <td>{{ persona.telefono }}</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light text-start">Teléfono Alternativo</th>
-                            <td>{{ persona.telefono_alternativo }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+  /* Banda pegada al header */
+  .sport-hero-band h2{
+    margin:0; font-weight:700; letter-spacing:.3px;
+    text-shadow: 0 1px 1px rgba(0,0,0,.15);
+  }
+  .sport-hero-band{
+    padding:18px 16px;
+    display:flex; justify-content:center; align-items:center;
+    background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+    border-bottom:1px solid rgba(255,255,255,.15);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+    color:#fff;
+  }
 
-           <div class="d-flex justify-content-center mt-4 gap-3 flex-wrap">
-                <!-- Botón Cambiar Contraseña -->
-                <button type="submit" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow">
-                    Cambiar Contraseña
-                </button>
+  /* Botones con la paleta */
+  .btn-sport-primary{
+    background-color: var(--sport-royal);
+    border-color: var(--sport-royal);
+    color:#fff; font-weight:700;
+    box-shadow: 0 6px 14px rgba(21,101,192,.18);
+  }
+  .btn-sport-primary:hover{ background-color:#0f5aad; border-color:#0f5aad; color:#fff; }
 
-                <!-- Botón Modificar Perfil -->
-                <a href="{% url 'modificar_perfil' %}" class="btn btn-info rounded-pill px-4 py-2 fw-bold shadow">
-                    Modificar Perfil
-                </a>
+  .btn-sport-success{
+    background-color: var(--sport-grass);
+    border-color: var(--sport-grass);
+    color:#fff; font-weight:700;
+    box-shadow: 0 6px 14px rgba(46,125,50,.18);
+  }
+  .btn-sport-success:hover{ background-color: var(--sport-lime); border-color: var(--sport-lime); color:#fff; }
 
-                <!-- Botón Volver (según el rol del usuario) -->
-                {% if profile.rol == 'jugador' %}
-                    <a href="{% url 'menu_jugador' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold shadow">Volver</a>
-                {% elif profile.rol == 'medico' %}
-                    <a href="{% url 'medico_home' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold shadow">Volver</a>
-                {% elif profile.rol == 'representante' %}
-                    <a href="{% url 'representante_home' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold shadow">Volver</a>
-                {% else %}
-                    <a href="{% url 'menu_jugador' %}" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold shadow">Volver</a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+  .btn-sport-accent{
+    background-color: var(--sport-accent);
+    border-color: var(--sport-accent);
+    color:#1a1a1a; font-weight:700;
+  }
+  .btn-sport-accent:hover{ filter: brightness(.95); color:#1a1a1a; }
+
+  /* Encabezado de sección sobre la tabla */
+  .sport-section-head{
+    background: var(--sport-royal);
+    color:#fff; text-align:center; font-weight:700;
+    padding:.85rem 1rem;
+    border-top-left-radius:.5rem; border-top-right-radius:.5rem;
+  }
+
+  /* Responsive “key/value” si lo necesitás en móviles muy chicos */
+  @media (max-width: 576px){
+    .table-kv tbody tr{ display:block; margin-bottom:.75rem; border:1px solid #e9ecef; border-radius:.5rem; overflow:hidden; }
+    .table-kv tbody tr th,
+    .table-kv tbody tr td{ display:block; width:100% !important; }
+    .table-kv tbody tr th{ background:#f7f9fc; }
+    .table-kv tbody tr td{ border-top:1px solid #eef2f6; }
+  }
+</style>
+
+<!-- Banda superior -->
+<div class="sport-hero-band">
+  <div class="container inner d-flex justify-content-center">
+    <h2 class="mb-0 text-center">
+      <i class="bi bi-person-badge me-2"></i>
+      Datos Personales
+    </h2>
+  </div>
 </div>
+
+<main class="px-3" style="position:relative; min-height:100vh; width:100%; margin:0; padding:0;">
+  <style>
+    /* Fondo deportivo */
+    main::before{
+      content:''; position:absolute; inset:0; z-index:-1;
+      background: url('{% static "core/img/home1.png" %}') no-repeat center center;
+      background-size: cover; opacity:.35;
+    }
+  </style>
+
+  <div style="position: relative; z-index: 1;">
+    <div class="container mt-5 mb-5">
+      <div class="card shadow border-0">
+
+        <!-- Encabezado sobre la tabla con nuestro azul -->
+        <div class="sport-section-head">Información Personal</div>
+
+        <div class="card-body p-4">
+          <div class="table-responsive">
+            <table class="table table-bordered m-0 table-kv">
+              <tbody class="align-middle">
+                <tr>
+                  <th class="bg-light text-start" style="width:40%;">Nombre</th>
+                  <td>{{ profile.nombre }} {{ profile.apellido }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-start">DNI</th>
+                  <td>{{ profile.dni }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-start">Email</th>
+                  <td>{{ profile.email }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-start">Fecha de Nacimiento</th>
+                  <td>{{ profile.fecha_nacimiento }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-start">Dirección</th>
+                  <td>{{ persona.direccion }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-start">Teléfono</th>
+                  <td>{{ persona.telefono }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-start">Teléfono Alternativo</th>
+                  <td>{{ persona.telefono_alternativo }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Acciones -->
+            <div class="d-flex justify-content-center mt-4 gap-3 flex-wrap">
+              <!-- Cambiar contraseña -->
+              <a href="{% url 'modificar_contrasena' %}" class="btn btn-outline-warning px-4 py-2 fw-bold shadow-sm">
+                Cambiar Contraseña
+              </a>
+
+              <!-- Modificar Perfil -->
+              <a href="{% url 'modificar_perfil' %}" class="btn btn-outline-success px-4 py-2 fw-bold shadow-sm">
+                Modificar Perfil
+              </a>
+
+              <!-- Volver según rol -->
+              {% if profile.rol == 'jugador' %}
+                <a href="{% url 'menu_jugador' %}" class="btn btn-outline-primary px-4 py-2 fw-bold shadow-sm">Volver</a>
+              {% elif profile.rol == 'medico' %}
+                <a href="{% url 'medico_home' %}" class="btn btn-outline-primary px-4 py-2 fw-bold shadow-sm">Volver</a>
+              {% elif profile.rol == 'representante' %}
+                <a href="{% url 'representante_home' %}" class="btn btn-outline-primary px-4 py-2 fw-bold shadow-sm">Volver</a>
+              {% elif profile.rol == 'actividad' %}
+                <a href="{% url 'representante_actividad_general_home' %}" class="btn btn-outline-primary px-4 py-2 fw-bold shadow-sm">Volver</a>
+              {% else %}
+                <a href="{% url 'menu_jugador' %}" class="btn btn-outline-primary px-4 py-2 fw-bold shadow-sm">Volver</a>
+              {% endif %}
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
 {% endblock %}
+

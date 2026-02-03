@@ -76,65 +76,74 @@
             <div class="bg-light p-4 rounded shadow-sm">
                 <h2 class="text-center text-info fw-bold">Buscador de Jugadores</h2>
                 <form method="get" action="{% url 'representante_home' %}" class="row g-3 justify-content-center">
-                    <div class="col-md-4">
-                        <label for="filter_type" class="form-label fw-bold">Seleccione un Filtro</label>
-                        <select name="filter_type" id="filter_type" class="form-select" >
-                            <option value="">Seleccionar...</option>
-                            <option value="categoria" {% if request.GET.filter_type == 'categoria' %}selected{% endif %}>Categoría</option>
-                            <option value="equipo" {% if request.GET.filter_type == 'equipo' %}selected{% endif %}>Equipo</option>
-                            <option value="persona" {% if request.GET.filter_type == 'persona' %}selected{% endif %}>Persona</option>
-                        </select>
-                    </div>
+    <div class="col-md-3">
+        <label for="filter_type" class="form-label fw-bold">Seleccione un Filtro</label>
+        <select name="filter_type" id="filter_type" class="form-select">
+            <option value="">Seleccionar...</option>
+            <option value="categoria" {% if request.GET.filter_type == 'categoria' %}selected{% endif %}>Categoría</option>
+            <option value="equipo" {% if request.GET.filter_type == 'equipo' %}selected{% endif %}>Equipo</option>
+            <option value="persona" {% if request.GET.filter_type == 'persona' %}selected{% endif %}>Persona</option>
+        </select>
+    </div>
 
-                  <!-- Filtro de Categoría -->
-<div id="filter-categoria" class="col-md-4 {% if request.GET.filter_type == 'categoria' %}d-block{% else %}d-none{% endif %}">
-    <label for="filter_category" class="form-label fw-bold">Categoría</label>
-    <select name="filter_category" id="filter_category" class="form-select" >
-        <option value="">Todas</option>
-        {% for categoria in categorias %}
-            <option value="{{ categoria.id }}" {% if request.GET.filter_category == categoria.id|stringformat:'s' %}selected{% endif %}>{{ categoria.nombre }}</option>
-        {% endfor %}
-    </select>
-</div>
+    <!-- Filtro de Categoría -->
+    <div id="filter-categoria" class="col-md-3 {% if request.GET.filter_type == 'categoria' %}d-block{% else %}d-none{% endif %}">
+        <label for="filter_category" class="form-label fw-bold">Categoría</label>
+        <select name="filter_category" id="filter_category" class="form-select">
+            <option value="">Todas</option>
+            {% for categoria in categorias %}
+                <option value="{{ categoria.id }}" {% if request.GET.filter_category == categoria.id|stringformat:'s' %}selected{% endif %}>{{ categoria.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-<!-- Nuevo Filtro de Equipos (Dependiente de la Categoría) -->
-<div id="filter-equipo-categoria" class="col-md-4 {% if request.GET.filter_type == 'categoria' and request.GET.filter_category %}d-block{% else %}d-none{% endif %}">
-    <label for="filter_team_by_category" class="form-label fw-bold">Equipos por Categoría</label>
-    <select name="filter_team" id="filter_team_by_category" class="form-select">
-        <option value="">Todos los equipos</option>
-        {% for equipo in equipos %}
-            <option value="{{ equipo.id }}" {% if request.GET.filter_team == equipo.id|stringformat:'s' %}selected{% endif %}>{{ equipo.nombre }}</option>
-        {% endfor %}
-    </select>
-</div>
+    <!-- Filtro de Equipos por Categoría -->
+    <div id="filter-equipo-categoria" class="col-md-3 {% if request.GET.filter_type == 'categoria' and request.GET.filter_category %}d-block{% else %}d-none{% endif %}">
+        <label for="filter_team_by_category" class="form-label fw-bold">Equipos por Categoría</label>
+        <select name="filter_team" id="filter_team_by_category" class="form-select">
+            <option value="">Todos los equipos</option>
+            {% for equipo in equipos %}
+                <option value="{{ equipo.id }}" {% if request.GET.filter_team == equipo.id|stringformat:'s' %}selected{% endif %}>{{ equipo.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-<!-- Filtro de Equipo Independiente -->
-<div id="filter-equipo" class="col-md-4 {% if request.GET.filter_type == 'equipo' %}d-block{% else %}d-none{% endif %}">
-    <label for="filter_team" class="form-label fw-bold">Equipo</label>
-    <select name="filter_team" id="filter_team" class="form-select">
-        <option value="">Seleccionar...</option>
-        {% for equipo in equipos %}
-            <option value="{{ equipo.id }}" {% if request.GET.filter_team == equipo.id|stringformat:'s' %}selected{% endif %}>{{ equipo.nombre }}</option>
-        {% endfor %}
-    </select>
-</div>
+    <!-- Filtro de Equipo Independiente -->
+    <div id="filter-equipo" class="col-md-3 {% if request.GET.filter_type == 'equipo' %}d-block{% else %}d-none{% endif %}">
+        <label for="filter_team" class="form-label fw-bold">Equipo</label>
+        <select name="filter_team" id="filter_team" class="form-select">
+            <option value="">Seleccionar...</option>
+            {% for equipo in equipos %}
+                <option value="{{ equipo.id }}" {% if request.GET.filter_team == equipo.id|stringformat:'s' %}selected{% endif %}>{{ equipo.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
+    <!-- Filtro de Persona -->
+    <div id="filter-persona" class="col-md-3 {% if request.GET.filter_type == 'persona' %}d-block{% else %}d-none{% endif %}">
+        <label for="search_query" class="form-label fw-bold">Buscar DNI</label>
+        <input type="text" name="search_query" id="search_query" class="form-control" placeholder="Ingrese Nombre o DNI" value="{{ request.GET.search_query|default:'' }}">
+    </div>
 
+    <!-- 🔵 NUEVO: Filtro de Estado del Apto -->
+    <div class="col-md-3">
+        <label for="filter_estado" class="form-label fw-bold">Estado del Apto</label>
+        <select name="filter_estado" id="filter_estado" class="form-select">
+            <option value="">Todos</option>
+            <option value="APROBADA" {% if request.GET.filter_estado == 'APROBADA' %}selected{% endif %}>Aprobado</option>
+            <option value="VENCIDO" {% if request.GET.filter_estado == 'VENCIDO' %}selected{% endif %}>Vencido</option>
+            <option value="PROCESO" {% if request.GET.filter_estado == 'PROCESO' %}selected{% endif %}>Proceso</option>
+        </select>
+    </div>
 
+    <div class="col-md-2 text-center">
+        <button type="submit" class="btn btn-primary fw-bold w-100 mb-2">Buscar</button>
+        <button type="button" class="btn btn-primary fw-bold w-100" onclick="location.href='{{ request.path }}'">
+    Refrescar
+</button>
+    </div>
+</form>
 
-                    <div id="filter-persona" class="col-md-4 {% if request.GET.filter_type == 'persona' %}d-block{% else %}d-none{% endif %}">
-                        <label for="search_query" class="form-label fw-bold">Buscar DNI</label>
-                        <input type="text" name="search_query" id="search_query" class="form-control" placeholder="Ingrese Nombre o DNI" value="{{ request.GET.search_query|default:'' }}">
-                    </div>
-
-                    <div class="col-md-2 text-center">
-                        <button type="submit" class="btn btn-primary fw-bold w-100 mb-2">Buscar</button>
-                        <button type="button" class="btn btn-primary fw-bold w-100" onclick="window.location.href='{% url 'representante_home' %}'">
-                            Refrescar
-                        </button>
-                    </div>
-
-                </form>
             </div>
 
             <div class="table-responsive mt-4">
@@ -164,7 +173,7 @@
                                 <td>{{ jugador.categorias_equipo.0.nombre_equipo|default:"Sin equipo" }}</td>
                                 <td>{{ jugador.categorias_equipo.0.torneo|default:"Sin torneo" }}</td>
                                 <td>
-                                    {% if jugador.registro_medico_estado == 'APROBADA' %}
+                                    {% if jugador.registro_medico_estado == 'APROBADA' or jugador.registro_medico_estado == 'VENCIDO' %}
                                         <a href="{% url 'ficha_medica' jugador.registro_id %}" class="btn btn-success btn-sm" target="blank">Ver Ficha</a>
                                     {% else %}
                                         <button class="btn btn-secondary btn-sm" disabled>No Disponible</button>

@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  .activity-card {
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .activity-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0,0,0,.15);
+  }
+</style>
+
+<div class="container mt-5">
+
+  <h2 class="text-primary mb-4">
+    <i class="bi bi-journal-medical"></i>
+    Ver Antecedentes por Actividad
+  </h2>
+
+  {% if aptos %}
+      <p class="text-muted">Seleccioná la actividad para ver los antecedentes cargados.</p>
+
+      <div class="row mt-4">
+        {% for apto in aptos %}
+        <div class="col-md-4 mb-4">
+          <div class="card activity-card border-primary">
+            {% if apto.actividad.imagen %}
+              <img src="{{ apto.actividad.imagen.url }}" class="card-img-top" alt="{{ apto.actividad.nombre }}" style="height:170px;object-fit:cover;">
+            {% else %}
+              <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height:170px;">
+                <span class="text-muted">Sin imagen</span>
+              </div>
+            {% endif %}
+            
+            <div class="card-body text-center">
+              <h5 class="card-title text-primary">{{ apto.actividad.nombre }}</h5>
+              <p class="card-text">
+                Antecedentes cargados el:<br>
+                <strong>{{ apto.fecha_creacion|date:"d/m/Y H:i" }}</strong>
+              </p>
+              <a href="{% url 'aptos_generales:antecedentes_detail' apto.id %}"
+                 class="btn btn-primary w-100">
+                Ver Antecedentes
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+  {% else %}
+      <div class="alert alert-warning mt-3">
+        No tenés antecedentes completos en ninguna actividad todavía.
+      </div>
+  {% endif %}
+
+  <div class="text-center mt-4">
+    <a href="{% url 'menu_paciente' %}" class="btn btn-secondary">
+      Volver al Menú Paciente
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

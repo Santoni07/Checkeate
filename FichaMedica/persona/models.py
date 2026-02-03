@@ -1,14 +1,34 @@
 from django.db import models
 from account.models import Profile  # Asegúrate de ajustar la ruta según tu estructura
 
+from django.conf import settings
+from django.db import models
+from account.models import Profile
+
 class Persona(models.Model):
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="persona"
+    )
+
+    profile = models.OneToOneField(
+        Profile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
     direccion = models.CharField(max_length=255, blank=True, null=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     telefono_alternativo = models.CharField(max_length=15, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.profile.nombre} {self.profile.apellido}"
+        if self.user:
+            return f"{self.user.email}"
+        return f"Persona #{self.id}"
+
+
 
 
 class Jugador(models.Model):
@@ -29,7 +49,11 @@ class Jugador(models.Model):
     numero_afiliado = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.persona.profile.nombre} {self.persona.profile.apellido}"
+        if self.persona and self.persona.user:
+            u = self.persona.user
+            nombre = f"{u.first_name} {u.last_name}".strip()
+            return nombre or u.email
+        return f"Jugador #{self.id}"
 
 
 class Torneo(models.Model):
@@ -38,7 +62,7 @@ class Torneo(models.Model):
     direccion = models.CharField(max_length=255, verbose_name='Dirección', null=True, blank=True)
     telefono = models.CharField(max_length=15, verbose_name='Teléfono', null=True, blank=True)
     imagen = models.ImageField(upload_to='imagenes/', null=True, blank=True, verbose_name='Imagen')
-    
+
     def __str__(self):
         return self.nombre
 
@@ -85,3 +109,62 @@ class JugadorCategoriaEquipo(models.Model):
 
     def __str__(self):
         return f"{self.jugador.persona.profile.nombre} {self.jugador.persona.profile.apellido} - {self.categoria_equipo.equipo.nombre} - {self.categoria_equipo.categoria.nombre} - {self.categoria_equipo.categoria.torneo}"
+
+
+
+
+
+
+class Competencia(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name='Nombre')
+    descripcion = models.TextField(verbose_name='Descripción', null=True, blank=True)
+    direccion = models.CharField(max_length=255, verbose_name='Dirección', null=True, blank=True)
+    telefono = models.CharField(max_length=15, verbose_name='Teléfono', null=True, blank=True)
+    imagen = models.ImageField(upload_to='imagenes/', null=True, blank=True, verbose_name='Imagen')
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
+
+
+class JugadorCompetencia(models.Model):
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name="competencias")
+    competencia = models.ForeignKey(Competencia, on_delete=models.CASCADE, related_name="jugadores")
+
+
+    class Meta:
+        db_table = 'jugador_competencia'
+        unique_together = ('jugador', 'competencia')  # evita que se inscriba dos veces
+
+
+    def __str__(self):
+        return f"{self.jugador} - {self.competencia}"
+
+
+class ActividadGeneral(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name='Nombre')
+    descripcion = models.TextField(verbose_name='Descripción', null=True, blank=True)
+    direccion = models.CharField(max_length=255, verbose_name='Dirección', null=True, blank=True)
+    telefono = models.CharField(max_length=15, verbose_name='Teléfono', null=True, blank=True)
+    imagen = models.ImageField(upload_to='imagenes/', null=True, blank=True, verbose_name='Imagen')
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
+
+class JugadorActividadGeneral(models.Model):
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name="actividades_generales")
+    actividad = models.ForeignKey(ActividadGeneral, on_delete=models.CASCADE, related_name="jugadores")
+
+    class Meta:
+        db_table = 'jugador_actividad_general'
+        unique_together = ('jugador', 'actividad')  # evita duplicados
+
+    def __str__(self):
+        return f"{self.jugador} - {self.actividad}"

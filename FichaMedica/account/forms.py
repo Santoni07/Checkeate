@@ -13,9 +13,16 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(attrs={"class": "form-control"})
     )
 
+
 class UserRegistrationForm(forms.ModelForm):
-    password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Repite Contraseña', widget=forms.PasswordInput)
+    password1 = forms.CharField(
+        label="Repite Contraseña",
+        widget=forms.PasswordInput(attrs={"class": "form-control"})
+    )
+    password2 = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={"class": "form-control"})
+    )
     fecha_nacimiento = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         label="Fecha de Nacimiento"
@@ -23,7 +30,22 @@ class UserRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['nombre', 'apellido', 'dni', 'fecha_nacimiento', 'email', 'password1', 'password2']
+        fields = [
+            'nombre',
+            'apellido',
+            'dni',
+            'fecha_nacimiento',
+            'email',
+            'password1',
+            'password2'
+        ]
+        labels = {
+            "nombre": "Nombre",
+            "apellido": "Apellido",
+            "dni": "DNI",
+            "fecha_nacimiento": "Fecha de Nacimiento",
+            "email": "Email",
+        }
 
     def __init__(self, *args, **kwargs):
         # Recibimos el rol desde la vista

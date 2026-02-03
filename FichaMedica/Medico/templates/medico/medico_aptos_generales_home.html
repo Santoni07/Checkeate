@@ -1,0 +1,263 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+<main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
+
+<style>
+/* ================== FONDO ================== */
+main::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
+  background-size: cover;
+  opacity: 0.25;
+  z-index: -1;
+}
+
+:root {
+  --med-navy:#0d47a1;
+  --med-royal:#1565c0;
+  --med-cyan:#00C4F6;
+}
+
+/* ================== HEADER ================== */
+.medico-title {
+  font-size: 2.4rem;
+}
+
+@media (max-width: 576px) {
+  .medico-title {
+    font-size: 1.6rem;
+  }
+}
+
+/* ================== BANDA RESUMEN ================== */
+.med-summary-band {
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  background: linear-gradient(90deg,
+      rgba(13,71,161,.98),
+      rgba(21,101,192,.98),
+      rgba(0,196,246,.98));
+  color: #fff;
+  padding: 18px 24px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+}
+
+.med-summary-grid {
+  max-width: 1240px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.ms-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.ms-ico {
+  font-size: 1.9rem;
+}
+
+.ms-text small {
+  display: block;
+  font-weight: 700;
+}
+
+.ms-text strong {
+  font-size: 1.8rem;
+}
+
+/* RESPONSIVE RESUMEN */
+@media (max-width: 992px) {
+  .med-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .med-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .ms-text strong {
+    font-size: 1.4rem;
+  }
+}
+
+/* ================== BUSCADOR ================== */
+#search-container {
+  background: #f4f7fb;
+  border: 3px solid #dfe7f1;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+}
+
+@media (max-width: 576px) {
+  #search-container .btn {
+    width: 100%;
+  }
+}
+
+/* ================== FILTROS ================== */
+.estado-filtro-btn {
+  background: none;
+  border: none;
+  font-weight: 700;
+  color: var(--med-royal);
+  text-decoration: underline;
+}
+
+.estado-filtro-btn.active {
+  color: var(--med-navy);
+  text-decoration: none;
+}
+
+/* ================== TABLA ================== */
+.table {
+  background: #fff;
+}
+
+.table thead th {
+  background: #f1f5f9;
+  color: var(--med-navy);
+  text-align: center;
+}
+
+/* TABLA → CARDS MOBILE */
+@media (max-width: 768px) {
+  .table thead {
+    display: none;
+  }
+
+  .table, .table tbody, .table tr, .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-left: 6px solid var(--med-royal);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  }
+
+  .table td {
+    border: none;
+    padding: .3rem 0;
+    text-align: left;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--med-royal);
+    text-transform: uppercase;
+  }
+}
+</style>
+
+<div class="container mt-4">
+
+<!-- HEADER -->
+<header class="mb-4">
+  <h1 class="fw-bold medico-title text-dark">
+    <span class="text-primary">Bienvenido,</span>
+    Dr. {{ profile.nombre }} {{ profile.apellido }}
+  </h1>
+  {% if medico %}
+  <p class="text-muted fw-semibold">
+    Matrícula N° {{ medico.matricula }}
+  </p>
+  {% endif %}
+  <div style="height:8px; max-width:600px;
+       background:linear-gradient(90deg,#0d47a1,#1565c0,#00C4F6); border-radius:8px;">
+  </div>
+</header>
+
+<!-- RESUMEN -->
+<div class="med-summary-band mb-4">
+  <div class="med-summary-grid">
+    <div class="ms-item"><i class="bi bi-calendar-event ms-ico"></i><div class="ms-text"><small>Fecha</small><strong>{{ hoy|date:"d/m/Y" }}</strong></div></div>
+    <div class="ms-item"><i class="bi bi-hourglass-split ms-ico"></i><div class="ms-text"><small>En Proceso</small><strong>{{ en_proceso_count|default:0 }}</strong></div></div>
+    <div class="ms-item"><i class="bi bi-chat-square-text ms-ico"></i><div class="ms-text"><small>Pendientes</small><strong>{{ pendientes_count|default:0 }}</strong></div></div>
+    <div class="ms-item"><i class="bi bi-check-circle ms-ico"></i><div class="ms-text"><small>Aprobados</small><strong>{{ aprobadas_hoy_count|default:0 }}</strong></div></div>
+    <div class="ms-item"><i class="bi bi-x-circle ms-ico"></i><div class="ms-text"><small>Rechazados</small><strong>{{ rechazadas_hoy_count|default:0 }}</strong></div></div>
+  </div>
+</div>
+
+<!-- BUSCADOR -->
+<div id="search-container" class="p-4 rounded mb-4">
+<form method="get">
+  <h3 class="fw-bold mb-3">Buscador de Pacientes</h3>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <label>DNI</label>
+      <input type="text" name="search_dni" class="form-control" value="{{ search_dni }}">
+    </div>
+    <div class="col-md-4">
+      <label>Nombre o Apellido</label>
+      <input type="text" name="search_name" class="form-control" value="{{ search_name }}">
+    </div>
+    <div class="col-md-4 d-flex gap-2 flex-wrap">
+      <button class="btn btn-primary fw-bold">🔍 Buscar</button>
+      <a href="{% url 'medico_cargar_estudios' %}" class="btn btn-outline-primary fw-bold">🧪 Cargar Estudios</a>
+      <a href="{% url 'medico_observaciones_persona' %}" class="btn btn-outline-secondary fw-bold">📝 Observaciones</a>
+    </div>
+  </div>
+
+  <input type="hidden" name="estado" id="estadoInput" value="{{ estado_filtro }}">
+
+  <div class="text-center mt-3">
+    <button type="button" onclick="estadoInput.value='PROCESO';this.form.submit();" class="estado-filtro-btn {% if estado_filtro == 'PROCESO' %}active{% endif %}">En proceso</button>
+    <button type="button" onclick="estadoInput.value='PENDIENTE';this.form.submit();" class="estado-filtro-btn {% if estado_filtro == 'PENDIENTE' %}active{% endif %}">Pendientes</button>
+    <button type="button" onclick="estadoInput.value='RECHAZADA';this.form.submit();" class="estado-filtro-btn {% if estado_filtro == 'RECHAZADA' %}active{% endif %}">Rechazados</button>
+  </div>
+</form>
+</div>
+
+<!-- RESULTADOS -->
+<div class="bg-white p-3 rounded shadow">
+{% if jugadores_info %}
+<table class="table">
+<tbody>
+{% for j in jugadores_info %}
+<tr>
+  <td data-label="Apellido">{{ j.apellido }}</td>
+  <td data-label="Nombre">{{ j.nombre }}</td>
+  <td data-label="DNI">{{ j.dni }}</td>
+  <td data-label="Actividad">{{ j.actividad }}</td>
+  <td data-label="Estado">{{ j.estado }}</td>
+  <td data-label="Fecha">{{ j.fecha_creacion|date:"d/m/Y" }}</td>
+  <td data-label="Acciones">
+    {% if j.estado == "APROBADA" %}
+      <a href="{% url 'ficha_apto_general_view' j.apto_id %}" class="btn btn-success btn-sm">Ver</a>
+    {% else %}
+      <a href="{% url 'apto_general_update_view' j.apto_id %}" class="btn btn-warning btn-sm">Cargar</a>
+    {% endif %}
+  </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}
+<p class="text-center text-muted">No hay resultados.</p>
+{% endif %}
+</div>
+
+</div>
+</main>
+{% endblock %}
+
+

@@ -13,7 +13,7 @@ function checkSession() {
       .then(data => {
         if (data.session_expired) {
           console.warn("⏳ Sesión expirada. Redirigiendo...");
-          window.location.href = '/account/logout/';
+          window.location.href = '/account/login/?expired=1';
         } else {
           console.log("✅ Sesión activa");
         }

@@ -17,19 +17,19 @@
       opacity: 0.15;
       z-index: -1;
     }
-  
+
     body {
       font-family: 'Nunito Sans', sans-serif;
       font-size: 1.15rem;
     }
-  
+
     .card {
       background-color: rgba(255, 255, 255, 0.97);
       border-radius: 16px;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
       border: none;
     }
-  
+
     .card-header {
       background-color: #00a2d3;
       color: white;
@@ -39,17 +39,17 @@
       text-align: center;
       border-radius: 16px 16px 0 0;
     }
-  
+
     .form-label {
       font-weight: 600;
       font-size: 1.2rem;
       color: #333;
     }
-  
+
     .form-check-label {
       font-size: 1.1rem;
     }
-  
+
     .btn-success {
       background-color: #00a2d3;
       border: none;
@@ -58,29 +58,29 @@
       font-weight: 600;
       border-radius: 8px;
     }
-  
+
     .btn-secondary {
       font-size: 1rem;
       padding: 0.5rem 1.5rem;
     }
-  
+
     .btn-sm {
       padding: 0.3rem 1rem;
     }
-  
+
     .alert {
       font-size: 1.05rem;
     }
-  
+
     a {
       color: #007bff;
       text-decoration: none;
     }
-  
+
     a:hover {
       text-decoration: underline;
     }
-  
+
     #confirmacionBanner .btn {
       min-width: 130px;
     }
@@ -104,7 +104,7 @@
             <div class="card-body">
               <form method="post" enctype="multipart/form-data" id="form-documentacion">
                 {% csrf_token %}
-              
+
                 <!-- 📄 Campo: Certificado de matrícula -->
                 <div class="mb-3">
                   <label for="id_certificado_matricula" class="form-label fw-bold">Certificado matrícula:</label>
@@ -113,16 +113,69 @@
                     <div class="text-danger small mt-1">{{ form.certificado_matricula.errors }}</div>
                   {% endif %}
                 </div>
-              
-                <!-- 🖊️ Campo: Firma electrónica -->
+
+                <!-- 🖊️ Campo: Imagen de la Firma y Sello Profesional -->
                 <div class="mb-3">
-                  <label for="id_certificado_firma_electronica" class="form-label fw-bold">Certificado firma electrónica:</label>
+                  <label for="id_certificado_firma_electronica" class="form-label fw-bold">
+                    Imagen de la Firma y Sello Profesional:
+                  </label>
                   {{ form.certificado_firma_electronica }}
                   {% if form.certificado_firma_electronica.errors %}
                     <div class="text-danger small mt-1">{{ form.certificado_firma_electronica.errors }}</div>
                   {% endif %}
+
+                  <!-- 🔍 Ejemplo visual -->
+                  <div class="mt-2">
+                    <p class="small text-muted">
+                      📌 Ejemplo de cómo debe verse la firma y sello cargados:
+                    </p>
+                    <img src="{% static 'core/img/ejemplo_firma.png' %}"
+                         alt="Ejemplo de firma y sello profesional"
+                         class="img-fluid rounded border"
+                         style="max-width: 250px;">
+                  </div>
                 </div>
-              
+                               <!-- 🩺 Datos Complementarios del Médico -->
+                <div class="mt-4">
+                  <h5 class="fw-bold mb-3 text-primary">🩺 Datos Complementarios del Médico</h5>
+
+                  <!-- Matrícula profesional -->
+                  <div class="mb-3">
+                    <label for="id_matricula" class="form-label fw-bold">Matrícula profesional:</label>
+                    {{ form_medico.matricula }}
+                    {% if form_medico.matricula.errors %}
+                      <div class="text-danger small mt-1">{{ form_medico.matricula.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <!-- Especialidad -->
+                  <div class="mb-3">
+                    <label for="id_especialidad" class="form-label fw-bold">Especialidad:</label>
+                    {{ form_medico.especialidad }}
+                    {% if form_medico.especialidad.errors %}
+                      <div class="text-danger small mt-1">{{ form_medico.especialidad.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <!-- Dirección laboral -->
+                  <div class="mb-3">
+                    <label for="id_direccion" class="form-label fw-bold">Dirección laboral:</label>
+                    {{ form_medico.direccion }}
+                    {% if form_medico.direccion.errors %}
+                      <div class="text-danger small mt-1">{{ form_medico.direccion.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <!-- Teléfono del consultorio -->
+                  <div class="mb-3">
+                    <label for="id_telefono_consultorio" class="form-label fw-bold">Teléfono del consultorio:</label>
+                    {{ form_medico.telefono_consultorio }}
+                    {% if form_medico.telefono_consultorio.errors %}
+                      <div class="text-danger small mt-1">{{ form_medico.telefono_consultorio.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+
                 <!-- ✅ Checkbox contrato -->
                 <div class="form-check mt-3">
                   <input class="form-check-input" type="checkbox" id="id_contrato_aceptado" name="contrato_aceptado">
@@ -133,15 +186,15 @@
                     <div class="text-danger small mt-1">{{ form.contrato_aceptado.errors }}</div>
                   {% endif %}
                 </div>
-              
+
                 <!-- 🚦 Alerta QR -->
                 <div id="alertaQR" class="alert mt-4 text-center" style="display: none;"></div>
-              
+
              <!-- 🟢 Botón que muestra el banner -->
               <div class="text-center mt-4">
                 <button type="button" class="btn btn-success btn-lg fw-bold" id="btnConfirmarBanner" disabled>Guardar</button>
               </div>
-              
+
               <!-- 🧾 Alerta de confirmación personalizada (inicialmente oculta) -->
                 <div id="confirmacionBanner" class="alert alert-warning d-none text-center mt-4" role="alert">
                   Usted está por guardar la documentación.
@@ -151,11 +204,11 @@
                   </div>
                 </div>
 
-        
-              
-               
+
+
+
               </form>
-              
+
 
             </div>
           </div>

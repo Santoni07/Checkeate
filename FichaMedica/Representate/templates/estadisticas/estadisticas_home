@@ -1,0 +1,213 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Estadísticas del Colegio{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="fw-bold text-center text-primary mb-4">{{ colegio.nombre }}</h1>
+  <p class="text-center text-muted">Análisis integral de salud de los estudiantes</p>
+
+  <!-- Resumen general -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm p-4 mb-4">
+        <h5 class="fw-bold text-secondary">📋 Estado de los CUS</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Total estudiantes: <strong>{{ total_alumnos }}</strong></li>
+          <li class="list-group-item">CUS cargadas: <strong>{{ total_cus }}</strong></li>
+          <li class="list-group-item text-success">Aprobadas: <strong>{{ total_aprobadas }}</strong></li>
+          <li class="list-group-item text-warning">En proceso: <strong>{{ total_proceso }}</strong></li>
+          <li class="list-group-item text-danger">Rechazadas: <strong>{{ total_rechazadas }}</strong></li>
+          <li class="list-group-item text-muted">Vencidas: <strong>{{ total_vencidas }}</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm p-4 mb-4">
+        <h5 class="fw-bold text-secondary">⚖️ Promedios Antropométricos</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Peso promedio: <strong>{{ peso_promedio }} kg</strong></li>
+          <li class="list-group-item">Talla promedio: <strong>{{ talla_promedio }} cm</strong></li>
+          <li class="list-group-item">IMC promedio: <strong>{{ imc_promedio }}</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row mt-4">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow p-3">
+        <h5 class="text-center fw-bold text-primary">Distribución de Estados CUS</h5>
+        <canvas id="cusChart"></canvas>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card shadow p-3">
+        <h5 class="text-center fw-bold text-primary">Distribución de Diagnósticos IMC</h5>
+        <canvas id="imcChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALUD CARDIOVASCULAR -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card shadow p-4">
+        <h4 class="text-center text-danger fw-bold mb-3">❤️ Salud Cardiovascular</h4>
+        <p class="text-center text-muted">Resumen de los datos de exámenes cardiovasculares cargados por los médicos.</p>
+
+        <div class="row text-center mt-3">
+          <div class="col-md-2">
+            <h6 class="fw-bold">Total de exámenes</h6>
+            <p class="fs-5">{{ total_cardio }}</p>
+          </div>
+          <div class="col-md-2">
+            <h6 class="fw-bold">Promedio Sistólica</h6>
+            <p class="fs-5 text-primary">{{ promedio_sistolica }} mmHg</p>
+          </div>
+          <div class="col-md-2">
+            <h6 class="fw-bold">Promedio Diastólica</h6>
+            <p class="fs-5 text-primary">{{ promedio_diastolica }} mmHg</p>
+          </div>
+          <div class="col-md-2">
+            <h6 class="fw-bold">Arritmias</h6>
+            <p class="fs-5 text-danger">{{ porc_arritmia }}%</p>
+          </div>
+          <div class="col-md-2">
+            <h6 class="fw-bold">Soplos</h6>
+            <p class="fs-5 text-warning">{{ porc_soplos }}%</p>
+          </div>
+          <div class="col-md-2">
+            <h6 class="fw-bold">Presión Alta</h6>
+            <p class="fs-5 text-danger">{{ hipertensos }}</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <canvas id="cardioChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALUD OSTEOARTICULAR -->
+<div class="row mt-5">
+  <div class="col-12">
+    <div class="card shadow p-4">
+      <h4 class="text-center text-success fw-bold mb-3">💪 Salud Osteoarticular</h4>
+      <p class="text-center text-muted">Evaluación de columna y alteraciones posturales detectadas en los exámenes osteoarticulares.</p>
+
+      <div class="row text-center mt-3">
+        <div class="col-md-2">
+          <h6 class="fw-bold">Total de exámenes</h6>
+          <p class="fs-5">{{ total_osteo }}</p>
+        </div>
+        <div class="col-md-2">
+          <h6 class="fw-bold">Columna normal</h6>
+          <p class="fs-5 text-primary">{{ columna_normal }}</p>
+        </div>
+        <div class="col-md-2">
+          <h6 class="fw-bold">Cifosis</h6>
+          <p class="fs-5 text-danger">{{ cifosis }}</p>
+        </div>
+        <div class="col-md-2">
+          <h6 class="fw-bold">Lordosis</h6>
+          <p class="fs-5 text-danger">{{ lordosis }}</p>
+        </div>
+        <div class="col-md-2">
+          <h6 class="fw-bold">Escoliosis</h6>
+          <p class="fs-5 text-danger">{{ escoliosis }}</p>
+        </div>
+        <div class="col-md-2">
+          <h6 class="fw-bold">Alteraciones %</h6>
+          <p class="fs-5 text-warning">{{ porc_alteraciones }}%</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <canvas id="osteoChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'colegio_home' %}" class="btn btn-outline-primary">⬅ Volver al Listado</a>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Datos Django → JS
+  const cusData = [{{ total_aprobadas }}, {{ total_proceso }}, {{ total_rechazadas }}, {{ total_vencidas }}];
+  const imcData = [{{ bajo_peso }}, {{ peso_ideal }}, {{ sobrepeso }}, {{ obesidad }}];
+
+  // 1️⃣ Estados CUS
+  new Chart(document.getElementById('cusChart'), {
+    type: 'pie',
+    data: {
+      labels: ['Aprobadas', 'En proceso', 'Rechazadas', 'Vencidas'],
+      datasets: [{ data: cusData, backgroundColor: ['#4CAF50', '#FFC107', '#F44336', '#9E9E9E'] }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // 2️⃣ IMC
+  new Chart(document.getElementById('imcChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Bajo peso', 'Peso ideal', 'Sobrepeso', 'Obesidad'],
+      datasets: [{
+        data: imcData,
+        backgroundColor: ['#2196F3', '#4CAF50', '#FF9800', '#E91E63']
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+  });
+
+  // ❤️ Cardiovascular
+  const cardioData = {
+    labels: ['Sistólica', 'Diastólica'],
+    datasets: [{
+      label: 'Promedio (mmHg)',
+      data: [{{ promedio_sistolica }}, {{ promedio_diastolica }}],
+      backgroundColor: ['#f44336', '#2196f3']
+    }]
+  };
+
+  new Chart(document.getElementById('cardioChart'), {
+    type: 'bar',
+    data: cardioData,
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 200 } }
+    }
+  });
+</script>
+<!-- Script gráfico osteoarticular -->
+<script>
+  const osteoData = {
+    labels: ['Columna normal', 'Cifosis', 'Lordosis', 'Escoliosis'],
+    datasets: [{
+      data: [{{ columna_normal }}, {{ cifosis }}, {{ lordosis }}, {{ escoliosis }}],
+      backgroundColor: ['#2196F3', '#E91E63', '#FF9800', '#9C27B0']
+    }]
+  };
+
+  new Chart(document.getElementById('osteoChart'), {
+    type: 'bar',
+    data: osteoData,
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+</script>
+{% endblock %}

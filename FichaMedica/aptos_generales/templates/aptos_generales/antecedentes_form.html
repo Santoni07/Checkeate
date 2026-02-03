@@ -1,0 +1,264 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<style>
+  :root{
+    --sport-navy:#0d47a1;
+    --sport-royal:#1565c0;
+    --sport-grass:#2e7d32;
+    --sport-lime:#43a047;
+    --sport-accent:#fdd835;
+    --sport-ink:#1a2940;
+  }
+
+  .sport-hero-band{
+    width:100%;
+    background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+    color:#fff;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  }
+  .sport-hero-band .inner{
+    padding: 18px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .sport-hero-band h2{
+    margin:0;
+    font-weight:700;
+    letter-spacing:.3px;
+    text-shadow: 0 1px 1px rgba(0,0,0,.15);
+  }
+
+  main::before{
+    content:'';
+    position: fixed;
+    inset:0;
+    z-index:-1;
+    background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center / cover;
+    opacity:.35;
+  }
+    /* Wrapper más visible */
+  .consent-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border: 2px solid #1565c0;
+    border-radius: 12px;
+    background: #eaf3ff;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 10px;
+  }
+
+  /* Hover */
+  .consent-wrapper:hover {
+    background: #d9eaff;
+    box-shadow: 0 4px 12px rgba(21,101,192,0.25);
+    transform: translateY(-2px);
+  }
+
+  /* Checkbox grande y visible */
+  #consentimientoCheckbox {
+    width: 28px !important;
+    height: 28px !important;
+    cursor: pointer;
+    border: 2px solid #0d47a1 !important;
+  }
+
+  /* Texto */
+  .consent-label-strong {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0d47a1;
+  }
+
+  .sport-card.card{
+    border:1px solid #e7eef4; border-radius:14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  }
+  .sport-card .card-title{ color: var(--sport-royal); font-weight:700; }
+  .form-group label.col-form-label{ font-weight:600; color:#1f2a44; }
+  hr{ border:0; height:1px; background:linear-gradient(90deg,transparent,#e9edf2,transparent); margin:1rem 0 1.25rem; }
+  .form-check-input{ transform:scale(1.35); cursor:pointer; margin-top:.2rem; }
+  .form-check-label{ cursor:pointer; font-weight:600; }
+  .sport-input{ max-width:720px; border-radius:.6rem; border:1px solid #dbe4ee; }
+  .sport-input:focus{ border-color:var(--sport-royal); box-shadow:0 0 0 .2rem rgba(21,101,192,.15); }
+  .btn-sport-primary{ background-color:var(--sport-royal); border-color:var(--sport-royal); color:#fff; font-weight:700; }
+  .btn-sport-primary:hover{ background-color:#0f5aad; border-color:#0f5aad; }
+  .btn-sport-success{ background-color:var(--sport-grass); border-color:var(--sport-grass); color:#fff; font-weight:700; }
+  .btn-sport-success:hover{ background-color:var(--sport-lime); border-color:var(--sport-lime); }
+</style>
+
+<div class="sport-hero-band">
+  <div class="container inner d-flex justify-content-center">
+    <h2 class="mb-0 text-center">
+      <i class="bi bi-file-earmark-medical me-2"></i>
+      {% if is_update %}
+        Editar Antecedentes Apto General de
+      {% else %}
+        Cargar Antecedentes Apto General de
+      {% endif %}
+      {{ apto.jugador.persona.profile.nombre }} {{ apto.jugador.persona.profile.apellido }}
+    </h2>
+  </div>
+</div>
+
+<main class="px-3" style="position: relative; min-height: 100vh;">
+  <div class="container mt-4">
+    <div class="card sport-card">
+      <div class="card-body">
+
+        <form method="POST" id="antecedentesForm">
+          {% csrf_token %}
+
+          {# --- Campos del formulario --- #}
+          {% for field in form %}
+            {% if field.name not in 'alerg_observ fhd_observacion cca_observaciones' %}
+              <div class="form-group row align-items-center">
+                <label class="col-sm-8 col-form-label">{{ field.label }}</label>
+                <div class="col-sm-4 d-flex justify-content-end">
+                  <div class="form-check me-3">
+                    <input type="radio" class="form-check-input"
+                           id="{{ field.id_for_label }}_si"
+                           name="{{ field.name }}" value="True"
+                           {% if field.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ field.id_for_label }}_si">Sí</label>
+                  </div>
+                  <div class="form-check">
+                    <input type="radio" class="form-check-input"
+                           id="{{ field.id_for_label }}_no"
+                           name="{{ field.name }}" value="False"
+                           {% if field.value is not None and not field.value %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ field.id_for_label }}_no">No</label>
+                  </div>
+                </div>
+              </div>
+
+              {# Observaciones dinámicas #}
+              {% if field.name == 'es_alergico' %}
+                <div class="form-group mt-2">
+                  <label for="alerg_observ" class="fw-semibold">Observaciones sobre Alergias</label>
+                  <input type="text" class="form-control sport-input"
+                         id="alerg_observ" name="alerg_observ"
+                         value="{{ form.alerg_observ.value }}">
+                </div>
+              {% elif field.name == 'fumar_hipertension_diabetes' %}
+                <div class="form-group mt-2">
+                  <label for="fhd_observacion" class="fw-semibold">Observaciones sobre FHD</label>
+                  <input type="text" class="form-control sport-input"
+                         id="fhd_observacion" name="fhd_observacion"
+                         value="{{ form.fhd_observacion.value }}">
+                </div>
+              {% elif field.name == 'consumo_cocaina_anabolicos' %}
+                <div class="form-group mt-2">
+                  <label for="cca_observaciones" class="fw-semibold">Observaciones sobre CCA</label>
+                  <input type="text" class="form-control sport-input"
+                         id="cca_observaciones" name="cca_observaciones"
+                         value="{{ form.cca_observaciones.value }}">
+                </div>
+              {% endif %}
+
+              <hr>
+            {% endif %}
+          {% endfor %}
+
+          {# --- Consentimiento --- #}
+         <div class="alert alert-info mt-4 p-4 border rounded shadow-sm">
+  <h5 class="fw-bold text-center text-primary mb-3">
+    ✍️ Declaración y Consentimiento
+  </h5>
+  <p class="mb-3">
+    Yo, <strong>{{ apto.jugador.persona.profile.nombre }} {{ apto.jugador.persona.profile.apellido }}</strong>,
+    con DNI N° <strong>{{ apto.jugador.persona.profile.dni }}</strong>,
+    en pleno uso de mis facultades, otorgo mi consentimiento expreso, libre e informado
+    para realizar las actividades físicas correspondientes a la disciplina
+    <strong>{{ apto.actividad.nombre }}</strong>.
+  </p>
+
+  <p class="mb-3">
+    Declaro que toda la información consignada en este formulario de antecedentes y apto médico es veraz y completa,
+    asumiendo la responsabilidad sobre la misma.
+    Asimismo, manifiesto que comprendo y acepto los riesgos inherentes a la práctica deportiva,
+    y autorizo expresamente a los profesionales de salud intervinientes a utilizar estos datos con fines médicos y de control de aptitud física.
+  </p>
+
+  <p class="mb-4">
+    Este consentimiento tendrá plena validez mientras dure la inscripción en la actividad antes mencionada, salvo revocación expresa por mi parte.
+  </p>
+
+  <div class="form-check text-center">
+    <div class="d-flex justify-content-center">
+  <label class="consent-wrapper" for="consentimientoCheckbox">
+    <input class="form-check-input" type="checkbox" id="consentimientoCheckbox" name="consentimiento_persona">
+    <span class="consent-label-strong">✔️ Acepto y otorgo mi consentimiento</span>
+  </label>
+</div>
+    <div class="text-danger small d-none mt-2" id="consentimientoError">
+      ⚠️ Debes aceptar el consentimiento antes de continuar.
+    </div>
+  </div>
+</div>
+
+
+          {# --- Botones --- #}
+          <div class="text-center mt-4 d-flex justify-content-center gap-3">
+            <a href="{% url 'menu_paciente' %}" class="btn btn-sport-primary btn-sm" style="width: 20%;">
+              Volver
+            </a>
+            <button type="button" id="btnSubmit" class="btn btn-sport-success btn-sm" style="width: 20%;">
+              {% if is_update %}Actualizar{% else %}Guardar{% endif %}
+            </button>
+          </div>
+
+          {# --- Modal confirmación --- #}
+          <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header bg-warning">
+                  <h5 class="modal-title">Confirmar envío</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <p><strong>Una vez que actualices, no podrás modificar tus antecedentes.</strong></p>
+                  <p>¿Deseas continuar?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-danger">Confirmar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btnSubmit = document.getElementById("btnSubmit");
+  const consentimientoCheckbox = document.getElementById("consentimientoCheckbox");
+  const consentimientoError = document.getElementById("consentimientoError");
+  const confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
+
+  btnSubmit.addEventListener("click", () => {
+    if (!consentimientoCheckbox.checked) {
+      consentimientoError.classList.remove("d-none");
+    } else {
+      consentimientoError.classList.add("d-none");
+      confirmModal.show();
+    }
+  });
+});
+</script>
+
+{% endblock %}

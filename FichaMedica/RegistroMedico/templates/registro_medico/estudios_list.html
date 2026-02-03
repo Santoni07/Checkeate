@@ -4,117 +4,167 @@
 
 {% block content %}
 
+<!-- Banda deportiva pegada al header -->
+<div class="sport-hero-band">
+  <div class="container inner d-flex justify-content-center">
+    <h2 class="mb-0 text-center">
+      <i class="bi bi-clipboard2-pulse me-2"></i>
+      Estudios Cargados de
+      {% if ficha_medica %}
+        {{ ficha_medica.jugador.persona.profile.nombre }} {{ ficha_medica.jugador.persona.profile.apellido }}
+      {% else %}
+        {{ jugador.persona.profile.nombre }} {{ jugador.persona.profile.apellido }}
+      {% endif %}
+    </h2>
+  </div>
+</div>
+
 <main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
-    <style>
-        main::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
-            background-size: cover;
-            opacity: 0.4;
-            z-index: -1;
-        }
+  <style>
+    /* ===== Paleta / estilos compartidos ===== */
+    :root{
+      --sport-navy:#0d47a1;
+      --sport-royal:#1565c0;
+      --sport-grass:#2e7d32;
+      --sport-lime:#43a047;
+      --sport-accent:#fdd835;
+      --card-border:#e7eef4;
+    }
 
-        @media (max-width: 768px) {
-            .table-responsive {
-                overflow-x: auto;
-            }
-            .card-header {
-                padding: 1rem;
-                font-size: 1.2rem;
-            }
-            .table {
-                display: block;
-            }
-            .table thead {
-                display: none;
-            }
-            .table tbody, .table tr, .table td {
-                display: block;
-                width: 100%;
-            }
-            .table tr {
-                margin-bottom: 1rem;
-                border: 1px solid #dee2e6;
-                padding: 0.5rem;
-                background: white;
-                border-radius: 5px;
-            }
-            .table td {
-                text-align: left;
-                padding: 0.5rem;
-                border-bottom: none;
-            }
-            .table td::before {
-                content: attr(data-label);
-                font-weight: bold;
-                display: block;
-                text-transform: uppercase;
-                color: #17a2b8;
-            }
-        }
-    </style>
+    /* Fondo tenue */
+    main::before{
+      content:'';
+      position: fixed; inset:0; z-index:-1;
+      background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
+      background-size: cover; opacity:.35;
+    }
 
-    <div style="position: relative; z-index: 1;">
-        <div class="container mt-5">
-            <div class="table-responsive bg-white p-3 rounded shadow">
-                <div class="card-header bg-info text-white text-center p-4 w-100">
-                    <h2 class="mb-0 fw-bold">Estudios Cargados</h2>
-                </div>
-                <table class="table table-bordered align-middle">
-                    <thead style="color: #00CFFF;">
-                        <tr class="text-center">
-                            <th scope="col">Tipo de Estudio</th>
-                            <th scope="col">Observaciones</th>
-                            <th scope="col">Año</th>
-                            <th scope="col">Archivo</th>
-                            <th scope="col">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for estudio in estudios %}
-                        <tr class="text-center">
-                            <td data-label="Tipo de Estudio" class="fw-bold">{{ estudio.get_tipo_estudio_display }}</td>
-                            <td data-label="Observaciones">{{ estudio.observaciones|default_if_none:"S/D" }}</td>
-                            <td data-label="Año">{{ estudio.fecha_creacion|date:"Y" }}</td>
-                            <td data-label="Archivo">
-                                {% if estudio.archivo %}
-                                    <a href="{{ estudio.archivo.url }}" target="_blank" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-file-earmark-text"></i> Ver Archivo
-                                    </a>
-                                {% else %}
-                                    <span class="text-muted">No disponible</span>
-                                {% endif %}
-                            </td>
-                            <td data-label="Acciones">
-                                {% if registro_estado != 'APROBADA' %}
-                                    <a href="{% url 'registroMedico:eliminar_estudio' estudio.pk %}" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-trash"></i> Eliminar
-                                    </a>
-                                {% else %}
-                                    <span class="text-muted">No disponible</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">No hay estudios cargados.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="d-flex justify-content-between align-items-center mt-4">
-                    <a href="{% url 'menu_jugador' %}" class="btn btn-outline-info">
-                        <i class="bi bi-arrow-left"></i> Volver
-                    </a>
-                </div>
-            </div>
+    /* Banda justo debajo del header */
+    .sport-hero-band{
+      padding: 18px 16px;
+      display:flex; justify-content:center; align-items:center;
+      background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+      border-bottom: 1px solid rgba(255,255,255,.15);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+      color:#fff;
+    }
+    .sport-hero-band h2{
+      margin:0; font-weight:700; letter-spacing:.3px;
+      text-shadow: 0 1px 1px rgba(0,0,0,.15);
+    }
+
+    /* Contenedor y card */
+    .sport-card{
+      border:1px solid var(--card-border) !important;
+      border-radius:14px !important;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+      overflow:hidden;
+      background:#fff;
+    }
+    .sport-card .card-header{
+      background: linear-gradient(90deg, var(--sport-royal) 0%, var(--sport-navy) 100%) !important;
+      border-bottom:none;
+    }
+
+    /* Tabla */
+    .table thead th{
+      background: var(--sport-royal);
+      color:#fff !important;
+      border-color: var(--sport-royal) !important;
+    }
+    .table tbody td{ background:#fff; }
+
+    /* Botones con la paleta */
+    .btn-sport-primary{
+      background-color: var(--sport-royal) !important;
+      border-color: var(--sport-royal) !important;
+      color:#fff !important; font-weight:700;
+      box-shadow: 0 6px 14px rgba(21,101,192,.18);
+    }
+    .btn-sport-primary:hover{
+      background-color:#0f5aad !important; border-color:#0f5aad !important;
+    }
+
+    /* Mobile: tabla apilada */
+    @media (max-width: 768px) {
+      .table-responsive{ overflow-x:auto; }
+      .table{ display:block; }
+      .table thead{ display:none; }
+      .table tbody, .table tr, .table td{ display:block; width:100%; }
+      .table tr{
+        margin-bottom:1rem; border:1px solid #dee2e6;
+        padding:.5rem; background:#fff; border-radius:8px;
+      }
+      .table td{
+        text-align:left; padding:.5rem; border-bottom:none;
+      }
+      .table td::before{
+        content: attr(data-label);
+        font-weight:700; display:block; text-transform:uppercase; color:#1565c0;
+      }
+    }
+  </style>
+
+  <div style="position: relative; z-index: 1;">
+    <div class="container my-5">
+      <div class="sport-card p-3">
+        <div class="card-header text-white text-center p-4 w-100">
+          <h3 class="mb-0 fw-bold">Lista de Estudios Cargados</h3>
         </div>
+
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered align-middle">
+            <thead>
+              <tr class="text-center">
+                <th scope="col">Tipo de Estudio</th>
+                <th scope="col">Observaciones</th>
+                <th scope="col">Año</th>
+                <th scope="col">Archivo</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for estudio in estudios %}
+              <tr class="text-center">
+                <td data-label="Tipo de Estudio" class="fw-bold">{{ estudio.get_tipo_estudio_display }}</td>
+                <td data-label="Observaciones">{{ estudio.observaciones|default_if_none:"S/D" }}</td>
+                <td data-label="Año">{{ estudio.fecha_creacion|date:"Y" }}</td>
+                <td data-label="Archivo">
+                  {% if estudio.archivo %}
+                    <a href="{{ estudio.archivo.url }}" target="_blank" class="btn btn-sport-primary btn-sm">
+                      <i class="bi bi-file-earmark-text"></i> Ver Archivo
+                    </a>
+                  {% else %}
+                    <span class="text-muted">No disponible</span>
+                  {% endif %}
+                </td>
+                <td data-label="Acciones">
+                  {% if registro_estado != 'APROBADA' %}
+                    <a href="{% url 'registroMedico:eliminar_estudio' estudio.pk %}" class="btn btn-danger btn-sm">
+                      <i class="bi bi-trash"></i> Eliminar
+                    </a>
+                  {% else %}
+                    <span class="text-muted">No disponible</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">No hay estudios cargados.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+          <a href="{% url 'menu_jugador' %}" class="btn btn-sport-primary">
+            <i class="bi bi-arrow-left"></i> Volver
+          </a>
+        </div>
+      </div>
     </div>
+  </div>
 </main>
 
 {% endblock %}

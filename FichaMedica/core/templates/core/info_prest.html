@@ -33,7 +33,7 @@
       <div class="col-lg-10">
         <div class="card">
           <h1 class="mb-4 text-center fw-bold text-primary">¿Querés ser prestador médico?</h1>
-          
+
           <p class="text-dark" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
             En <strong>Checkeate</strong>, estamos profundamente comprometidos con la salud integral de deportistas y estudiantes. Creemos que tu rol como profesional médico es clave para garantizar procesos seguros, completos y confiables. Por eso, te invitamos a ser parte de nuestra red de prestadores.
           </p>
@@ -41,6 +41,18 @@
           <p class="text-dark" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
             Vas a recibir credenciales para ingresar a la plataforma. Al iniciar sesión por primera vez, deberás cargar tu <strong>certificado de matrícula</strong> y tu <strong>firma electrónica</strong>. El sistema escaneará automáticamente el código QR del certificado para validar su autenticidad. Una vez aceptado el contrato de prestación de servicios, podrás comenzar a usar todas las funcionalidades de Checkeate.
           </p>
+            <h4 class="mt-4 text-primary">Paso a paso para aprobar un Apto General</h4>
+            <ol style="font-size: 1.05rem; line-height: 1.7;">
+              <li>Ingresá a la plataforma y seleccioná la opción <strong>"Aptos Generales"</strong> desde el menú principal.</li>
+              <li>Se te dirigirá al <strong>home de aptos generales</strong>.</li>
+              <li>Buscá al paciente por <strong>nombre o DNI</strong>. Debe tener antecedentes cargados y consentimiento firmado.</li>
+              <li>En la columna <strong>“Acción”</strong>, hacé clic en <strong>“Cargar Ficha”</strong>.</li>
+              <li>Completá los formularios médicos correspondientes a los aptos generales.</li>
+              <li>Podrás adjuntar estudios complementarios si son requeridos (ej. laboratorio, imágenes, etc.).</li>
+              <li>Al final del proceso, accedé a la pestaña <strong>“Certificado Médico”</strong>.</li>
+              <li>Seleccioná si el certificado queda <strong>Aprobado o Rechazado</strong> y guardá.</li>
+              <li>El apto quedará disponible para <strong>visualización y descarga en PDF</strong>.</li>
+            </ol>
 
           <h4 class="mt-4 text-primary">Paso a paso para aprobar un Apto Físico</h4>
           <ol style="font-size: 1.05rem; line-height: 1.7;">
@@ -83,15 +95,28 @@
           <p class="text-dark mt-4" style="font-size: 1.1rem; line-height: 1.8;">
             En Checkeate vas a contar con una plataforma ágil, segura y moderna para realizar tu trabajo médico con excelencia. Sumate a nuestra red de profesionales y ayudanos a garantizar que cada deportista y estudiante esté en condiciones óptimas para su actividad.
           </p>
-            <div class="d-flex justify-content-end mt-5">
-                <a href="{% url 'home' %}" class="btn btn-primary btn-lg w-45 me-3">Volver</a>
-               
-            </div>
+          <div class="text-center mt-5">
+  <a
+    href="https://www.checkeate.com.ar/media/tutoriales/RegistroMedicoCheckeateFinal.mp4"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="btn btn-success btn-lg px-4"
+  >
+    🎥 Ver instructivo de registro médico
+  </a>
+</div>
+          <div class="d-flex justify-content-end mt-5">
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg w-45 me-3">Volver</a>
+    <a href="{% url 'register_medico' %}" class="btn btn-primary btn-lg w-45">
+        <i class="bi bi-person-plus"></i> Registrarme como Prestador Médico
+    </a>
+</div>
+
         </div>
       </div>
     </div>
   </div>
-  
+
 </main>
 {% endblock %}
 

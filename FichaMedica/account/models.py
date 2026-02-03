@@ -4,7 +4,6 @@ from django.db import models
 
 
 
-
 class Profile(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Permitir múltiples perfiles para un usuario
     nombre = models.CharField(max_length=30, blank=True, null=True)
@@ -21,6 +20,9 @@ class Profile(models.Model):
             ('representante', 'Representante'),
             ('colegio' , 'Colegio'),
             ('estudiante', 'Estudiante'),
+            ('paciente', 'Paciente'),
+            ('actividad', 'Actividad'),
+
         ],
         default='jugador'
     )
@@ -37,17 +39,26 @@ class Profile(models.Model):
         return None
 
     def save(self, *args, **kwargs):
-        # Capitalizar la primera letra del nombre y apellido
+        # 🚫 Evitar guardar perfiles sin rol o con datos vacíos automáticos
+        if not self.rol:
+            self.rol = 'jugador'  # por compatibilidad, pero no lo creamos vacío
+
+        # Evitar perfiles automáticos sin nombre y apellido
+        if not self.nombre and not self.apellido and not self.dni:
+            print(f"⚠️ Previniendo guardado de Profile vacío para user={self.user.email}")
+            return  # evita crear registros basura
+
+        # Capitalización
         if self.nombre:
             self.nombre = self.nombre.capitalize()
         if self.apellido:
             self.apellido = self.apellido.capitalize()
-        
-        # Sincronizar el email del Profile con el del User si es necesario
+
+        # Sincronizar email
         if self.user and self.user.email != self.email:
             self.user.email = self.email
             self.user.save()
-        
+
         super().save(*args, **kwargs)
 
     def __str__(self):

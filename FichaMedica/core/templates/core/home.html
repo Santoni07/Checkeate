@@ -1,7 +1,11 @@
-{% extends 'core/base.html' %} {% load static %} {% block title %}Salud - Aptos
-Físicos{% endblock %} 
+{% extends 'core/base.html' %} {% load static %} {% block title %}Checkeate - Aptos
+Físicos{% endblock %}
 
 {% block content %}
+<h1 style="display: none;">Checkeate - Aptos
+Físicos</h1>
+
+
 {% comment %} {% if messages %}
 <div class="container mt-3">
   {% for message in messages %}
@@ -12,364 +16,628 @@ Físicos{% endblock %}
   {% endfor %}
 </div>
 {% endif %} {% endcomment %}
-<style>
-  /* Estilos para los botones del carrusel */
-  .black-controls {
-    background-color: white !important; /* Fondo negro */
-    border: none; /* Sin bordes */
-    opacity: 0.4; /* Transparencia opcional */
-  }
-  .carousel-indicators button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #009fe3; /* Color azul, ajústalo a tu necesidad */
-    border: none;
-    margin: 0 5px;
-  }
-  
-  .carousel-indicators .active {
-    background-color: #0056b3; /* Color más oscuro para la bolita activa */
-  }
-  
-  .carousel-indicators {
-    bottom: 50px; /* Ajusta la posición de las bolitas si es necesario */
-    position: absolute;
-    bottom: 20px; /* Ajusta la posición vertical */
-    left: 50%;
-    transform: translateX(100%);
-    transform: translateY(-200%);
-    z-index: 10; /* Asegura que estén por encima de las imágenes */
-  }
-  .black-controls:hover {
-    opacity: 1; /* Sin transparencia */
-  }
 
-  /* Iconos dentro de los botones */
-  .black-controls .carousel-control-prev-icon,
-  .black-controls .carousel-control-next-icon {
-    filter: invert(1); /* Cambia el color del ícono a blanco */
-  }
-  /* Contenedor principal */
+<style>
+  /* ================= RESET BÁSICO ================= */
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
-  /* Hace que el carrusel ocupe todo el ancho y alto */
 
+  .cards-section {
+  background-color: #f2f8ff; /* celeste suave, limpio */
+}
 
+  /* ================= CARDS HOME ================= */
+  .cards-home {
+    max-width: 1800px;
+    margin: 0 auto;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  .cards-home .card-img-top {
+  height: 190px;
+  object-fit: cover;
+}
 
-  /* Sección Hero */
-  .hero-section {
-    background-color: #0288d1; /* Color de fondo del Hero */
-    color: white;
-    padding: 40px 0;
+  .cards-home .card {
+    border: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+
+  .cards-home .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,.15);
+  }
+
+  /* Imagen uniforme en todas las cards */
+  .cards-home .card-img-top {
+    height: 200px;
+    object-fit: cover;
+  }
+
+  /* Cuerpo de la card alineado */
+  .cards-home .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     text-align: center;
   }
 
-  /* Contenedor principal */
+  /* Texto ocupa espacio y empuja botones abajo */
+  .cards-home .card-body p {
+    flex-grow: 1;
+  }
+
+  /* ================= OPCIONES INFERIORES ================= */
   .options-section {
     background-color: #f4f4f4;
-    padding: 0px;
+    padding: 0;
   }
 
   .options-container {
-    display: flex; /* Flexbox para alinear los bloques horizontalmente */
-    max-width: 100%; /* Ocupa todo el ancho */
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
   }
 
-  /* Estilo de los bloques */
   .option {
-    font-family: Nunito !important;
-    flex: 1; /* Todos los bloques tienen el mismo tamaño */
-    text-align: center; /* Centrar texto */
-    padding: 60px 20px; /* Espaciado interno */
-    color: rgb(248, 249, 249); /* Texto oscuro para contraste */
-    font-size: 1.5rem; /* Tamaño del texto más grande */
+    flex: 1;
+    min-width: 200px;
+    padding: 50px 20px;
+    font-family: 'Nunito', sans-serif;
     font-weight: bold;
-    transition: transform 0.5s ease, box-shadow 0.5s ease; /* Animación suave */
-    cursor: pointer; /* Cambiar cursor al pasar por encima */
+    font-size: 1.3rem;
+    text-align: center;
+    color: #f8f9f9;
+    cursor: pointer;
+    transition: transform .3s ease, box-shadow .3s ease;
   }
 
-  /* Efecto de zoom al pasar el ratón */
   .option:hover {
-    transform: scale(1.3); /* Efecto de zoom */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Sombra visible */
+    transform: scale(1.08);
+    box-shadow: 0 6px 12px rgba(0,0,0,.2);
   }
 
-  /* Quitar espacio entre bloques */
-  .options-container .option + .option {
-    margin-left: 0;
-  }
-
-  /* Diseño responsivo */
+  /* ================= RESPONSIVE ================= */
   @media (max-width: 768px) {
     .options-container {
-      flex-direction: column; /* Los bloques se apilan uno debajo del otro */
+      flex-direction: column;
     }
 
     .option {
-      flex: 1 1 100%; /* Cada bloque ocupa el 100% del ancho */
-      padding: 40px 10px; /* Reducir el padding en pantallas medianas */
+      padding: 40px 10px;
+      font-size: 1.2rem;
     }
   }
 
   @media (max-width: 480px) {
     .option {
-      padding: 20px 10px; /* Padding aún más reducido en pantallas pequeñas */
+      padding: 25px 10px;
+      font-size: 1.1rem;
+    }
+
+    .cards-home .card-img-top {
+      height: 180px;
     }
   }
+  .text-gradient {
+  background: linear-gradient(90deg, #0d6efd, #00b4d8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 </style>
-<!-- Carrusel de Hero -->
-<section id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-  
-  <!-- Indicadores (Opcional) -->
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+
+
+<!-- ================== CARDS PRINCIPALES ================== -->
+<section class="cards-section">
+  <div class="container py-5 cards-home">
+
+     <div class="text-center mb-5"> <h2 class="mb-2">
+          <span class="fw-bold display-6 text-gradient"> Bienvenido a Checkeate </span>
+          </h2> <p class="fw-semibold fs-5 mb-1"> Elegí la opción según quién te solicita el certificado médico </p>
+          <p class="text-muted small mb-0"> Si ya tenés una cuenta, el servicio se sumará a la misma. </p>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="row g-4 justify-content-center">
+
+
+<!-- 1. APTOS GENERALES -->
+<!-- 1. APTO SOLICITADO POR CLUB / INSTITUCIÓN -->
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100 shadow position-relative">
+
+    <img src="{% static 'core/img/aptos_generales.jpg' %}"
+         class="card-img-top"
+         alt="Apto médico solicitado por club o institución">
+
+    <div class="card-body text-center">
+      <h4 class="fw-bold mb-2">
+        🏫 Apto Médico solicitado por Club - Institución
+      </h4>
+
+      <p class="text-muted small mb-2">
+        Certificado médico requerido por <strong>clubes, gimnasios e instituciones deportivas</strong>,
+        independientemente de si competís o no en torneos.
+      </p>
+
+      <p class="text-muted small fst-italic mb-3">
+        Ejemplos:
+        <span class="text-secondary">
+          Club Poeta Lugones · Aquavel · Clubes deportivos · Gimnasios
+        </span>
+      </p>
+
+      <p class="small text-danger mb-3">
+        ⚠️ Elegí esta opción si el certificado te lo pide
+        <strong>tu club o institución</strong>,
+        aunque participes en torneos.
+      </p>
+
+      <a href="{% url 'register_paciente' %}"
+         class="btn btn-outline-primary w-100 btn-register"
+         data-confirm="true"
+         data-role="Apto Médico solicitado por Club"
+         data-url="{% url 'register_paciente' %}"
+         data-endpoint="{% url 'api_actividades_adheridas' %}">
+        ➕ Usar este servicio
+      </a>
+
+      <a href="https://www.checkeate.com.ar/media/tutoriales/InstructivoAptosFisicosGenerales.mp4"
+         target="_blank"
+         class="btn btn-outline-secondary w-100 mt-2">
+        ▶ Ver instructivo
+      </a>
+    </div>
   </div>
+</div>
 
-  <!-- Contenido del Carrusel -->
-  <div class="carousel-inner">
 
-    <!-- Diapositiva 1 -->
-    <div class="carousel-item active">
-      <section class="hero section dark-background">
-        <img
-          src="{% static 'core/img/medico_home.jpg' %}"
-          alt="Medico Home"
-          class="hero-img"
-        />
-        <div class="container text-center">
-          <div class="row justify-content-start">
-            <div class="col-lg-8 col-md-8 col-sm-10 text-lg-start text-md-center">
-              <h2>Aptos Físicos Online</h2>
-              <p>
-                Gestiona de manera sencilla y rápida tus exámenes médicos para torneos
-                de fútbol. Los jugadores pueden cargar sus datos y antecedentes, y los
-                médicos realizarán la aprobación del apto físico de forma online.
-              </p>
-              <a href="{% url 'register' %}" class="btn-get-started">Regístrate</a>
-              <a href="{% url 'login' %}" class="btn-get-started">Inicia Sesión</a>
-            </div>
-          </div>
-        </div>
-      </section>
+
+<!-- 2. TORNEOS Y COMPETENCI<!-- 2. APTO SOLICITADO POR TORNEO / LIGA -->
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100 shadow position-relative">
+
+    <img src="{% static 'core/img/medico_home.jpg' %}"
+         class="card-img-top"
+         alt="Apto médico solicitado por torneo o liga">
+
+    <div class="card-body text-center">
+      <h4 class="fw-bold mb-2">
+        🏆 Apto Médico solicitado por Torneo -Liga -Competencias     </h4>
+
+      <p class="text-muted small mb-2">
+        Certificado médico requerido <strong>directamente por un torneo, liga o competencia</strong>.
+        El apto queda vinculado <strong>al torneo organizador</strong>.
+      </p>
+
+      <p class="text-muted small fst-italic mb-3">
+        Ejemplos:
+        <span class="text-secondary">
+          UCFA · CAMPA · Imperial Golden · Ligas amateurs
+        </span>
+      </p>
+
+      <p class="small text-danger mb-3">
+        ⚠️ Elegí esta opción <strong>solo si el torneo o liga</strong>
+        te solicita el certificado médico.
+      </p>
+
+      <a href="{% url 'register' %}"
+         class="btn btn-outline-primary w-100 btn-register"
+         data-role="Apto Médico solicitado por Torneo"
+         data-confirm="true"
+         data-url="{% url 'register' %}"
+         data-endpoint="{% url 'api_torneos_adheridos' %}">
+        ➕ Usar este servicio
+      </a>
+
+      <a href="https://www.checkeate.com.ar/media/tutoriales/RegistroTorneoyCompetencia.mp4"
+         target="_blank"
+         class="btn btn-outline-secondary w-100 mt-2">
+        ▶ Ver instructivo
+      </a>
     </div>
-
-    <!-- Diapositiva 2 -->
-    <div class="carousel-item">
-      <section class="hero section dark-background">
-        <img
-          src="{% static 'core/img/alumnos.jpg' %}"
-          alt="alumnos"
-          class="hero-img"
-        />
-        <div class="container text-center">
-          <div class="row justify-content-start">
-            <div class="col-lg-8 col-md-8 col-sm-10 text-lg-start text-md-center">
-              <h2>¿Sos Estudiante? Realiza el Certificado Unico de Salud</h2>
-              <p>
-                Ingresa y llena el certificado con tus datos personales y antecedentes 
-              </p>
-              <a href="{% url 'register_alumnos' %}" class="btn-get-started">Regístrate</a>
-              <a href="{% url 'login' %}" class="btn-get-started">Inicia Sesión</a>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- Diapositiva 3 -->
-    <div class="carousel-item">
-      <section class="hero section dark-background">
-        <img
-          src="{% static 'core/img/representante.jpg' %}"
-          alt="Representante del Torneo"
-          class="hero-img"
-        />
-        <div class="container text-center">
-          <div class="row justify-content-start">
-            <div class="col-lg-8 col-md-8 col-sm-10 text-lg-start text-md-center">
-              <h2>Control Total para Representantes</h2>
-              <p>
-                Organiza y supervisa los exámenes médicos de los jugadores y alumnos  sin complicaciones y a un solo click de distancia.
-              </p>
-           
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
   </div>
+</div>
 
+
+<!-- 3. CUS -->
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100 shadow position-relative">
+
+    <img src="{% static 'core/img/alumnos.jpg' %}"
+         class="card-img-top"
+         alt="Certificado Único de Salud solicitado por institución educativa">
+
+    <div class="card-body text-center">
+      <h4 class="fw-bold mb-2">
+        🎓 Certificado Único de Salud (CUS)
+      </h4>
+
+      <p class="text-muted small mb-2">
+        Certificado de salud requerido por
+        <strong>instituciones educativas</strong>
+        para estudiantes de nivel inicial, primario y secundario.
+      </p>
+
+      <p class="small text-danger mb-3">
+        ⚠️ Elegí esta opción si el certificado te lo solicita
+        <strong>la escuela o colegio</strong>.
+      </p>
+
+      <a href="{% url 'register_alumnos' %}"
+         class="btn btn-outline-primary w-100 btn-register">
+        ➕ Usar este servicio
+      </a>
+
+      <a href="https://www.checkeate.com.ar/media/tutoriales/DemoCus1.mp4"
+         target="_blank"
+         class="btn btn-outline-secondary w-100 mt-2">
+        ▶ Ver instructivo
+      </a>
+    </div>
+  </div>
+</div>
+
+
+  <!-- 4. PRELABORALES -->
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100 shadow position-relative">
+
+    <img src="{% static 'core/img/prelaborales.jpg' %}"
+         class="card-img-top"
+         alt="Exámenes médicos solicitados por empresas">
+
+    <div class="card-body text-center">
+      <h4 class="fw-bold mb-2">
+        💼 Exámenes Médicos Prelaborales
+      </h4>
+
+      <p class="text-muted small mb-3">
+        Exámenes médicos solicitados por
+        <strong>empresas u organizaciones laborales</strong>.
+      </p>
+
+      <button class="btn btn-outline-secondary w-100" disabled>
+        Próximamente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. MÉDICOS -->
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100 shadow position-relative">
+
+    <img src="{% static 'core/img/medico_banner.jpg' %}"
+         class="card-img-top"
+         alt="Registro de médico en Checkeate">
+
+    <div class="card-body text-center">
+      <h4 class="fw-bold mb-2">
+        🩺 Registro para Médicos
+      </h4>
+
+      <p class="text-muted small mb-3">
+        Accedé como profesional para
+        <strong>emitir certificados, cargar estudios
+        y gestionar pacientes</strong>.
+      </p>
+
+      <a href="{% url 'register_medico' %}"
+         class="btn btn-outline-primary w-100 btn-register"
+         data-role="Registro como Médico"
+         data-url="{% url 'register_medico' %}">
+        ➕ Usar este servicio
+      </a>
+
+      <a href="https://www.checkeate.com.ar/media/tutoriales/RegistroMedicoCheckeateFinal.mp4"
+         target="_blank"
+         class="btn btn-outline-secondary w-100 mt-2">
+        ▶ Ver instructivo
+      </a>
+    </div>
+  </div>
+</div>
+
+
+    <!-- 6. REPRESENTANTES -->
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100 shadow position-relative">
+
+    <img src="{% static 'core/img/repreV3.jpg' %}"
+         class="card-img-top"
+         alt="Acceso para representantes">
+
+    <div class="card-body text-center">
+      <h4 class="fw-bold mb-2">
+        📋 Acceso para Representantes
+      </h4>
+
+      <p class="text-muted small mb-3">
+        Gestión y supervisión de
+        <strong>aptos médicos de jugadores y alumnos</strong>
+        en instituciones y competencias.
+      </p>
+
+      <a href="{% url 'listado_eventos' %}"
+         class="btn btn-outline-primary w-100">
+        Ver actividades
+      </a>
+    </div>
+  </div>
+</div>
 
 
 </section>
 
 
-<!-- End Hero Section -->
+<!-- ================== OPCIONES ================== -->
 <section id="options" class="options-section">
   <div class="options-container">
-    <div class="option" style="background-color: #006994">
-        <a href="#quienes-somos" style="color: white; text-decoration: none; display: block;">Quienes Somos</a>
-    </div>
-    <div class="option" style="background-color: #0093c4">
-        <a href="#quiero-ser-prestador" style="color: white; text-decoration: none; display: block;">Quiero ser Prestador</a>
-    </div>
-    <div class="option" style="background-color: #00c4f6">
-      <a href="{% url 'salud_bienestar' %}" style="color: white; text-decoration: none; display: block;">Salud y Bienestar</a>
-    </div>
-    <div class="option" style="background-color: #00d7f6">
-      <a href="{% url 'novedades' %}" style="color: white; text-decoration: none; display: block;">Novedades</a>
-    </div>
-    <div class="option" style="background-color:rgb(126, 219, 243)">
-      <a href="#footer" style="color: white; text-decoration: none; display: block;">Contacto</a>
-    </div>
+    <div class="option" style="background:#006994"><a href="#quienes-somos" class="text-white text-decoration-none">Quiénes Somos</a></div>
+    <div class="option" style="background:#0093c4"><a href="#quiero-ser-prestador" class="text-white text-decoration-none">Quiero ser Prestador</a></div>
+    <div class="option" style="background:#00c4f6"><a href="{% url 'medicos_inscriptos' %}" class="text-white text-decoration-none">Médicos Inscriptos</a></div>
+    <div class="option" style="background:#00d7f6"><a href="{% url 'listado_eventos' %}" class="text-white text-decoration-none">Torneos Adheridos</a></div>
+    <div class="option" style="background:#7edbf3"><a href="#footer" class="text-white text-decoration-none">Contacto</a></div>
   </div>
-
 </section>
 {% endblock %}
 
 {% block publicidad %}
-        <!-- Publicidades Section -->
-        <section
-          id="publicidades"
-          class="publicidades section light-background"
-          style="padding:40px; margin: 0"
-        >
-          <div class="container-fluid" style="padding: 0">
-            <div class="row g-0">
-              <!-- Columna izquierda: Imagen con leyenda -->
-              <div class="col-md-6 position-relative">
-                <div class="content-container" style="padding-top: 20px">
-                  <!-- Título -->
-                  <h2 style=" font-family: 'Poppins', sans-serif; color: #0D6EFD;background-color: #f9f9f9;text-align: center; margin-bottom: 40px;">
-                    "Plataforma Integral de Evaluación de Salud Escolar y Deportiva"
-                  </h2>
+<!-- Publicidades Section (versión suave, cercana al original) -->
+<section
+  id="publicidades"
+  class="publicidades section light-background"
+  style="padding:40px; margin:0; background-color:#f9f9f9;"
+>
+  <div class="container-fluid" style="padding:0">
+    <div class="row g-0">
 
-                  <!-- Descripción -->
-                  <p
-                    style="font-family: Nunito Sans; font-size: 1.2rem; line-height: 1.8; text-align: center; color: #333; padding: 0 20px;"
-                  >
-                    
-                  </p>
+      <!-- Columna izquierda: SIN CAMBIOS -->
+      <div class="col-md-6 position-relative">
+        <div class="content-container" style="padding-top: 20px">
+          <!-- Título -->
+          <h2 style="font-family:'Poppins', sans-serif; color:#0D6EFD; background-color:#f9f9f9; text-align:center; margin-bottom:40px;">
+            "Plataforma Integral de Evaluación de Salud Escolar y Deportiva"
+          </h2>
 
-                  <!-- Imagen -->
-                  <div
-                    class="image-container"
-                    style="margin-top: 20px; text-align: center"
+          <!-- Descripción -->
+          <p
+            style="font-family:Nunito Sans; font-size:1.2rem; line-height:1.8; text-align:center; color:#333; padding:0 20px;"
+          >
+          </p>
+
+          <!-- Imagen -->
+          <div class="image-container" style="margin-top:20px; text-align:center">
+            <img
+              src="{% static 'core/img/medicina-del-deporte.jpg' %}"
+              alt="imagen de deporte"
+              class="img-fluid"
+              style="max-width:100%; height:30%; border-radius:8px; margin-top:0;"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Carrusel estilo "card" ligero -->
+      <div class="col-md-6 d-flex align-items-center right-col">
+        <div class="w-100">
+        <div id="publicidadesCarousel"
+             class="carousel slide"
+             data-bs-ride="carousel"
+             data-bs-interval="6500"
+             data-bs-wrap="true"
+             data-bs-touch="true">
+
+          <!-- Indicadores sutiles, centrados abajo -->
+          <div class="carousel-indicators pb-0 mb-0">
+            {% for publicidad in publicidades %}
+              <button type="button"
+                      data-bs-target="#publicidadesCarousel"
+                      data-bs-slide-to="{{ forloop.counter0 }}"
+                      {% if forloop.first %}class="active"{% endif %}
+                      aria-label="Slide {{ forloop.counter }}"></button>
+            {% endfor %}
+          </div>
+
+          <div class="carousel-inner py-3">
+            {% for publicidad in publicidades %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <div class="ad-card mx-auto">
+                <!-- Imagen/logo de la publicidad -->
+                <div class="ad-img-wrap">
+                  <img
+                    src="{{ publicidad.imagen.url }}"
+                    alt="{{ publicidad.titulo }}"
+                    class="ad-img"
+                    loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                    {% if forloop.first %}fetchpriority="high"{% endif %}
                   >
-                    <img
-                      src="{% static 'core/img/medicina-del-deporte.jpg' %}"
-                      alt="imagen de deporte"
-                      class="img-fluid"
-                      style="
-                        max-width: 100%;
-                        height: 30%;
-                        border-radius: 8px;
-                        margin-top: 0px;
-                      "
-                    />
-                  </div>
                 </div>
-              </div>
 
-              <!-- Columna derecha: Carrusel -->
-              <div class="col-md-6">
-                <!-- Ajuste del margen superior -->
-                <div
-                  id="publicidadesCarousel"
-                  class="carousel slide h-100 rounded"
-                  data-bs-ride="carousel"
-                  style="padding: 20px; background-color: white"
-                >
-                  <!-- Contenido del carrusel -->
-                  <div class="carousel-inner" style="margin-top: 50px">
-                    {% for publicidad in publicidades %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                      <div class="text-center">
-                        <img
-                          src="{{ publicidad.imagen.url }}"
-                          alt="{{ publicidad.titulo }}"
-                          class="publicidad-img rounded img-fluid"
-                          style="max-width: 30%; height: auto; margin: 0 auto"
-                        />
-                        <h3 style="margin-top: 15px; font-size: 1.5rem; color: #007bff">
-                          {{ publicidad.titulo }}
-                        </h3>
-                        <p style="color: #555">{{ publicidad.descripcion }}</p>
-                        {% if publicidad.url %}
-                        <a href="{{ publicidad.url }}" class="btn btn-primary mt-3"
-                          >Ver más</a
-                        >
-                        {% endif %}
-                      </div>
-                    </div>
-                    {% endfor %}
-                  </div>
-
-                  <!-- Controles de navegación -->
-                  <button
-                    class="carousel-control-prev"
-                    type="button"
-                    data-bs-target="#publicidadesCarousel"
-                    data-bs-slide="prev"
-                  >
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Anterior</span>
-                  </button>
-                  <button
-                    class="carousel-control-next"
-                    type="button"
-                    data-bs-target="#publicidadesCarousel"
-                    data-bs-slide="next"
-                  >
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Siguiente</span>
-                  </button>
+                <!-- Texto -->
+                <div class="text-center px-3 px-md-4">
+                  {% if publicidad.titulo %}
+                    <h3 class="ad-title">{{ publicidad.titulo }}</h3>
+                  {% endif %}
+                  {% if publicidad.descripcion %}
+                    <p class="ad-desc">{{ publicidad.descripcion }}</p>
+                  {% endif %}
+                  {% if publicidad.url %}
+                    <a href="{{ publicidad.url }}" class="btn btn-sm btn-primary mt-2">
+                      Ver más
+                    </a>
+                  {% endif %}
                 </div>
               </div>
             </div>
+            {% endfor %}
           </div>
-        </section>
-{% endblock %} 
-{% block landingPage %}
 
+          <!-- Controles discretos -->
+          <button class="carousel-control-prev ad-control" type="button"
+                  data-bs-target="#publicidadesCarousel" data-bs-slide="prev" aria-label="Anterior">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          </button>
+          <button class="carousel-control-next ad-control" type="button"
+                  data-bs-target="#publicidadesCarousel" data-bs-slide="next" aria-label="Siguiente">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Estilos (scoped al bloque para no afectar otros componentes) -->
+<style>
+  /* --------- Tarjeta / layout --------- */
+  #publicidades .ad-card{
+    max-width: 640px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.06);
+    border-radius: 14px;
+    padding: 24px 16px 28px 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.06);
+    transition: box-shadow .25s ease, transform .25s ease;
+  }
+  #publicidades .ad-card:hover{
+    box-shadow: 0 12px 32px rgba(0,0,0,.10);
+    transform: translateY(-2px);
+  }
+
+  /* Imagen/logo centrado, con micro-zoom al hover */
+  #publicidades .ad-img-wrap{
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 18px;
+  }
+  #publicidades .ad-img{
+    max-width: 220px; max-height: 220px;
+    width: auto; height: auto;
+    border-radius: 10px;
+    transition: transform .45s ease;
+  }
+  #publicidades .ad-card:hover .ad-img{ transform: scale(1.02); }
+
+  /* Tipografía suave */
+  #publicidades .ad-title{
+    color:#0D6EFD;
+    font-weight: 700;
+    font-size: 1.35rem;
+    margin-bottom: .35rem;
+  }
+  #publicidades .ad-desc{
+    color:#5f6b7a;
+    font-size: .98rem;
+    line-height: 1.55;
+    max-width: 56ch;
+    margin: 0 auto;
+  }
+
+  /* Indicadores tipo dots discretos */
+  #publicidades .carousel-indicators [data-bs-target]{
+    width: 8px; height: 8px; border-radius: 50%;
+    background-color: rgba(13,110,253,.35);
+    border: 0; margin: 0 4px;
+    transition: all .2s ease;
+  }
+  #publicidades .carousel-indicators .active{
+    background-color: #0D6EFD;
+    width: 18px; height: 8px; border-radius: 999px;
+  }
+
+  /* Flechas sutiles */
+  #publicidades .ad-control{
+    opacity: .8;
+    transition: opacity .2s ease;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.12));
+  }
+  #publicidades .ad-control:hover{ opacity: 1; }
+
+  /* Reduce animación si el usuario lo prefiere */
+  @media (prefers-reduced-motion: reduce){
+    #publicidades .ad-card, #publicidades .ad-img{ transition: none; }
+  }
+</style>
+{% endblock %}
+
+
+
+
+{% block landingPage %}
 
 <!-- Sección Quiénes Somos -->
 <section id="quienes-somos" class="container-fluid py-5" style="background-color: #f9f9f9; font-family: 'Poppins', sans-serif;">
   <div class="row align-items-center">
-    
+
     <!-- Columna de Texto -->
     <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0 px-4">
       <h2 class="text-primary fw-bold mb-4" style="color: #00a2d3; text-align: center;">
         ¿Quiénes Somos?
       </h2>
-      
-      <p class="text-dark" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
-        <strong>Checkeate</strong> es una plataforma digital integral diseñada para gestionar, evaluar y centralizar la información médica de niños, niñas, adolescentes y deportistas.
-      </p>
 
       <p class="text-dark" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
-        Nacimos con el objetivo de modernizar y simplificar el acceso a los <strong>aptos físicos deportivos</strong> y los <strong>certificados escolares de salud (CUS)</strong>, garantizando trazabilidad, seguridad y acompañamiento médico en cada etapa.
+        <strong>Checkeate</strong> es una plataforma digital integral que centraliza la información médica de niños, adolescentes y deportistas, modernizando y simplificando la emisión de certificados de salud.
       </p>
 
-      <p class="text-dark" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
-        Trabajamos junto a profesionales de la salud, instituciones educativas, clubes y familias para facilitar los procesos de control médico preventivo, mejorar la toma de decisiones y asegurar la aptitud física y escolar de cada estudiante, jugador o deportista.
-      </p>
+      <!-- Bloques diferenciados -->
+      <div class="mt-4">
+        <h4 class="fw-bold" style="color:#00a2d3;">Certificado de Salud Escolar </h4>
+        <p class="text-dark" style="font-size: 1.05rem; line-height: 1.8; text-align: justify;">
+          Obligatorio para la escolaridad inicial, primaria y secundaria.
+          El certificado permite evaluar el estado de salud general de los estudiantes,
+          garantizando un seguimiento médico integral y seguro en el ámbito educativo.
+        </p>
+      </div>
 
-      <p class="text-dark" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
-        Con un enfoque inclusivo, digital y seguro, buscamos contribuir al bienestar de las personas desde una mirada médica integral, respetando los tiempos de cada institución y fomentando hábitos de salud desde la infancia.
+      <div class="mt-3">
+        <h4 class="fw-bold" style="color:#00a2d3;">Aptos Físicos Generales</h4>
+        <p class="text-dark" style="font-size: 1.05rem; line-height: 1.8; text-align: justify;">
+          Dirigidos a quienes realizan actividad física recreativa o como parte de un estilo de vida saludable.
+          Estos certificados aseguran que la persona está en condiciones de ejercitarse,
+          fomentando la prevención y el bienestar.
+        </p>
+      </div>
+
+      <div class="mt-3">
+        <h4 class="fw-bold" style="color:#00a2d3;">Aptos para Competencias y Torneos</h4>
+        <p class="text-dark" style="font-size: 1.05rem; line-height: 1.8; text-align: justify;">
+          Diseñados para deportistas  o participantes en competencias amateur.
+          Incluyen estudios más específicos y controles exigidos por clubes, ligas y federaciones,
+          garantizando la aptitud deportiva bajo criterios médicos rigurosos.
+        </p>
+      </div>
+
+      <p class="text-dark mt-4" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
+        Con <strong>Checkeate</strong>, instituciones educativas, clubes, médicos y familias cuentan con una herramienta digital confiable,
+        segura y trazable para gestionar certificados de salud en un solo lugar.
       </p>
     </div>
 
     <!-- Columna de Imagen -->
     <div class="col-lg-6">
-      <img src="{% static 'core/img/quienes_somos.jpg' %}" alt="Quiénes Somos" class="img-fluid rounded" style="width: 100%; height: auto; object-fit: cover;">
+      <img src="{% static 'core/img/quienes_somos.jpg' %}" alt="Quiénes Somos"
+           class="img-fluid rounded shadow"
+           style="width: 100%; height: auto; object-fit: cover;">
     </div>
 
   </div>
@@ -438,47 +706,86 @@ Físicos{% endblock %}
   </div>
 </section>
 
-
-
-
-{% endblock %} 
+{% endblock %}
 {% block footer %}
 <footer id="footer" style="display: flex; flex-wrap: wrap; justify-content: space-between; padding: 20px; background-color: #d9e6f2; color:#2c3e50;">
-    <!-- Sección Izquierda: Logo -->
-    <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
-        <img src="{% static 'core/img/milogo4.png' %}" alt="Logo Checkeate" style="height: 150px; margin-right: 10px;">
-        
-    </div>
+    <!-- Sección Izquierda: Logo + Botón Validar -->
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-right: 20px;">
+        <img src="{% static 'core/img/milogo4.png' %}" alt="Logo Checkeate" style="height: 150px; margin-bottom: 10px;">
+
+        <!-- Botón centrado debajo del logo
+        <a href="{% url 'buscar_apto_general' %}" class="btn btn-outline-primary btn-lg">
+            🔍 Validar Apto Médico
+        </a>
+    </div>-->
 
     <!-- Sección Central: Información -->
-    <div style="flex: 1; border-left: 2px solid #fff; padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
-        <p style="margin: 5px 0;"> CHECKEATE 2025 - Todos los derechos reservados</p>
-        <p style="margin: 5px 0;">Av. Cornelio Savedra 343 - CP5008 - Córdoba</p>
-        <p style="margin: 5px 0;">Email: CentroMedicoDR.GR@gmail.com / Tel: 3513817760</p>
+    <div style="flex: 1; border-left: 2px solid #fff; padding-left: 20px; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+        <p style="margin: 5px 0;">CHECKEATE 2025 - Todos los derechos reservados</p>
+        <p style="margin: 5px 0;">Email: admin@checkeate.com.ar</p>
     </div>
 
     <!-- Sección Derecha: Formulario -->
     <div style="flex: 1; padding: 8px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 400px; margin: 0 auto;">
-      <h4 style="color: #00a2d3; text-align: center; margin-bottom: 6px; font-size: 1rem;">Contáctanos</h4>
-      <form action="{% url 'home' %}" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
-        {% csrf_token %}
-        <input type="hidden" name="tipo_formulario" value="footer_contacto"> 
-        
-        <input type="text" name="nombre" placeholder="Tu nombre" required 
-              style="padding: 6px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 4px;">
-          <input type="email" name="email" placeholder="Tu correo" required 
-              style="padding: 6px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 4px;">
-          <textarea name="mensaje" placeholder="Tu mensaje" rows="2" required 
-              style="padding: 6px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 4px; resize: none;"></textarea>
-          <button type="submit" 
-              style="background-color: #00a2d3; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 0.9rem; cursor: pointer;">
-              Enviar
-          </button>
-      </form>
-  </div>
-  
-  
+        <h4 style="color: #00a2d3; text-align: center; margin-bottom: 6px; font-size: 1rem;">Contáctanos</h4>
+        <form action="{% url 'home' %}" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
+            {% csrf_token %}
+            <input type="hidden" name="tipo_formulario" value="footer_contacto">
+
+            <input type="text" name="nombre" placeholder="Tu nombre" required
+                   style="padding: 6px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 4px;">
+            <input type="email" name="email" placeholder="Tu correo" required
+                   style="padding: 6px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 4px;">
+            <textarea name="mensaje" placeholder="Tu mensaje" rows="2" required
+                      style="padding: 6px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 4px; resize: none;"></textarea>
+            <button type="submit"
+                    style="background-color: #00a2d3; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 0.9rem; cursor: pointer;">
+                Enviar
+            </button>
+        </form>
+    </div>
 </footer>
+
+<!-- Botón flotante Subir (HOME SOLAMENTE) -->
+<button id="btnSubir" title="Subir" aria-label="Subir">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<style>
+  #btnSubir{
+    position:fixed; bottom:20px; left:20px; z-index:9999;
+    width:48px; height:48px; border:none; border-radius:50%;
+    background:#00a2d3; color:#fff; display:none; opacity:0; transform:translateY(8px);
+    box-shadow:0 8px 18px rgba(0,0,0,.18); cursor:pointer; transition:opacity .25s, transform .25s, background .25s;
+  }
+  #btnSubir.show{ display:block; opacity:1; transform:translateY(0); }
+  #btnSubir:hover{ background:#007a9f; }
+  #btnSubir i{ font-size:18px; }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('btnSubir');
+    if(!btn) return;
+
+    const toggleBtn = () => {
+      // Mostramos a partir de 200px de scroll real del documento
+      if (window.pageYOffset > 200 || document.documentElement.scrollTop > 200) {
+        btn.classList.add('show');
+      } else {
+        btn.classList.remove('show');
+      }
+    };
+
+    // Por si había errores anteriores, atrapamos todo
+    window.addEventListener('scroll', toggleBtn, { passive:true });
+    toggleBtn(); // evaluar estado inicial
+
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+</script>
 <script>
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
@@ -491,4 +798,107 @@ Físicos{% endblock %}
     });
 });
 </script>
+<!-- ================= MODAL CONFIRMACIÓN REGISTRO ================= -->
+<div class="modal fade" id="confirmRegistroModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar registro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <p class="mb-1">Estás por registrarte en:</p>
+
+        <p class="fw-bold fs-5 text-primary text-center" id="modalRolTexto"></p>
+
+        <p class="fw-semibold mt-3 mb-2">
+          Entidades adheridas actualmente:
+        </p>
+
+        <!-- 👇 CONTENEDOR FLEX -->
+        <div
+          id="modalEjemplosList"
+          class="d-flex flex-wrap gap-2"
+        >
+          <span class="text-muted">Cargando…</span>
+        </div>
+
+        <div class="alert alert-info mt-3 mb-0">
+          ℹ️ Si tu institución no figura, estas en el registro equivocado.
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <a id="confirmRegistroBtn" class="btn btn-primary">
+          Continuar
+        </a>
+      </div>
+
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const modal = new bootstrap.Modal(
+    document.getElementById("confirmRegistroModal")
+  );
+
+  const rolTexto = document.getElementById("modalRolTexto");
+  const contenedor = document.getElementById("modalEjemplosList");
+  const confirmBtn = document.getElementById("confirmRegistroBtn");
+
+  document.querySelectorAll(".btn-register[data-confirm='true']").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      rolTexto.textContent = btn.dataset.role;
+      confirmBtn.href = btn.dataset.url;
+
+      contenedor.innerHTML = `<span class="text-muted">Cargando…</span>`;
+
+      modal.show();
+
+      try {
+        const response = await fetch(btn.dataset.endpoint);
+        const data = await response.json();
+
+        contenedor.innerHTML = "";
+
+        if (!data.items || data.items.length === 0) {
+          contenedor.innerHTML = `
+            <span class="text-muted">
+              Aún no hay entidades registradas
+            </span>`;
+        } else {
+          data.items.forEach(item => {
+            const badge = document.createElement("span");
+            badge.className =
+              "badge bg-primary-subtle text-primary border px-3 py-2";
+            badge.style.fontSize = "0.9rem";
+            badge.textContent = item;
+            contenedor.appendChild(badge);
+          });
+        }
+
+      } catch (err) {
+        contenedor.innerHTML = `
+          <span class="text-danger">
+            Error al cargar datos
+          </span>`;
+      }
+    });
+  });
+
+});
+</script>
+
+
+
 {% endblock %}
+

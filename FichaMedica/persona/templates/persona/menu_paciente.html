@@ -1,0 +1,513 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  :root{
+    --sport-navy:#0d47a1;
+    --sport-royal:#1565c0;
+    --sport-grass:#2e7d32;
+    --sport-lime:#43a047;
+    --sport-accent:#fdd835;
+  }
+  .ficha-medica-container .navbar{
+    background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%) !important;
+    border-bottom: 2px solid rgba(0,0,0,.05);
+  }
+  .ficha-medica-container .nav-link{
+    color:#fff !important; font-weight:600;
+    display:flex; align-items:center; gap:.35rem;
+    padding:.6rem .75rem; border-radius:.5rem;
+    transition:transform .15s ease, background-color .15s ease, box-shadow .15s ease;
+    text-shadow: 0 1px 1px rgba(0,0,0,.15);
+  }
+  .ficha-medica-container .nav-link:hover{
+    background-color: rgba(255,255,255,.12);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  }
+
+  /* Submenús estilo tarjeta */
+  #submenuAntecedentes, #submenuEstudios{
+    position:absolute; list-style:none; margin:8px 0 0 0; padding:10px 12px;
+    border-radius:12px; min-width:250px; z-index:1000;
+    background: rgba(21,101,192,.98);
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+    border:1px solid rgba(255,255,255,.15);
+  }
+  #submenuAntecedentes a, #submenuEstudios a{
+    color:#fff; display:block; padding:8px 10px; border-radius:8px; text-decoration:none;
+  }
+  #submenuAntecedentes a:hover, #submenuEstudios a:hover{
+    background: rgba(255,255,255,.12);
+  }
+
+  .ficha-medica-container .text-primary{ color: var(--sport-royal) !important; }
+  .ficha-medica-container .bg-info{ background-color: var(--sport-royal) !important; }
+</style>
+
+<div class="row m-0 p-0">
+  <div class="container-fluid ficha-medica-container m-0 p-0">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg py-3">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuItems">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuItems">
+          <ul class="navbar-nav w-100 gap-3">
+            <li class="nav-item">
+              <a class="nav-link fs-5" href="#" id="consultarApto" data-menu="link">
+                <i class="bi bi-file-medical"></i> Consultar Apto
+              </a>
+            </li>
+
+            <!-- Submenú Antecedentes -->
+
+            <li class="nav-item dropdown" style="position:relative;">
+              <a class="nav-link dropdown-toggle fs-5" href="#" data-menu="link" id="antecedentes">
+                <i class="bi bi-journal-text"></i> Antecedentes
+              </a>
+
+              <ul id="submenuAntecedentes" style="display:none;">
+
+                {% if hay_antecedente_vacio %}
+                <li>
+                  <a href="#" onclick="verificarAntecedentes(event)">
+                    Gestionar Antecedentes
+                  </a>
+                </li>
+                {% endif %}
+
+                {% if hay_antecedente_completo %}
+                <li>
+                  <a href="{% url 'aptos_generales:antecedentes_select' %}">
+                    Ver Antecedentes
+                  </a>
+                </li>
+                {% endif %}
+
+              </ul>
+            </li>
+
+
+            <!-- Submenú Estudios -->
+            <li class="nav-item dropdown" style="position:relative;">
+              <a class="nav-link dropdown-toggle fs-5" href="#" data-menu="link" id="estudios">
+                <i class="bi bi-book"></i> Estudios Médicos
+              </a>
+              <ul id="submenuEstudios" style="display:none;">
+                 <!--<li><a href="#">Cargar Estudios</a></li>-->
+                <li><a href="{% url 'aptos_generales:ver_estudios_jugador' %}">Ver Estudios</a></li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link fs-5" href="#" id="datospersonales" data-menu="link">
+                <i class="bi bi-person"></i> Datos Personales
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link fs-5" href="#" id="veractividad" data-menu="link">
+                <i class="bi bi-activity"></i> Ver Actividad
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link fs-5" href="{% url 'inscribirse_actividad_view' %}">
+                <i class="bi bi-plus-circle"></i> Inscribirme a una Actividad
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link fs-5" href="{% url 'medicos_inscriptos' %}">
+                <i class="bi bi-person-vcard"></i> Médicos
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+     <main class="px-3" style="position:relative; min-height:100vh; width:100%; margin:0; padding:0;">
+      <style>
+        main::before{
+          content:''; position:absolute; inset:0; z-index:-1;
+          background: url('{% static "core/img/home1.png" %}') no-repeat center center;
+          background-size: cover; opacity:.35;
+        }
+      </style>
+
+      <div style="position:relative; z-index:1">
+          <!-- BIENVENIDA -->
+          <div class="container-welcome d-flex justify-content-center" id="welcome">
+            <div class="p-4 rounded shadow text-center"
+                 style="max-width:900px; background-color:rgba(255,255,255,.92);">
+              <h1 class="text-primary mb-4">¡Bienvenido a tus Aptos Generales!</h1>
+              <p class="text-secondary fs-5 mb-4">
+                Para completar tu apto físico seguí estos pasos:
+              </p>
+              <ol class="fs-5 text-dark text-start" style="max-width:700px; margin:0 auto;">
+                <li class="mb-2">
+                  <strong>Inscribite en una actividad:</strong> elegí la actividad general en la que quieras participar.
+                </li>
+                <li class="mb-2">
+                  <strong>Gestioná tus antecedentes:</strong> dirigite a la pestaña <em>Antecedentes</em> y completá tu historial médico.
+                </li>
+                <li class="mb-2">
+                  <strong>Esperá la autorización del médico:</strong> tu médico revisará y aprobará tu apto físico.
+                </li>
+                <li>
+                  <strong>Consultá tu apto:</strong> una vez aprobado, podrás ver tu certificado en la pestaña <em>Consultar Apto</em>.
+                </li>
+              </ol>
+              <p class="text-secondary fs-6 fst-italic mt-4">
+                Recordá mantener tus datos actualizados para evitar rechazos o demoras.
+              </p>
+            </div>
+          </div>
+      </div>
+
+
+      <!-- ==================== -->
+<!-- TABLA DE APTOS -->
+<div class="container p-3 bg-white shadow rounded d-none" id="aptoTable" style="position:relative; top:50px;">
+  <h1 class="text-center text-primary fw-bold mb-4">Mis Aptos Generales</h1>
+
+  {% if aptos %}
+    <!-- 🌐 Versión escritorio -->
+    <div class="table-responsive d-none d-md-block">
+      <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="bg-info text-white">
+          <tr>
+            <th>Actividad</th>
+            <th>Fecha Inscripción</th>
+            <th>Estado</th>
+            <th>Antecedentes</th> <!-- 🆕 -->
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apto in aptos %}
+            <tr>
+              <td>{{ apto.actividad.nombre }}</td>
+              <td>{{ apto.fecha_creacion|date:"d/m/Y H:i" }}</td>
+
+              <td>
+                <span class="fw-bold
+                  {% if apto.estado == 'APROBADA' %}text-success
+                  {% elif apto.estado == 'RECHAZADA' %}text-danger
+                  {% else %}text-warning{% endif %}">
+                  {{ apto.estado }}
+                </span>
+              </td>
+
+              <!-- 🆕 Antecedentes sin diccionario -->
+              <td>
+                {% if apto.antecedentes_snapshot and apto.antecedentes_snapshot.esta_completo %}
+                  <span class="badge bg-success">Sí</span>
+                {% else %}
+                  <span class="badge bg-danger">No</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if apto.estado == "APROBADA" %}
+                  <a href="{% url 'ficha_apto_general_view' apto.id %}" class="btn btn-sm btn-primary">
+                    Ver Apto
+                  </a>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Pendiente de Aprobación</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 📱 Versión móvil -->
+    <div class="d-block d-md-none">
+      {% for apto in aptos %}
+        <div class="card mb-3 border-info shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-info fw-bold">{{ apto.actividad.nombre }}</h5>
+            <p class="mb-1"><strong>Fecha Inscripción:</strong> {{ apto.fecha_creacion|date:"d/m/Y H:i" }}</p>
+
+            <p class="mb-1">
+              <strong>Estado:</strong>
+              <span class="fw-bold
+                {% if apto.estado == 'APROBADA' %}text-success
+                {% elif apto.estado == 'RECHAZADA' %}text-danger
+                {% else %}text-warning{% endif %}">
+                {{ apto.estado }}
+              </span>
+            </p>
+
+            <!-- 🆕 Antecedentes en móvil -->
+            <p class="mb-1">
+              <strong>Antecedentes:</strong>
+              {% if apto.antecedentes_snapshot and apto.antecedentes_snapshot.esta_completo %}
+                <span class="text-success fw-bold">Sí</span>
+              {% else %}
+                <span class="text-danger fw-bold">No</span>
+              {% endif %}
+            </p>
+
+            {% if apto.estado == "APROBADA" %}
+              <a href="{% url 'ficha_apto_general_view' apto.id %}" class="btn btn-primary btn-sm mt-2 w-100">
+                Ver Apto
+              </a>
+            {% else %}
+              <span class="badge bg-warning text-dark mt-2 w-100 py-2">Pendiente de Aprobación</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <p class="text-center text-muted">Todavía no tenés aptos generados. Inscribite en una actividad.</p>
+  {% endif %}
+</div>
+
+<!-- ==================== -->
+<!-- DATOS PERSONALES -->
+<!-- ==================== -->
+<div class="container p-3 bg-white shadow rounded d-none" id="datosPersonales" style="position:relative; top:50px;">
+  <h1 class="text-center text-primary fw-bold mb-4">Datos Personales</h1>
+
+  {% if profile %}
+    <div class="table-responsive">
+          <table class="table table-bordered">
+            <tbody>
+              <tr><th class="bg-light">Nombre</th><td>{{ profile.nombre }}</td></tr>
+              <tr><th class="bg-light">Apellido</th><td>{{ profile.apellido }}</td></tr>
+              <tr><th class="bg-light">DNI</th><td>{{ profile.dni }}</td></tr>
+              <tr><th class="bg-light">Fecha Nacimiento</th><td>{{ profile.fecha_nacimiento }}</td></tr>
+              <tr><th class="bg-light">Email</th><td>{{ profile.email }}</td></tr>
+              <tr><th class="bg-light">Teléfono</th><td>{{ persona.telefono }}</td></tr>
+              <tr><th class="bg-light">Dirección</th><td>{{ persona.direccion }}</td></tr>
+              <tr><th class="bg-light">Obra Social</th><td>{{ persona.jugador.cobertura_medica }}</td></tr>
+              <tr><th class="bg-light">Número Afiliado</th><td>{{ persona.jugador.numero_afiliado }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center mt-3">
+          <a href="{% url 'modificar_perfil' %}" class="btn btn-success">Modificar</a>
+        </div>
+      {% else %}
+        <p class="text-center text-muted">No tenés datos personales cargados.</p>
+      {% endif %}
+    </div>
+
+
+
+<!-- ==================== -->
+<!-- ACTIVIDAD SELECCIONADA -->
+<!-- ==================== -->
+<div class="container p-3 bg-white shadow rounded d-none" id="actividadSeleccionada" style="position:relative; top:50px;">
+  <h1 class="text-center text-primary fw-bold mb-4">Mi Actividad</h1>
+
+  {% if aptos %}
+    <!-- 🌐 Versión escritorio -->
+    <div class="table-responsive d-none d-md-block">
+      <table class="table table-bordered table-striped align-middle text-center shadow">
+        <thead class="table-info">
+          <tr>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apto in aptos %}
+            {% if apto.actividad %}
+              <tr>
+                <td>
+                  {% if apto.actividad.imagen %}
+                    <img src="{{ apto.actividad.imagen.url }}" alt="{{ apto.actividad.nombre }}" width="80" height="80" class="rounded">
+                  {% else %}
+                    <span class="text-muted">Sin imagen</span>
+                  {% endif %}
+                </td>
+                <td class="fw-bold">{{ apto.actividad.nombre }}</td>
+                <td>{{ apto.actividad.descripcion|default:"-" }}</td>
+                <td>{{ apto.actividad.direccion|default:"-" }}</td>
+                <td>{{ apto.actividad.telefono|default:"-" }}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 📱 Versión móvil -->
+    <div class="d-block d-md-none">
+      {% for apto in aptos %}
+        {% if apto.actividad %}
+          <div class="card border-info shadow-sm mb-3">
+            <div class="card-header bg-info text-white fw-bold text-center">
+              {{ apto.actividad.nombre }}
+            </div>
+            <div class="card-body text-center">
+              {% if apto.actividad.imagen %}
+                <img src="{{ apto.actividad.imagen.url }}" alt="{{ apto.actividad.nombre }}" width="100" height="100" class="rounded mb-2">
+              {% else %}
+                <p class="text-muted">Sin imagen</p>
+              {% endif %}
+              <p><strong>Descripción:</strong> {{ apto.actividad.descripcion|default:"-" }}</p>
+              <p><strong>Dirección:</strong> {{ apto.actividad.direccion|default:"-" }}</p>
+              <p><strong>Teléfono:</strong> {{ apto.actividad.telefono|default:"-" }}</p>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <p class="text-center text-muted">Todavía no estás inscripto en ninguna actividad.</p>
+  {% endif %}
+</div>
+
+
+
+</div>
+    </main>
+  </div>
+</div>
+<!-- Modal Torneo -->
+<div class="modal fade" id="modalTorneo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Atención</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="mb-2">⚠️ No tienes ningún torneo inscripto.</p>
+        <p class="text-muted">Presiona <strong>Aceptar</strong> para ir a inscribirte.</p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a href="{% url 'inscribirse_actividad_view' %}"class="btn btn-primary">Aceptar</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- JS dinámico -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const sections = ["aptoTable", "datosPersonales", "actividadSeleccionada"];
+  const welcomeSection = document.getElementById("welcome");
+
+  const submenus = {
+    "antecedentes": "submenuAntecedentes",
+    "estudios": "submenuEstudios"
+  };
+
+  function hideAllSections(){
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("d-none");
+    });
+  }
+
+  function closeAllSubmenus(){
+    Object.values(submenus).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
+  }
+
+  function handleMenuClick(e){
+    const targetId = this.getAttribute("id");
+
+    // 🔥 Manejo de submenús (con chequeo vacío)
+    if (submenus[targetId]) {
+      e.preventDefault();
+
+      const submenu = document.getElementById(submenus[targetId]);
+
+      // 👉 Si no tiene elementos, NO mostrar nada
+      if (!submenu || submenu.children.length === 0) {
+        return;
+      }
+
+      closeAllSubmenus();
+      submenu.style.display = (submenu.style.display === "block") ? "none" : "block";
+      return;
+    }
+
+    // 🔥 Manejo de secciones
+    e.preventDefault();
+    hideAllSections(); welcomeSection.classList.add("d-none");
+
+    if (targetId === "consultarApto")
+        document.getElementById("aptoTable").classList.remove("d-none");
+    else if (targetId === "datospersonales")
+        document.getElementById("datosPersonales").classList.remove("d-none");
+    else if (targetId === "veractividad")
+        document.getElementById("actividadSeleccionada").classList.remove("d-none");
+  }
+
+  document.querySelectorAll('[data-menu="link"]').forEach(link =>
+    link.addEventListener("click", handleMenuClick)
+  );
+
+  document.addEventListener("click", function(e){
+    if (!e.target.closest(".nav-item")) closeAllSubmenus();
+  });
+
+  hideAllSections(); welcomeSection.classList.remove("d-none");
+});
+</script>
+
+<script>
+function verificarAntecedentes(e) {
+    e.preventDefault();
+
+    console.log("✔ JS cargado");
+
+    const tieneActividad = {{ tiene_actividad|yesno:"true,false" }};
+    const antecedentesPorApto = {{ antecedentes_por_apto|safe }};
+
+    console.log("Diccionario:", antecedentesPorApto);
+
+    if (!tieneActividad) {
+        new bootstrap.Modal(document.getElementById('modalTorneo')).show();
+        return;
+    }
+
+    // buscar el apto con antecedentes incompletos ("false")
+    let aptoObjetivo = null;
+
+    for (const [aptoId, completo] of Object.entries(antecedentesPorApto)) {
+        if (!completo) {     // <<< AQUÍ ESTA LA CLAVE
+            aptoObjetivo = aptoId;
+            break;
+        }
+    }
+
+    if (!aptoObjetivo) {
+        alert("No hay antecedentes pendientes de completar.");
+        return;
+    }
+
+    console.log("→ Redirigiendo:", aptoObjetivo);
+
+    window.location.href = `/aptos_generales/apto/${aptoObjetivo}/antecedentes/update/`;
+}
+</script>
+
+
+
+{% endblock %}
+

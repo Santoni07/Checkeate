@@ -1,90 +1,155 @@
 {% extends 'core/base.html' %}
-
 {% load static %}
 {% load widget_tweaks %}
 
 {% block content %}
 
-<main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
-  <style>
-    main::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
-      background-size: cover;
-      opacity: 0.4; /* Controla la transparencia de la imagen */
-      z-index: -1; /* Coloca la imagen detrás del contenido */
-    }
-  </style>
-  <div style="position: relative; z-index: 1; ">
+<!-- ======= BANDA FULL-WIDTH PEGADA AL HEADER ======= -->
+<style>
+  :root{
+    --sport-navy:#0d47a1;
+    --sport-royal:#1565c0;
+    --sport-grass:#2e7d32;
+    --sport-lime:#43a047;
+    --sport-accent:#fdd835;
+    --sport-ink:#1a2940;
+  }
 
-    <div class="container mt-5">
-      <h2 class="text-center">Antecedentes Médicos de {{ ficha_medica.jugador.persona.profile.nombre }} {{ ficha_medica.jugador.persona.profile.apellido }}</h2>
-      <div class="card mt-3">
+  /* Banda hero a todo el ancho, justo debajo del header */
+  .sport-hero-band{
+    width:100%;
+    background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+    color:#fff;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  }
+  .sport-hero-band .inner{
+        padding: 18px 16px;
+      /* centra horizontal y alinea vertical */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+  .sport-hero-band h2{
+    margin:0;
+    font-weight:700;
+    letter-spacing:.3px;
+    text-shadow: 0 1px 1px rgba(0,0,0,.15);
+  }
+
+  /* Fondo tenue del main */
+  main::before{
+    content:'';
+    position: fixed;
+    inset:0;
+    z-index:-1;
+    background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center / cover;
+    opacity:.35;
+  }
+
+  /* Card y estilos del formulario (como tenías) */
+  .sport-card.card{
+    border:1px solid #e7eef4; border-radius:14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    backdrop-filter: saturate(1.05);
+  }
+  .sport-card .card-title{ color: var(--sport-royal); font-weight:700; letter-spacing:.2px; }
+  .form-group label.col-form-label{ font-weight:600; color:#1f2a44; }
+  hr{ border:0; height:1px; background:linear-gradient(90deg,transparent,#e9edf2,transparent); margin:1rem 0 1.25rem; }
+  .form-check-input{ transform:scale(1.35); cursor:pointer; margin-top:.2rem; }
+  .form-check-label{ cursor:pointer; font-weight:600; }
+  .sport-input{ max-width:720px; border-radius:.6rem; border:1px solid #dbe4ee; }
+  .sport-input:focus{ border-color:var(--sport-royal); box-shadow:0 0 0 .2rem rgba(21,101,192,.15); }
+  .btn-sport-primary{ background-color:var(--sport-royal); border-color:var(--sport-royal); color:#fff; font-weight:700; box-shadow:0 6px 14px rgba(21,101,192,.18); }
+  .btn-sport-primary:hover{ background-color:#0f5aad; border-color:#0f5aad; }
+  .btn-sport-success{ background-color:var(--sport-grass); border-color:var(--sport-grass); color:#fff; font-weight:700; box-shadow:0 6px 14px rgba(46,125,50,.18); }
+  .btn-sport-success:hover{ background-color:var(--sport-lime); border-color:var(--sport-lime); }
+</style>
+
+<div class="sport-hero-band">
+  <div class="container inner d-flex justify-content-center">
+    <h2 class="mb-0 text-center">
+      <i class="bi bi-file-earmark-medical me-2"></i>
+      Cargar Antecedentes Médicos de
+      {{ ficha_medica.jugador.persona.profile.nombre }}
+      {{ ficha_medica.jugador.persona.profile.apellido }}
+    </h2>
+  </div>
+</div>
+
+<main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
+  <div style="position: relative; z-index: 1;">
+    <div class="container mt-4">
+      <div class="card sport-card">
         <div class="card-body">
-          <h5 class="card-title text-center">ANTECEDENTES DE ENFERMEDAD</h5>
+ 
+
           <form method="POST">
             {% csrf_token %}
 
             {% for field in form %}
-            {% if field.name != 'alerg_observ' and field.name != 'fhd_observacion' and field.name != 'cca_observaciones' %}
-              <div class="form-group row align-items-center">
-                <label class="col-sm-8 col-form-label">{{ field.label }}</label>
-                <div class="col-sm-4 d-flex justify-content-end">
-                  <div class="form-check me-2">
-                    <input type="radio" class="form-check-input" id="{{ field.id_for_label }}_si" name="{{ field.name }}" value="True" {% if field.value == 'True' %}checked{% endif %} style="transform: scale(1.5);">
-                    <label class="form-check-label" for="{{ field.id_for_label }}_si">Sí</label>
-                  </div>
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" id="{{ field.id_for_label }}_no" name="{{ field.name }}" value="False" {% if field.value == 'False' %}checked{% endif %} style="transform: scale(1.5);">
-                    <label class="form-check-label" for="{{ field.id_for_label }}_no">No</label>
+              {% if field.name != 'alerg_observ' and field.name != 'fhd_observacion' and field.name != 'cca_observaciones' %}
+                <div class="form-group row align-items-center">
+                  <label class="col-sm-8 col-form-label">{{ field.label }}</label>
+                  <div class="col-sm-4 d-flex justify-content-end">
+                    <div class="form-check me-3">
+                      <input type="radio" class="form-check-input"
+                             id="{{ field.id_for_label }}_si"
+                             name="{{ field.name }}" value="True"
+                             {% if field.value == 'True' %}checked{% endif %}>
+                      <label class="form-check-label" for="{{ field.id_for_label }}_si">Sí</label>
+                    </div>
+                    <div class="form-check">
+                      <input type="radio" class="form-check-input"
+                             id="{{ field.id_for_label }}_no"
+                             name="{{ field.name }}" value="False"
+                             {% if field.value == 'False' %}checked{% endif %}>
+                      <label class="form-check-label" for="{{ field.id_for_label }}_no">No</label>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Observaciones ubicadas debajo del campo correspondiente -->
-              {% if field.name == 'es_alergico' %}
-              <div class="form-group">
-                <label for="alerg_observ">Observaciones sobre Alergias</label>
-                <input type="text" class="form-control form-control-sm" id="alerg_observ" name="alerg_observ" placeholder="Observaciones" style="width: 70%;" value="{{ form.alerg_observ.value }}">
-              </div>
-              {% elif field.name == 'fumar_hipertension_diabetes' %}
-              <div class="form-group">
-                <label for="fhd_observacion">Observaciones sobre FHD</label>
-                <input type="text" class="form-control form-control-sm" id="fhd_observacion" name="fhd_observacion" placeholder="Observaciones" style="width: 70%;" value="{{ form.fhd_observacion.value }}">
-              </div>
-              {% elif field.name == 'consumo_cocaina_anabolicos' %}
-              <div class="form-group">
-                <label for="cca_observaciones">Observaciones sobre CCA</label>
-                <input type="text" class="form-control form-control-sm" id="cca_observaciones" name="cca_observaciones" placeholder="Observaciones" style="width: 70%;" value="{{ form.cca_observaciones.value }}">
-              </div>
+                {% if field.name == 'es_alergico' %}
+                  <div class="form-group mt-2">
+                    <label for="alerg_observ" class="fw-semibold">Observaciones sobre Alergias</label>
+                    <input type="text" class="form-control form-control-sm sport-input"
+                           id="alerg_observ" name="alerg_observ"
+                           placeholder="Observaciones" value="{{ form.alerg_observ.value }}">
+                  </div>
+                {% elif field.name == 'fumar_hipertension_diabetes' %}
+                  <div class="form-group mt-2">
+                    <label for="fhd_observacion" class="fw-semibold">Observaciones sobre FHD</label>
+                    <input type="text" class="form-control form-control-sm sport-input"
+                           id="fhd_observacion" name="fhd_observacion"
+                           placeholder="Observaciones" value="{{ form.fhd_observacion.value }}">
+                  </div>
+                {% elif field.name == 'consumo_cocaina_anabolicos' %}
+                  <div class="form-group mt-2">
+                    <label for="cca_observaciones" class="fw-semibold">Observaciones sobre CCA</label>
+                    <input type="text" class="form-control form-control-sm sport-input"
+                           id="cca_observaciones" name="cca_observaciones"
+                           placeholder="Observaciones" value="{{ form.cca_observaciones.value }}">
+                  </div>
+                {% endif %}
+
+                <hr>
               {% endif %}
-
-              <hr>
-            {% endif %}
             {% endfor %}
 
-            <!-- Botones de Guardar y Volver -->
             <div class="text-center mt-4 d-flex justify-content-center gap-3">
-              <a href="{% url 'menu_jugador' %}" class="btn btn-primary btn-sm" style="width: 40%; padding: 10px 0; font-size: 1rem;">
+              <a href="{% url 'menu_jugador' %}" class="btn btn-sport-primary btn-sm" style="width: 20%; padding: 10px 0; font-size: 1rem;">
                 Volver
               </a>
-              <button type="submit" class="btn btn-success btn-sm" style="width: 40%; padding: 10px 0; font-size: 1rem;">
+              <button type="submit" class="btn btn-sport-success btn-sm" style="width: 20%; padding: 10px 0; font-size: 1rem;">
                 Guardar
               </button>
             </div>
           </form>
+
         </div>
       </div>
-    </div>  
-
+    </div>
   </div>
 </main>
-
-    
 
 {% endblock %}

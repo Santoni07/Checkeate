@@ -1,0 +1,82 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="text-center text-primary fw-bold mb-4">Eventos en Checkeate</h1>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle text-center shadow-sm">
+      <thead class="table-info">
+        <tr>
+          <th></th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Dirección</th>
+          <th>Teléfono</th>
+          <th>Tipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for torneo in torneos %}
+        <tr>
+          <td>
+            {% if torneo.imagen %}
+              <img src="{{ torneo.imagen.url }}" alt="{{ torneo.nombre }}" style="max-height:80px;">
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>{{ torneo.nombre }}</td>
+          <td>{{ torneo.descripcion|default:"-" }}</td>
+          <td>{{ torneo.direccion|default:"-" }}</td>
+          <td>{{ torneo.telefono|default:"-" }}</td>
+          <td><span class="badge bg-primary">Torneo</span></td>
+        </tr>
+        {% endfor %}
+
+        {% for competencia in competencias %}
+        <tr>
+          <td>
+            {% if competencia.imagen %}
+              <img src="{{ competencia.imagen.url }}" alt="{{ competencia.nombre }}" style="max-height:80px;">
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>{{ competencia.nombre }}</td>
+          <td>{{ competencia.descripcion|default:"-" }}</td>
+          <td>{{ competencia.direccion|default:"-" }}</td>
+          <td>{{ competencia.telefono|default:"-" }}</td>
+          <td><span class="badge bg-success">Competencia</span></td>
+        </tr>
+        {% endfor %}
+
+        {% for actividad in actividades %}
+        <tr>
+          <td>
+            {% if actividad.imagen %}
+              <img src="{{ actividad.imagen.url }}" alt="{{ actividad.nombre }}" style="max-height:80px;">
+            {% else %}
+              <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>{{ actividad.nombre }}</td>
+          <td>{{ actividad.descripcion|default:"-" }}</td>
+          <td>{{ actividad.direccion|default:"-" }}</td>
+          <td>{{ actividad.telefono|default:"-" }}</td>
+          <td><span class="badge bg-warning text-dark">Actividad</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+ <div class="text-center mt-4">
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg">
+        <i class="bi bi-house"></i> Ir al Inicio
+    </a>
+</div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,986 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f7f9fb;
+    }
+    /* Cabecera del título principal */
+    h2.text-center.mb-4 {
+    background-color: #00b4d8;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Botones principales del acordeón */
+    .card-header .btn {
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 18px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    }
+
+    /* Efecto hover */
+    .card-header .btn:hover {
+    background-color: #0077b6 !important;
+    color: #fff;
+    }
+
+    /* Estado activo visualmente distinto */
+    .card-header .btn.active {
+    background-color: #0096c7 !important;
+    color: white;
+    box-shadow: 0 0 8px rgba(0,150,200,0.4);
+    }
+
+    /* Ícono al lado del texto (animación de rotación) */
+    .card-header .btn i {
+    transition: transform 0.3s;
+    margin-right: 10px;
+    }
+
+    .card-header .btn.active i {
+    transform: rotate(90deg);
+    }
+
+    /* Efectos en los formularios */
+    .card-body {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Botón de volver */
+    .btn-primary {
+    background-color: #0077b6;
+    border: none;
+    }
+
+    .btn-primary:hover {
+    background-color: #023e8a;
+    }
+
+    /* Transición suave de apertura */
+    .collapse {
+    transition: height 0.4s ease;
+    }
+    .card-header {
+        width: 100%;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #ced4da;
+        text-align: center;
+    }
+    .align-left {
+        text-align: left;
+    }
+    .table {
+        border-collapse: collapse;
+        background-color: beige;
+    }
+    .table-bordered td,
+    .table-bordered th {
+        border: 2px solid black;
+    }
+    .thead-dark {
+        background-color: #343a40;
+        color: white;
+    }
+    @media (max-width: 680px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+
+    .errorlist {
+          list-style: none;
+          color: #dc3545; /* rojo Bootstrap */
+          font-size: 0.9rem;
+          margin-top: 4px;
+          margin-bottom: 0;
+          padding-left: 0;
+    }
+</style>
+
+<div class="col-lg-6 col-md-8 mx-auto">
+    <h2 class="text-center mb-4">Ficha Médica - Apto General</h2>
+
+    <!-- ==================== Información del Jugador ==================== -->
+<!-- Barra de progreso dinámica -->
+<div class="progress-container mb-4">
+  <div id="progressBar" class="progress-bar"></div>
+</div>
+
+<script>
+// Barra de progreso dinámica compatible con toggleForm()
+document.addEventListener("DOMContentLoaded", function () {
+  const sections = document.querySelectorAll(".card");
+  const progressBar = document.getElementById("progressBar");
+
+  function updateProgress() {
+    const total = sections.length;
+    let open = 0;
+
+    sections.forEach(sec => {
+      const collapse = sec.querySelector(".collapse");
+      if (collapse && getComputedStyle(collapse).display === "block") {
+        open++;
+      }
+    });
+
+    const percentage = (open / total) * 100;
+    progressBar.style.width = percentage + "%";
+  }
+
+  // Interceptar clicks en los botones de las cards
+  document.querySelectorAll(".card-header button").forEach(btn => {
+    btn.addEventListener("click", function () {
+      // esperar a que toggleForm cambie display
+      setTimeout(updateProgress, 300);
+    });
+  });
+
+  // Inicializar estado al cargar
+  updateProgress();
+});
+</script>
+
+
+    <!-- ==================== ANTECEDENTES ==================== -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <button class="btn btn-secondary w-100" onclick="toggleForm('antecedentes-section')">
+                <i class="fas fa-user me-2"></i> Información del Deportista
+            </button>
+        </div>
+        <div id="antecedentes-section" class="collapse">
+                <div class="card shadow-sm p-3 mb-4" style="background-color:#f9f9f9;">
+        <h5 class="mb-4 text-primary">Información del Jugador</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Nombre:</strong> {{ jugador.persona.profile.nombre }}</li>
+                    <li class="list-group-item"><strong>Apellido:</strong> {{ jugador.persona.profile.apellido }}</li>
+                    <li class="list-group-item"><strong>Edad:</strong> {{ jugador.persona.profile.edad|default:"-" }}</li>
+                    <li class="list-group-item"><strong>DNI:</strong> {{ jugador.persona.profile.dni }}</li>
+                    <li class="list-group-item"><strong>Grupo Sanguíneo:</strong> {{ jugador.grupo_sanguineo|default:"-" }}</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Teléfono:</strong> {{ jugador.persona.telefono|default:"-" }}</li>
+                    <li class="list-group-item"><strong>Cobertura Médica:</strong> {{ jugador.cobertura_medica|default:"-"}}</li>
+                    <li class="list-group-item"><strong>N° Afiliado:</strong> {{ jugador.numero_afiliado|default:"-" }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+
+           <div class="card shadow-sm p-3" style="background-color: #f9f9f9;">
+    <h5 class="mb-4 text-primary">Antecedentes Médicos</h5>
+
+    {% if antecedente %}
+    <div class="row">
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Operado últimos 4 meses
+                    <span class="badge bg-{% if antecedente.fue_operado %}danger{% else %}success{% endif %}">
+                        {{ antecedente.fue_operado|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Toma medicación habitual
+                    <span class="badge bg-{% if antecedente.toma_medicacion %}danger{% else %}success{% endif %}">
+                        {{ antecedente.toma_medicacion|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Internado último año
+                    <span class="badge bg-{% if antecedente.estuvo_internado %}danger{% else %}success{% endif %}">
+                        {{ antecedente.estuvo_internado|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Hormigueos en manos
+                    <span class="badge bg-{% if antecedente.sufre_hormigueos %}danger{% else %}success{% endif %}">
+                        {{ antecedente.sufre_hormigueos|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Diabético
+                    <span class="badge bg-{% if antecedente.es_diabetico %}danger{% else %}success{% endif %}">
+                        {{ antecedente.es_diabetico|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Asmático
+                    <span class="badge bg-{% if antecedente.es_asmatico %}danger{% else %}success{% endif %}">
+                        {{ antecedente.es_asmatico|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Alérgico
+                    <span class="badge bg-{% if antecedente.es_alergico %}danger{% else %}success{% endif %}">
+                        {{ antecedente.es_alergico|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Observaciones alergias:</strong>
+                    {{ antecedente.alerg_observ|default_if_none:"" }}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Epilepsia
+                    <span class="badge bg-{% if antecedente.antecedente_epilepsia %}danger{% else %}success{% endif %}">
+                        {{ antecedente.antecedente_epilepsia|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Desviación columna
+                    <span class="badge bg-{% if antecedente.desviacion_columna %}danger{% else %}success{% endif %}">
+                        {{ antecedente.desviacion_columna|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Dolor cintura
+                    <span class="badge bg-{% if antecedente.dolor_cintura %}danger{% else %}success{% endif %}">
+                        {{ antecedente.dolor_cintura|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Fracturas
+                    <span class="badge bg-{% if antecedente.fracturas %}danger{% else %}success{% endif %}">
+                        {{ antecedente.fracturas|yesno:"Sí,No" }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Dolores articulares
+                    <span class="badge bg-{% if antecedente.dolores_articulares %}danger{% else %}success{% endif %}">
+                        {{ antecedente.dolores_articulares|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Falta de aire
+                    <span class="badge bg-{% if antecedente.falta_aire %}danger{% else %}success{% endif %}">
+                        {{ antecedente.falta_aire|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Traumatismos cráneo
+                    <span class="badge bg-{% if antecedente.traumatismos_craneo %}danger{% else %}success{% endif %}">
+                        {{ antecedente.traumatismos_craneo|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Dolor de pecho
+                    <span class="badge bg-{% if antecedente.dolor_pecho %}danger{% else %}success{% endif %}">
+                        {{ antecedente.dolor_pecho|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Pérdida de conocimiento
+                    <span class="badge bg-{% if antecedente.perdida_conocimiento %}danger{% else %}success{% endif %}">
+                        {{ antecedente.perdida_conocimiento|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Presión arterial
+                    <span class="badge bg-{% if antecedente.presion_arterial %}danger{% else %}success{% endif %}">
+                        {{ antecedente.presion_arterial|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Muerte súbita familiar
+                    <span class="badge bg-{% if antecedente.muerte_subita_familiar %}danger{% else %}success{% endif %}">
+                        {{ antecedente.muerte_subita_familiar|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Enfermedad cardiaca familiar
+                    <span class="badge bg-{% if antecedente.enfermedad_cardiaca_familiar %}danger{% else %}success{% endif %}">
+                        {{ antecedente.enfermedad_cardiaca_familiar|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Soplo cardiaco
+                    <span class="badge bg-{% if antecedente.soplo_cardiaco %}danger{% else %}success{% endif %}">
+                        {{ antecedente.soplo_cardiaco|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Abstenerse de competencia
+                    <span class="badge bg-{% if antecedente.abstenerse_competencia %}danger{% else %}success{% endif %}">
+                        {{ antecedente.abstenerse_competencia|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Coronarios familiares
+                    <span class="badge bg-{% if antecedente.antecedentes_coronarios_familiares %}danger{% else %}success{% endif %}">
+                        {{ antecedente.antecedentes_coronarios_familiares|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Fumar/Hipertensión/Diabetes
+                    <span class="badge bg-{% if antecedente.fumar_hipertension_diabetes %}danger{% else %}success{% endif %}">
+                        {{ antecedente.fumar_hipertension_diabetes|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Obs. FHD:</strong>
+                    {{ antecedente.fhd_observacion|default_if_none:"" }}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Consumo cocaína/anabólicos
+                    <span class="badge bg-{% if antecedente.consumo_cocaina_anabolicos %}danger{% else %}success{% endif %}">
+                        {{ antecedente.consumo_cocaina_anabolicos|yesno:"Sí,No" }}
+                    </span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Obs. Consumo:</strong>
+                    {{ antecedente.cca_observaciones|default_if_none:"" }}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Vacunación completa
+                    <span class="badge bg-{% if antecedente.vacunacion %}danger{% else %}success{% endif %}">
+                        {{ antecedente.vacunacion|yesno:"Sí,No" }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted text-center">No hay antecedentes cargados para este apto.</p>
+    {% endif %}
+</div>
+        </div>
+    </div>
+
+    <!-- ==================== ESTUDIOS MÉDICOS ==================== -->
+    <div class="card mb-3">
+        <div class="card-header">
+        <button class="btn btn-secondary w-100" onclick="toggleForm('estudios-section')">
+            <i class="fas fa-file-medical me-2"></i> Estudios Médicos
+        </button>
+        </div>
+
+        <div id="estudios-section" class="collapse">
+            <div class="card-body">
+                <h5 class="text-center">Estudios Cargados</h5>
+                {% if estudios_medicos %}
+                    {% for estudio in estudios_medicos %}
+                        <div class="border rounded p-2 mb-2">
+                            <strong>Tipo:</strong> {{ estudio.get_tipo_estudio_display }}<br>
+                            {% if estudio.archivo %}
+                                <a href="{{ estudio.archivo.url }}" target="_blank" class="btn btn-link">Ver archivo</a>
+                               <form method="POST" action="{% url 'apto_general_update_view' apto.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="eliminar_estudio" value="1">
+                                    <input type="hidden" name="estudio_id" value="{{ estudio.pk }}">
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('¿Eliminar este estudio?')">Eliminar</button>
+                                </form>
+                            {% else %}
+                                <span class="text-danger">No cargado</span>
+                            {% endif %}
+                            <p><strong>Observaciones:</strong> {{ estudio.observaciones|default:"Sin observaciones" }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No hay estudios cargados.</p>
+                {% endif %}
+
+                <h5 class="text-center mt-4">Cargar Nuevo Estudio</h5>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ estudio_form.as_p }}
+                    <div class="d-flex justify-content-end mt-2">
+                        <button type="submit" name="cargar_estudio" class="btn btn-primary">Cargar Estudio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== FORMULARIOS DE EXÁMENES ==================== -->
+    <div class="card mb-3">
+    <div class="card-header">
+    <button class="btn btn-secondary w-100" onclick="toggleForm('fisico-section')">
+        <i class="fas fa-dumbbell me-2"></i> Examen Físico
+    </button>
+    </div>
+    <div id="fisico-section" class="collapse">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Peso y Altura -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="id_peso" class="form-label">Peso (kg)</label>
+                        {{ fisico_form.peso }}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_altura" class="form-label">Altura (m)</label>
+                        {{ fisico_form.altura }}
+                    </div>
+                </div>
+
+                <!-- IMC, Categoría y Perímetro cintura -->
+                <div class="row mb-3 align-items-end">
+                  <div class="col-md-4">
+                    <label for="id_imc" class="form-label">IMC</label>
+                    {{ fisico_form.imc }}
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label">Categoría</label>
+                    <div id="categoria_imc" class="alert alert-secondary w-100 text-center py-2 mb-0" style="font-size: 0.9rem;">
+                      -
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="id_perimetro_cintura" class="form-label">Perímetro cintura (cm)</label>
+                    {{ fisico_form.perimetro_cintura }}
+                  </div>
+                </div>
+
+                <!-- Diagnóstico -->
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="id_diagnostico" class="form-label">Diagnóstico</label>
+                        {{ fisico_form.diagnostico }}
+                    </div>
+                </div>
+
+                <!-- Botón Guardar -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" name="guardar_fisico" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const pesoInput = document.getElementById("id_peso");
+    const alturaInput = document.getElementById("id_altura");
+    const imcInput = document.getElementById("id_imc");
+    const diagnosticoInput = document.getElementById("id_diagnostico");
+    const categoriaDiv = document.getElementById("categoria_imc");
+
+    function calcularIMC() {
+        const peso = parseFloat(pesoInput.value.replace(",", "."));
+        const altura = parseFloat(alturaInput.value.replace(",", "."));
+
+        if (peso > 0 && altura > 0) {
+            const imc = (peso / (altura * altura)).toFixed(2);
+            imcInput.value = imc;
+            mostrarCategoria(imc);
+        } else {
+            imcInput.value = "";
+            categoriaDiv.textContent = "-";
+            categoriaDiv.className = "alert alert-secondary w-100 text-center py-2 mb-0";
+            diagnosticoInput.value = "";
+        }
+    }
+
+    function mostrarCategoria(imc) {
+        let categoria = "";
+        let diagnostico = "";
+        let clase = "alert-secondary";
+
+        if (imc < 18.5) {
+            categoria = "Bajo peso";
+            diagnostico = "Bajo peso";
+            clase = "alert-warning";
+        } else if (imc < 25) {
+            categoria = "Peso normal";
+            diagnostico = "Eutrófico";
+            clase = "alert-success";
+        } else if (imc < 30) {
+            categoria = "Sobrepeso";
+            diagnostico = "Sobrepeso";
+            clase = "alert-info";
+        } else if (imc < 35) {
+            categoria = "Obesidad grado I";
+            diagnostico = "Obesidad grado I";
+            clase = "alert-warning";
+        } else if (imc < 40) {
+            categoria = "Obesidad grado II";
+            diagnostico = "Obesidad grado II";
+            clase = "alert-danger";
+        } else {
+            categoria = "Obesidad grado III (mórbida)";
+            diagnostico = "Obesidad grado III";
+            clase = "alert-danger";
+        }
+
+        categoriaDiv.textContent = categoria;
+        categoriaDiv.className = `alert ${clase} w-100 text-center py-2 mb-0`;
+
+        // Autocompletar diagnóstico si está vacío
+        if (diagnosticoInput && !diagnosticoInput.value) {
+            diagnosticoInput.value = diagnostico;
+        }
+    }
+
+    if (pesoInput && alturaInput && imcInput) {
+        pesoInput.addEventListener("input", calcularIMC);
+        alturaInput.addEventListener("input", calcularIMC);
+        calcularIMC(); // Calcula al cargar si ya hay valores
+    }
+});
+</script>
+
+    <!-- Cardiovascular -->
+<div class="card mb-3">
+    <div class="card-header">
+        <button class="btn btn-secondary w-100" onclick="toggleForm('cardio-section')">
+  <i class="fas fa-heartbeat me-2"></i> Examen Cardiovascular
+</button>
+
+    </div>
+    <div id="cardio-section" class="collapse">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Auscultación, TA1 y TA2 en la misma fila -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_auscultacion" class="form-label">Auscultación</label>
+                        {{ cardiovascular_form.auscultacion }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="id_ta1" class="form-label">TAS</label>
+                        {{ cardiovascular_form.ta1 }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="id_ta2" class="form-label">TAD</label>
+                        {{ cardiovascular_form.ta2 }}
+                    </div>
+                </div>
+
+                <!-- Pulso (más chico) -->
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="id_pulso" class="form-label">Pulso</label>
+                        {{ cardiovascular_form.pulso }}
+                    </div>
+                </div>
+
+                <!-- Botón -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" name="guardar_cardio" class="btn btn-primary">Guardar</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Respiratorio -->
+ <div class="card mb-3">
+    <div class="card-header">
+        <button class="btn btn-secondary w-100" onclick="toggleForm('respiratorio-section')">
+  <i class="fas fa-lungs me-2"></i> Examen Respiratorio
+</button>
+
+    </div>
+    <div id="respiratorio-section" class="collapse">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Los tres en la misma fila -->
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="id_murmullo_vesicular" class="form-label">Murmullo vesicular</label>
+                        {{ respiratorio_form.murmullo_vesicular }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_ruidos_agregados" class="form-label">Ruidos agregados</label>
+                        {{ respiratorio_form.ruidos_agregados }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_saturacion_o2" class="form-label">Saturación O₂</label>
+                        {{ respiratorio_form.saturacion_o2 }}
+                    </div>
+                </div>
+
+                <!-- Botón -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" name="guardar_respira" class="btn btn-primary">Guardar</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <!-- Abdomen -->
+    <div class="card mb-3">
+        <div class="card-header">
+  <button class="btn btn-secondary w-100" onclick="toggleForm('abdomen-section')">
+    <i class="fas fa-stethoscope me-2"></i> Examen Abdomen
+  </button>
+</div>
+
+        <div id="abdomen-section" class="collapse">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ abdomen_form.as_p }}
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" name="guardar_abdomen" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Genitourinario -->
+    <div class="card mb-3">
+        <div class="card-header">
+  <button class="btn btn-secondary w-100" onclick="toggleForm('genitourinario-section')">
+    <i class="fas fa-venus-mars me-2"></i> Examen Genitourinario
+  </button>
+</div>
+
+        <div id="genitourinario-section" class="collapse">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ genitourinario_form.as_p }}
+                    <div class="d-flex justify-content-end">
+                    <button type="submit" name="guardar_genito" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soma -->
+    <div class="card mb-3">
+        <div class="card-header">
+  <button class="btn btn-secondary w-100" onclick="toggleForm('soma-section')">
+    <i class="fas fa-running me-2"></i> Examen Soma
+  </button>
+</div>
+
+        <div id="soma-section" class="collapse">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ soma_form.as_p }}
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" name="guardar_soma" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivo Actividad -->
+    <div class="card mb-3">
+    <div class="card-header">
+        <button class="btn btn-secondary w-100" onclick="toggleForm('motivo-section')">
+  <i class="fas fa-bullseye me-2"></i> Motivo de Actividad
+</button>
+
+    </div>
+    <div id="motivo-section" class="collapse">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Título -->
+                <h6 class="mb-3 text-muted">Selecciona lo que corresponda:</h6>
+
+                <!-- Checks en la misma línea -->
+                <div class="row mb-3">
+                    <div class="col-auto">
+                        <label class="form-check-label me-2">
+                            {{ motivo_form.competitivo }} Competitivo
+                        </label>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-check-label me-2">
+                            {{ motivo_form.recreativo }} Recreativo
+                        </label>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-check-label me-2">
+                            {{ motivo_form.por_salud }} Por salud
+                        </label>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-check-label me-2">
+                            {{ motivo_form.por_lesion }} Por lesión
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Campos detalle -->
+                <div class="mb-3">
+                    <label for="id_salud_detalle" class="form-label">Salud detalle</label>
+                    {{ motivo_form.salud_detalle }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_lesion_detalle" class="form-label">Lesión detalle</label>
+                    {{ motivo_form.lesion_detalle }}
+                </div>
+
+                <!-- Botón -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" name="guardar_motivo" class="btn btn-primary">Guardar</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!-- ==================== CERTIFICADO ==================== -->
+    <div class="card mb-3">
+        <div class="card-header">
+  <button class="btn btn-success w-100" onclick="toggleForm('certificado-apto')">
+    <i class="fas fa-notes-medical me-2"></i> Certificado Médico
+  </button>
+</div>
+
+        <div id="certificado-apto" class="collapse">
+            <div class="card-body">
+                <form id="certificadoAptoForm" method="POST" action="{% url 'apto_general_update_view' apto.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ apto_form.estado.id_for_label }}" class="form-label fw-semibold">Estado:</label>
+                        {{ apto_form.estado }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ apto_form.fecha_caducidad.id_for_label }}" class="form-label fw-semibold">Fecha de caducidad:</label>
+                        {{ apto_form.fecha_caducidad }}
+                        <div id="fecha-error" class="text-danger small mt-1"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ apto_form.observacion.id_for_label }}" class="form-label fw-semibold">Observación:</label>
+                        {{ apto_form.observacion }}
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ apto_form.consentimiento_persona }}
+                        <label class="form-check-label ms-1" for="{{ apto_form.consentimiento_persona.id_for_label }}">
+                            Consentimiento persona
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ apto_form.medico.id_for_label }}" class="form-label fw-semibold">Médico:</label>
+                        {{ apto_form.medico }}
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-3">
+                        <button id="guardarBtn" type="submit" name="guardar_ficha_completa" class="btn btn-primary w-50" disabled>
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Volver -->
+    <div class="text-center mt-4">
+        <a href="{% url 'medico_aptos_generales_home' %}" class="btn btn-primary">Volver a Inicio</a>
+    </div>
+</div>
+
+<!-- ==================== MODAL ÉXITO ==================== -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">¡Ficha Guardada!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>La ficha médica se ha guardado correctamente.</p>
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <a href="{% url 'medico_aptos_generales_home' %}" class="btn btn-success">Aceptar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Orden lógico de los formularios
+    const secciones = [
+        "fisico-section",
+        "cardio-section",
+        "respiratorio-section",
+        "abdomen-section",
+        "genitourinario-section",
+        "soma-section",
+        "motivo-section",
+        "certificado-apto"
+    ];
+
+    // Detectamos cuando se envía cualquier formulario (excepto el certificado final)
+    document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", function () {
+            const actual = form.closest(".collapse")?.id;
+            const index = secciones.indexOf(actual);
+            if (index !== -1 && index < secciones.length - 1) {
+                // Guardamos cuál es el siguiente formulario que debería abrirse
+                localStorage.setItem("abrir_siguiente", secciones[index + 1]);
+            } else {
+                // Si es el último, limpiamos
+                localStorage.removeItem("abrir_siguiente");
+            }
+        });
+    });
+
+    // Al recargar la página, abrimos automáticamente el siguiente
+    const siguiente = localStorage.getItem("abrir_siguiente");
+    if (siguiente) {
+        const el = document.getElementById(siguiente);
+        if (el) {
+            el.style.display = "block";
+        }
+        localStorage.removeItem("abrir_siguiente");
+    }
+});
+</script>
+<script>
+function toggleForm(formId) {
+    let form = document.getElementById(formId);
+    if (form) {
+        form.style.display = form.style.display === "none" || form.style.display === "" ? "block" : "none";
+    }
+}
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const guardarBtn = document.getElementById("guardarBtn");
+  const fechaInput = document.getElementById("id_fecha_caducidad");
+  const estadoInput = document.getElementById("id_estado");
+  const observacionInput = document.getElementById("id_observacion");
+  const consentimientoInput = document.getElementById("id_consentimiento_persona");
+  const medicoInput = document.getElementById("id_medico");
+  const fechaError = document.getElementById("fecha-error");
+
+  function validarFormulario() {
+    const estado = estadoInput.value;
+
+    // 🟡 SI ES PENDIENTE → SIEMPRE PERMITIR GUARDAR
+    if (estado === "PENDIENTE") {
+      fechaError.textContent = "";
+      guardarBtn.disabled = false;
+      return;
+    }
+
+    // 🟢 VALIDACIÓN SOLO PARA APROBADA
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaVal = fechaInput.value ? new Date(fechaInput.value) : null;
+
+    const fechaValida = fechaVal && fechaVal >= hoy;
+
+    const camposCompletos =
+      estado !== "" &&
+      fechaInput.value.trim() !== "" &&
+      observacionInput.value.trim() !== "" &&
+      consentimientoInput.checked &&
+      medicoInput.value.trim() !== "";
+
+    if (fechaInput.value && fechaVal < hoy) {
+      fechaError.textContent = "⚠️ La fecha de caducidad no puede ser anterior al día de hoy.";
+    } else {
+      fechaError.textContent = "";
+    }
+
+    guardarBtn.disabled = !(camposCompletos && fechaValida);
+  }
+
+  [estadoInput, fechaInput, observacionInput, consentimientoInput, medicoInput].forEach(el => {
+    el.addEventListener("input", validarFormulario);
+    el.addEventListener("change", validarFormulario);
+  });
+
+  validarFormulario();
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const fichaForm = document.getElementById("certificadoAptoForm");
+    const modalElement = document.getElementById("successModal");
+    const modalInstance = new bootstrap.Modal(modalElement);
+
+    if (fichaForm) {
+        fichaForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const formData = new FormData(fichaForm);
+            formData.append("guardar_ficha_completa", "Guardar");
+
+           fetch(fichaForm.action, {
+                method: "POST",
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    modalInstance.show();
+                    setTimeout(() => {
+                        window.location.replace("{% url 'medico_aptos_generales_home' %}");
+                    }, 2000);
+                } else {
+                    console.error("❌ Errores del backend:", data.errors || data.message);
+                    alert("❌ " + (data.message || "Error al guardar ficha."));
+                }
+            })
+            .catch(() => {
+                alert("❌ Error de red");
+            });
+        });
+    }
+});
+</script>
+
+
+<script>
+// fecha automática si el campo existe
+document.addEventListener("DOMContentLoaded", function(){
+    const fecha = document.getElementById("id_fecha_de_llenado");
+    if(fecha && !fecha.value){
+        fecha.value = new Date().toISOString().split("T")[0];
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4 text-center">
+        <h3 class="text-primary mb-3">{{ titulo }}</h3>
+
+        {% if jugador %}
+            <p><strong>Jugador:</strong> {{ jugador.persona.profile.nombre }} {{ jugador.persona.profile.apellido }}</p>
+            <p><strong>DNI:</strong> {{ jugador.persona.profile.dni }}</p>
+        {% elif estudiante %}
+            <p><strong>Estudiante:</strong> {{ estudiante.nombre }} {{ estudiante.apellido }}</p>
+            <p><strong>DNI:</strong> {{ estudiante.dni }}</p>
+        {% endif %}
+
+        {% if medico %}
+           <p><strong>Médico:</strong> {{ medico.profile.nombre }} {{ medico.profile.apellido }}</p>
+            <p><strong>Matrícula:</strong> {{ medico.matricula }}</p>
+        {% endif %}
+
+        {% if estado %}
+            <p><strong>Estado del Certificado:</strong>
+                <span class="badge {% if estado|upper in 'APROBADO,APROBADA' %}bg-success{% elif estado|upper in 'PENDIENTE,PROCESO' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                    {{ estado }}
+                </span>
+            </p>
+        {% endif %}
+
+        {% if fecha %}
+            <p><strong>Fecha de Emisión:</strong> {{ fecha|date:"d/m/Y" }}</p>
+        {% endif %}
+        {% if fecha_caducidad %}
+            <p><strong>Válido hasta:</strong> {{ fecha_caducidad|date:"d/m/Y" }}</p>
+        {% endif %}
+
+        <hr>
+        <p class="text-muted fst-italic">
+            Este certificado fue generado digitalmente en <strong>Checkeate</strong> y su autenticidad fue validada mediante código QR.
+        </p>
+    </div>
+</div>
+{% endblock %}

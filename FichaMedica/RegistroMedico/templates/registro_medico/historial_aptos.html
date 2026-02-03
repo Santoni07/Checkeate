@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-primary text-center mb-4">
+    Historial de Aptos de {{ jugador.persona.profile.nombre }} {{ jugador.persona.profile.apellido }}
+  </h2>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle shadow-sm">
+      <thead class="table-info text-center">
+        <tr>
+          <th>ID</th>
+          <th>Estado</th>
+          <th>Fecha de Llenado</th>
+          <th>Fecha de Caducidad</th>
+          <th>Torneo</th>
+          <th>Estudios</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entrada in historial %}
+        <tr class="text-center">
+          <td>{{ entrada.ficha.id }}</td>
+          <td class="fw-bold text-uppercase">{{ entrada.ficha.estado }}</td>
+          <td>{{ entrada.ficha.fecha_de_llenado }}</td>
+          <td>{{ entrada.ficha.fecha_caducidad }}</td>
+          <td>{{ entrada.ficha.torneo.nombre }}</td>
+          <td>
+              {% if entrada.estudios %}
+                <div class="d-flex flex-column gap-2">
+                  {% for estudio in entrada.estudios %}
+                    <div class="d-flex justify-content-between align-items-center">
+                      <strong class="text-start mb-0">{{ estudio.get_tipo_estudio_display }}:</strong>
+                      <div class="d-flex gap-2">
+                        {% if estudio.archivo %}
+                          <a href="{{ estudio.archivo.url }}" target="_blank" class="btn btn-sm btn-success">Ver</a>
+                          <a href="{{ estudio.archivo.url }}" download class="btn btn-sm btn-primary">Descargar</a>
+                        {% else %}
+                          <span class="text-muted">Sin archivo</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="text-muted">Sin estudios cargados</span>
+              {% endif %}
+          </td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'medico_home' %}" class="btn btn-secondary px-4">Volver</a>
+  </div>
+</div>
+{% endblock %}

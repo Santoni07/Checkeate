@@ -3,44 +3,70 @@
 
 {% block content %}
 <style>
-    .card-body {
-        background-color: #f0f0f0;
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Poppins', sans-serif;
     }
-    header {
-        display: none !important;
+
+    header { display: none !important; }
+
+    .card {
+        border: 1px solid #009FE3;
+        border-radius: .5rem;
     }
-    .form-section-title {
-        font-weight: bold;
-        font-size: 1.25rem;
-        background-color: #e9ecef;
-        padding: 12px;
-        border-bottom: 1px solid #dee2e6;
-        border-top-left-radius: .25rem;
-        border-top-right-radius: .25rem;
+
+    .card-header {
+        background-color: #E6F7FC;
+        border-bottom: 2px solid #009FE3;
+        color: #004b70;
+        font-weight: 600;
         text-align: center;
+    }
+
+    .card-body {
+        background-color: #E6F7FC !important;
+    }
+
+    h1 {
+        color: #009FE3;
+        font-weight: 700;
+    }
+
+    .btn-primary {
+        background-color: #009FE3;
+        border-color: #009FE3;
+    }
+
+    .btn-primary:hover {
+        background-color: #007ab8;
+    }
+
+    .logo {
+        display: block;
+        margin: 0 auto 15px auto;
+        width: 180px;
     }
 </style>
 
 <section id="content">
     <div class="container mt-5">
+        <img src="{% static 'core/img/logo_checkeate.png' %}" alt="Checkeate" class="logo">
         <h1 class="text-center mb-4">Certificado Único de Salud (CUS)</h1>
 
-        <!-- Información del estudiante -->
+        <!-- INFORMACIÓN PERSONAL -->
         <div class="card mb-4">
-            <div class="card-header">
-                <h2>1 - INFORMACIÓN PERSONAL</h2>
-            </div>
-            <div class="card-body bg-white">
-                <div class="row">
-                    <div class="col-md-6 text-center">
+            <div class="card-header"><h2>1 - INFORMACIÓN PERSONAL</h2></div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-6">
                         <p>Nombre: <strong>{{ estudiante.nombre }}</strong></p>
                         <p>Apellido: <strong>{{ estudiante.apellido }}</strong></p>
                         <p>DNI: <strong>{{ estudiante.dni }}</strong></p>
                         <p>Fecha de nacimiento: <strong>{{ estudiante.fecha_nacimiento }}</strong></p>
                         <p>Edad: <strong>{{ estudiante.edad }}</strong></p>
                     </div>
-                    <div class="col-md-6 text-center">
-                        <p>Padre/Madre/Tutor: <strong>{{ tutor }}</strong></p>
+                    <div class="col-md-6">
+                        <p>Padre/Madre/Tutor: <strong>{{ tutor|default:"NO PRESENTA" }}</strong></p>
                         <p>Fecha de llenado: <strong>{{ cus.fecha_de_llenado }}</strong></p>
                         <p>Fecha de vencimiento: <strong>{{ cus.fecha_caducidad }}</strong></p>
                         <p>Estado: <strong>{{ cus.estado }}</strong></p>
@@ -49,32 +75,27 @@
             </div>
         </div>
 
-        <!-- Antecedentes -->
+        <!-- ANTECEDENTES -->
         <div class="card mb-4 shadow-sm">
-            <div class="card-header text-center bg-light">
-                <h4 class="mb-0">Antecedentes</h4>
-            </div>
+            <div class="card-header"><h4 class="mb-0">Antecedentes</h4></div>
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="card h-100 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0">1. Vacunaciones</h5>
-                            </div>
-                            <div class="card-body bg-white">
+                            <div class="card-header"><h5>1. Vacunaciones</h5></div>
+                            <div class="card-body">
                                 <p><strong>Carnet:</strong> {{ antecedentes.carnet_vacunacion|yesno:"Sí,No" }}</p>
                                 <p><strong>Esquema completo:</strong> {{ antecedentes.esquema_completo|yesno:"Sí,No" }}</p>
-                                <p><strong>Debe completar esquema con:</strong> {{ antecedentes.esquema_faltante|default:"-" }}</p>
+                                <p><strong>Debe completar esquema con:</strong> {{ antecedentes.esquema_faltante|default:"NO PRESENTA" }}</p>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="card h-100 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0">4. Medicamentos Prescriptos</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ antecedentes.medicamentos_prescriptos }}</p>
+                            <div class="card-header"><h5>4. Medicamentos Prescriptos</h5></div>
+                            <div class="card-body">
+                                <p>{{ antecedentes.medicamentos_prescriptos|default:"NO PRESENTA" }}</p>
                             </div>
                         </div>
                     </div>
@@ -83,32 +104,29 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="card h-100 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0">2. Antecedentes Patológicos</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p><strong>Enfermedades importantes:</strong> {{ antecedentes.enfermedades_importantes }}</p>
-                                <p><strong>Cirugías:</strong> {{ antecedentes.cirugias }}</p>
-                                <p><strong>Cardiovasculares:</strong> {{ antecedentes.cardiovasculares }}</p>
-                                <p><strong>Trauma funcional:</strong> {{ antecedentes.trauma_funcional }}</p>
-                                <p><strong>Alergias:</strong> {{ antecedentes.alergias }}</p>
-                                <p><strong>Oftalmológicos:</strong> {{ antecedentes.oftalmologicos }}</p>
-                                <p><strong>Auditivos:</strong> {{ antecedentes.auditivos }}</p>
+                            <div class="card-header"><h5>2. Antecedentes Patológicos</h5></div>
+                            <div class="card-body">
+                                <p><strong>Enfermedades importantes:</strong> {{ antecedentes.enfermedades_importantes|default:"NO PRESENTA" }}</p>
+                                <p><strong>Cirugías:</strong> {{ antecedentes.cirugias|default:"NO PRESENTA" }}</p>
+                                <p><strong>Cardiovasculares:</strong> {{ antecedentes.cardiovasculares|default:"NO PRESENTA" }}</p>
+                                <p><strong>Trauma funcional:</strong> {{ antecedentes.trauma_funcional|default:"NO PRESENTA" }}</p>
+                                <p><strong>Alergias:</strong> {{ antecedentes.alergias|default:"NO PRESENTA" }}</p>
+                                <p><strong>Oftalmológicos:</strong> {{ antecedentes.oftalmologicos|default:"NO PRESENTA" }}</p>
+                                <p><strong>Auditivos:</strong> {{ antecedentes.auditivos|default:"NO PRESENTA" }}</p>
                                 <p><strong>Diabetes:</strong> {{ antecedentes.diabetes|yesno:"Sí,No" }}</p>
                                 <p><strong>Asma:</strong> {{ antecedentes.asma|yesno:"Sí,No" }}</p>
                                 <p><strong>Chagas:</strong> {{ antecedentes.chagas|yesno:"Sí,No" }}</p>
                                 <p><strong>Hipertensión:</strong> {{ antecedentes.hipertension|yesno:"Sí,No" }}</p>
                                 <p><strong>Neurológico:</strong> {{ antecedentes.neurologico|yesno:"Sí,No" }}</p>
-                                <p><strong>Otras:</strong> {{ antecedentes.otras }}</p>
+                                <p><strong>Otras:</strong> {{ antecedentes.otras|default:"NO PRESENTA" }}</p>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="card h-100 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0">5. Durante Actividad Física Previa Sufrió</h5>
-                            </div>
-                            <div class="card-body bg-white">
+                            <div class="card-header"><h5>5. Durante Actividad Física Previa Sufrió</h5></div>
+                            <div class="card-body">
                                 <p><strong>Cansancio extremo:</strong> {{ antecedentes.cansancio_extremo|yesno:"Sí,No" }}</p>
                                 <p><strong>Falta de aire:</strong> {{ antecedentes.falta_aire|yesno:"Sí,No" }}</p>
                                 <p><strong>Pérdida de conocimiento:</strong> {{ antecedentes.perdida_conocimiento|yesno:"Sí,No" }}</p>
@@ -116,7 +134,7 @@
                                 <p><strong>Precordialgias:</strong> {{ antecedentes.precordialgias|yesno:"Sí,No" }}</p>
                                 <p><strong>Cefaleas:</strong> {{ antecedentes.cefaleas|yesno:"Sí,No" }}</p>
                                 <p><strong>Vómitos:</strong> {{ antecedentes.vomitos|yesno:"Sí,No" }}</p>
-                                <p><strong>Otros síntomas:</strong> {{ antecedentes.otros }}</p>
+                                <p><strong>Otros síntomas:</strong> {{ antecedentes.otros|default:"NO PRESENTA" }}</p>
                             </div>
                         </div>
                     </div>
@@ -125,20 +143,16 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card h-100 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0">3. Condiciones de Riesgo</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ antecedentes.condiciones_riesgo }}</p>
+                            <div class="card-header"><h5>3. Condiciones de Riesgo</h5></div>
+                            <div class="card-body">
+                                <p>{{ antecedentes.condiciones_riesgo|default:"NO PRESENTA" }}</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="card h-100 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0">6. Declaración Jurada</h5>
-                            </div>
-                            <div class="card-body bg-white">
+                            <div class="card-header"><h5>6. Declaración Jurada</h5></div>
+                            <div class="card-body">
                                 <p><strong>Firmó declaración jurada:</strong> {{ antecedentes.declaracion_jurada|yesno:"Sí,No" }}</p>
                             </div>
                         </div>
@@ -146,267 +160,164 @@
                 </div>
             </div>
         </div>
-        <!-- Exámenes Médicos -->
+
+        <!-- EXÁMENES MÉDICOS -->
         <div class="card mb-4">
-            <div class="card-header text-center">
-                <h2>Exámenes Médicos</h2>
-            </div>
+            <div class="card-header"><h2>Exámenes Médicos</h2></div>
             <div class="card-body">
                 <div class="row">
-                    <!-- Columna izquierda -->
+                    <!-- COLUMNA IZQUIERDA -->
                     <div class="col-md-6">
-                        <!-- Examen Físico -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Fisico</h5>
-                            </div>
-                           
-                            <div class="card-body bg-white">
-                                <p><strong>Peso:</strong> {{ examen_fisico_form.instance.peso|default:"-" }}</p>
-                                <p><strong>Talla:</strong> {{ examen_fisico_form.instance.talla|default:"-" }}</p>
-                                <p><strong>IMC:</strong> {{ examen_fisico_form.instance.imc|default:"-" }}</p>
-                                <p><strong>Observaciones:</strong> {{ examen_fisico_form.instance.observaciones|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Físico</h5></div>
+                            <div class="card-body">
+                                <p><strong>Peso:</strong> {{ examen_fisico_form.instance.peso|default:"NO PRESENTA" }}</p>
+                                <p><strong>Talla:</strong> {{ examen_fisico_form.instance.talla|default:"NO PRESENTA" }}</p>
+                                <p><strong>IMC:</strong> {{ examen_fisico_form.instance.imc|default:"NO PRESENTA" }}</p>
+                                <p><strong>Observaciones:</strong> {{ examen_fisico_form.instance.observaciones|default:"NO PRESENTA" }}</p>
+                            </div></div>
 
-                        <!-- Alimentación -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Alimentacion y Nutricion</h5>
-                            </div>
-                            <div class="card-body bg-white">
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Alimentación y Nutrición</h5></div>
+                            <div class="card-body">
                                 <p><strong>Solicita plan especial:</strong> {{ alimentacion_form.instance.solicita_plan_especial|yesno:"Sí,No" }}</p>
-                                <p><strong>Tipo de plan:</strong> {{ alimentacion_form.instance.tipo_plan|default:"-" }}</p>
-                            </div>
-                        </div>
+                                <p><strong>Tipo de plan:</strong> {{ alimentacion_form.instance.tipo_plan|default:"NO PRESENTA" }}</p>
+                            </div></div>
 
-                        <!-- Oftalmológico -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Oftalmologico</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p><strong>Agudeza visual OD:</strong> {{ oftalmologico_form.instance.agudeza_visual_der|default:"-" }}</p>
-                                <p><strong>Agudeza visual OI:</strong> {{ oftalmologico_form.instance.agudeza_visual_izq|default:"-" }}</p>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Oftalmológico</h5></div>
+                            <div class="card-body">
+                                <p><strong>Agudeza visual OD:</strong> {{ oftalmologico_form.instance.agudeza_visual_der|default:"NO PRESENTA" }}</p>
+                                <p><strong>Agudeza visual OI:</strong> {{ oftalmologico_form.instance.agudeza_visual_izq|default:"NO PRESENTA" }}</p>
                                 <p><strong>Usa anteojos:</strong> {{ oftalmologico_form.instance.usa_anteojos|yesno:"Sí,No" }}</p>
-                                <p><strong>Otros:</strong> {{ oftalmologico_form.instance.otros|default:"-" }}</p>
-                            </div>
-                        </div>
+                                <p><strong>Otros:</strong> {{ oftalmologico_form.instance.otros|default:"NO PRESENTA" }}</p>
+                            </div></div>
 
-                        <!-- Fonoaudiológico -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Fonoaudiologo</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ fono_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Fonoaudiológico</h5></div>
+                            <div class="card-body"><p>{{ fono_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
 
-                        <!-- Piel -->
-                        <div class="card mb-3 shadow-sm">
-                              <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen de Piel y T.C.S.C.</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ piel_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen de Piel y T.C.S.C.</h5></div>
+                            <div class="card-body"><p>{{ piel_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
 
-                        <!-- Odontológico -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Odontologico</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ odonto_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Odontológico</h5></div>
+                            <div class="card-body"><p>{{ odonto_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
 
-                        <!-- Cardiovascular -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Cardiovascular</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p><strong>Auscultación:</strong> {{ cardio_form.instance.auscultacion|default:"-" }}</p>
-                                <p><strong>Arritmia:</strong> {{ cardio_form.instance.arritmia|default:"-" }}</p>
-                                <p><strong>Soplos:</strong> {{ cardio_form.instance.soplos|default:"-" }}</p>
-                                <p><strong>Presión arterial:</strong> {{ cardio_form.instance.tension_arterial|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Cardiovascular</h5></div>
+                            <div class="card-body">
+                                <p><strong>Auscultación:</strong> {{ cardio_form.instance.auscultacion|default:"NO PRESENTA" }}</p>
+                                <p><strong>Arritmia:</strong> {{ cardio_form.instance.arritmia|default:"NO PRESENTA" }}</p>
+                                <p><strong>Soplos:</strong> {{ cardio_form.instance.soplos|default:"NO PRESENTA" }}</p>
+                                <p><strong>Presión arterial:</strong> {{ cardio_form.instance.tension_arterial|default:"NO PRESENTA" }}</p>
+                            </div></div>
                     </div>
 
-                    <!-- Columna derecha -->
+                    <!-- COLUMNA DERECHA -->
                     <div class="col-md-6">
-                        <!-- Respiratorio -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Respiratorio</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ respiratorio_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Respiratorio</h5></div>
+                            <div class="card-body"><p>{{ respiratorio_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
 
-                        <!-- Abdomen -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header e">
-                                <h5 class="mb-0 text-center">Examen Abdomen.</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ abdomen_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Abdomen</h5></div>
+                            <div class="card-body"><p>{{ abdomen_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
 
-                        <!-- Genitourinario -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Genitourinario</h5>
-                            </div>
-                            <div class="card-body bg-white">
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Genitourinario</h5></div>
+                            <div class="card-body">
                                 <p><strong>Menarca:</strong> {{ genito_form.instance.menarca|yesno:"Sí,No" }}</p>
                                 <p><strong>Turner:</strong> {{ genito_form.instance.turner|yesno:"Sí,No" }}</p>
-                            </div>
-                        </div>
+                            </div></div>
 
-                        <!-- Endocrinológico -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Endrocrinológico</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ endocrino_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Endocrinológico</h5></div>
+                            <div class="card-body"><p>{{ endocrino_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
 
-                        <!-- Osteoarticular -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Osteoarticular</h5>
-                            </div>
-                            <div class="card-body bg-white">
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Osteoarticular</h5></div>
+                            <div class="card-body">
                                 <p><strong>Columna normal:</strong> {{ osteo_form.instance.columna_normal|yesno:"Sí,No" }}</p>
                                 <p><strong>Cifosis:</strong> {{ osteo_form.instance.cifosis|yesno:"Sí,No" }}</p>
                                 <p><strong>Lordosis:</strong> {{ osteo_form.instance.lordosis|yesno:"Sí,No" }}</p>
                                 <p><strong>Escoliosis:</strong> {{ osteo_form.instance.escoliosis|yesno:"Sí,No" }}</p>
-                                <p><strong>Miembros superiores:</strong> {{ osteo_form.instance.miembros_superiores|default:"-" }}</p>
-                                <p><strong>Miembros inferiores:</strong> {{ osteo_form.instance.miembros_inferiores|default:"-" }}</p>
-                            </div>
-                        </div>
+                                <p><strong>Miembros superiores:</strong> {{ osteo_form.instance.miembros_superiores|default:"NO PRESENTA" }}</p>
+                                <p><strong>Miembros inferiores:</strong> {{ osteo_form.instance.miembros_inferiores|default:"NO PRESENTA" }}</p>
+                            </div></div>
 
-                        <!-- Neurológico -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Examen Neurologico</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ neuro_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Examen Neurológico</h5></div>
+                            <div class="card-body"><p>{{ neuro_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
 
-                        <!-- Comentario / Derivación -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Comentario / Derivación</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p><strong>Comentarios y/o derivaciones:</strong> {{ comentario_form.instance.comentarios_derivaciones|default:"-" }}</p>
-                                <p><strong>Se recomienda:</strong> {{ comentario_form.instance.recomendaciones|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Comentarios y Derivaciones</h5></div>
+                            <div class="card-body">
+                                <p><strong>Comentarios:</strong> {{ comentario_form.instance.comentarios_derivaciones|default:"NO PRESENTA" }}</p>
+                                <p><strong>Se recomienda:</strong> {{ comentario_form.instance.recomendaciones|default:"NO PRESENTA" }}</p>
+                            </div></div>
 
-                        <!-- Recomendaciones -->
-                        <div class="card mb-3 shadow-sm">
-                            <div class="card-header ">
-                                <h5 class="mb-0 text-center">Recomendaciones</h5>
-                            </div>
-                            <div class="card-body bg-white">
-                                <p>{{ recomendaciones_form.instance.detalles|default:"-" }}</p>
-                            </div>
-                        </div>
+                        <div class="card mb-3 shadow-sm"><div class="card-header"><h5>Recomendaciones Generales</h5></div>
+                            <div class="card-body"><p>{{ recomendaciones_form.instance.detalles|default:"NO PRESENTA" }}</p></div></div>
                     </div>
                 </div>
             </div>
         </div>
 
-       
-        <!-- Firma del Médico -->
+        <!-- CERTIFICADO MÉDICO -->
         <div class="card mb-4 shadow-sm">
-            <div class="card-header ">
-                <h2 class="mb-0 text-center">Certificado Médico</h2>
+            <div class="card-header" style="background-color: #E6F7FC; border-bottom: 2px solid #009FE3;">
+                <h2 class="mb-0 text-center" style="color: #004b70;">Certificado Médico</h2>
             </div>
-            <div class="card-body bg-white">
+            <div class="card-body bg-white" style="background-color: #ffffff !important;">
                 <p><strong>Estado:</strong> {{ cus.estado }}</p>
                 <p><strong>Fecha de emisión:</strong> {{ cus.fecha_de_llenado|date:"d/m/Y" }}</p>
                 <p><strong>Fecha de vencimiento:</strong> {{ cus.fecha_caducidad|date:"d/m/Y" }}</p>
         
                 <p class="mt-4">
-                    Hago constar que <strong>{{ estudiante.apellido }} {{ estudiante.nombre }}</strong> se encuentra en condiciones para el ingreso escolar, la realización de actividades físicas curriculares y lo establecido en la Resolución M.E. 57 de acuerdo al examen clínico actual y en reposo practicado en la fecha.
+                    Hago constar que <strong>{{ estudiante.apellido }} {{ estudiante.nombre }}</strong> 
+                    se encuentra en condiciones para el ingreso escolar, la realización de actividades físicas curriculares 
+                    y lo establecido en la Resolución M.E. 57.
                 </p>
         
                 <p class="fw-bold mt-3">
-                    ESTA DOCUMENTACIÓN ORIGINAL DEBE PERMANECER EN CUSTODIA Y CONSERVACIÓN LEGAL DE LA DIRECCIÓN DEL CENTRO EDUCATIVO, Y LA COPIA EN PODER DEL RESPONSABLE LEGAL DEL ALUMNO.
+                    ESTA DOCUMENTACIÓN ORIGINAL DEBE PERMANECER EN CUSTODIA Y CONSERVACIÓN LEGAL DE LA DIRECCIÓN DEL CENTRO EDUCATIVO,
+                    Y LA COPIA EN PODER DEL RESPONSABLE LEGAL DEL ALUMNO.
                 </p>
         
                 <hr>
         
-                <div class="bg-white p-3 mt-4 rounded text-center">
-                    <h5 class="text-center">Médico responsable</h5>
+                <div class="text-center">
+                    <h5 class="text-center mb-3">Médico responsable</h5>
                     <p><strong>Nombre:</strong> {{ cus.medico.profile.nombre }} {{ cus.medico.profile.apellido }}</p>
                     <p><strong>Matrícula:</strong> {{ cus.medico.matricula }}</p>
                     <p><strong>Email:</strong> {{ cus.medico.profile.email }}</p>
-                
+                    <p><strong>Firma:</strong></p>
+                    
                     {% if cus.medico.firma %}
-                        <p><strong>Firma:</strong></p>
-                        <img src="{{ cus.medico.firma.url }}" alt="Firma del médico" class="img-fluid" style="max-width: 150px;">
+                        <img src="{{ cus.medico.firma.url }}" alt="Firma del médico" class="img-fluid mt-2" style="max-width: 180px;">
                     {% else %}
-                        <p>No se ha proporcionado una firma.</p>
+                        <p class="text-muted">No se ha proporcionado una firma.</p>
                     {% endif %}
                 </div>
             </div>
         </div>
+
+        <!-- HISTORIAL DE ACTUALIZACIONES -->
         {% if actualizaciones %}
         <div class="card mt-4 shadow-sm">
             <div class="card-header bg-info text-white text-center">
-                <h4 class="mb-0">Historial de Actualizaciones del CUS</h4>
+                <h4>Historial de Actualizaciones del CUS</h4>
             </div>
         </div>
-    
+
         {% for act in actualizaciones %}
-        <div class="card mb-4 shadow-sm ">
+        <div class="card mb-4 shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <strong>Actualización del {{ act.fecha|date:"d/m/Y" }}</strong>
                 <strong>Vencimiento: {{ act.vencimiento|date:"d/m/Y" }}</strong>
                 <span class="text-muted">Médico: {{ act.medico.profile.nombre }} {{ act.medico.profile.apellido }}</span>
             </div>
-            <div class="card-body bg-white">
-                <p class="mb-2 text-center bg-white"><em>Este nuevo examen médico presenta los cambios biológicos normales/patológicos con respecto al examen anterior.</em></p>
-            
-                <p>
-                    <strong>Edad:</strong> {{ act.edad }} años &nbsp;&nbsp;
-                    <strong>Peso:</strong> {{ act.peso }} kg &nbsp;&nbsp;
-                    <strong>Talla:</strong> {{ act.talla }} cm &nbsp;&nbsp;
-                    <strong>IMC:</strong> {{ act.imc }} &nbsp;&nbsp;
-                    <strong>Diag. Antropométrico:</strong> {{ act.diagnostico_antropometrico }}
-                </p>
-            
+            <div class="card-body">
+                <p class="text-center"><em>Este nuevo examen médico presenta los cambios biológicos normales/patológicos con respecto al examen anterior.</em></p>
+                <p><strong>Edad:</strong> {{ act.edad }} años - <strong>Peso:</strong> {{ act.peso }} kg - <strong>Talla:</strong> {{ act.talla }} cm - <strong>IMC:</strong> {{ act.imc }}</p>
                 <hr>
-            
                 <p><strong>ANTECEDENTES:</strong><br>{{ act.antecedentes|linebreaks }}</p>
                 <p><strong>EXAMEN FÍSICO:</strong><br>{{ act.examen_fisico|linebreaks }}</p>
-            
-                <p class="mt-3 bg-white">
-                    <strong>ESTADO DE SALUD:</strong>
-                    Normal: {% if act.estado_salud_normal %}Sí{% else %}No{% endif %} &nbsp;&nbsp;
-                    <strong>Derivado a:</strong> {{ act.derivado_a|default:"-" }} &nbsp;&nbsp;
-                    <strong>Debe volver:</strong> {{ act.debe_volver|default:"-" }}
+                <p><strong>ESTADO DE SALUD:</strong> {% if act.estado_salud_normal %}Normal{% else %}No Normal{% endif %}
+                    - <strong>Derivado a:</strong> {{ act.derivado_a|default:"NO PRESENTA" }}
+                    - <strong>Debe volver:</strong> {{ act.debe_volver|default:"NO PRESENTA" }}
                 </p>
-            
-                <p class="mt-3 bg-white"><strong>Observaciones / Recomendaciones:</strong><br>{{ act.observaciones|linebreaks }}</p>
-            
-                <div class="text-center mt-4 bg-white">
-                    {% if act.medico and act.medico.firma %}
+                <p><strong>Observaciones / Recomendaciones:</strong><br>{{ act.observaciones|linebreaks }}</p>
+                <div class="text-center mt-3">
+                    {% if act.medico.firma %}
                         <p><strong>Firma del Médico:</strong></p>
                         <img src="{{ act.medico.firma.url }}" alt="Firma del médico" class="img-fluid" style="max-width: 180px;">
                     {% else %}
@@ -416,28 +327,23 @@
             </div>
         </div>
         {% endfor %}
-    {% endif %}
-           
+        {% endif %}
 
-        <!-- Botones -->
-        <div class="mt-4 d-flex flex-column flex-md-row justify-content-end align-items-stretch gap-2">
-            <form method="get"
-                action="{% if perfil.rol == 'medico' %}{% url 'cus_home' %}
+        <!-- BOTONES -->
+        <div class="mt-4 d-flex flex-column flex-md-row justify-content-end gap-2">
+            <form method="get" action="{% if perfil.rol == 'medico' %}{% url 'cus_home' %}
                         {% elif perfil.rol == 'estudiante' %}{% url 'menu_estudiante' %}
                         {% elif perfil.rol == 'colegio' %}{% url 'colegio_home' %}
-
-              
                         {% else %}{% url 'home' %}{% endif %}">
-                        <button type="submit" class="btn btn-secondary w-100" style="min-width: 120px;">Volver</button>
+                <button type="submit" class="btn btn-secondary w-100" style="min-width: 120px;">Volver</button>
             </form>
-        
+
             <form method="get">
                 <input type="hidden" name="descargar_pdf" value="true">
-                <button type="submit" class="btn btn-primary w-100" style="min-width: 120px;">Descargar</button>
+                <button type="submit" class="btn btn-primary w-100" style="min-width: 120px;">Descargar PDF</button>
             </form>
         </div>
-        
-        
     </div>
 </section>
 {% endblock %}
+

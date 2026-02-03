@@ -9,25 +9,27 @@
         <!-- Descripción -->
         <p class="fs-5 text-muted me-3">
             Puedes acceder a las siguientes plataformas: <br>
-          
-           
+
+
         </p>
 
         {% if profiles %}
             <form method="POST" action="{% url 'select_role' %}">
                 {% csrf_token %}
                 {% for profile in profiles %}
-                <button type="submit" name="role" value="{{ profile.rol }}" 
+                <button type="submit" name="role" value="{{ profile.rol }}"
                     class="btn btn-lg w-100 mb-3 shadow-sm d-flex align-items-center justify-content-center"
                     style="background: #007bff; color: white; border-radius: 10px; padding: 15px;">
-                    <i class="bi bi-person-circle me-2 fs-4"></i>  
-                    Ingresar para 
+                    <i class="bi bi-person-circle me-2 fs-4"></i>
+                    Ingresar para
                     {% if profile.rol == "estudiante" %}
                         Gestionar Aptos Escolares
                     {% elif profile.rol == "jugador" %}
-                        Gestionar Aptos Físicos
+                        Gestionar Aptos Físicos Torneos y Competencias
                     {% elif profile.rol == "medico" %}
                         Gestión Médica
+                    {% elif profile.rol == "paciente" %}
+                        Aptos Generales
                     {% elif profile.rol == "representante" %}
                         Gestión de Equipos
                     {% else %}
@@ -41,8 +43,8 @@
             <p class="text-center text-danger fs-5 fw-bold">No tienes roles asignados.</p>
         {% endif %}
                 <p class="fs-5 text-muted me-3">
-           
-          
+
+
             Selecciona la plataforma deseada para continuar.
         </p>
     </div>

@@ -3,373 +3,369 @@
 {% block content %}
 
 <style>
-    ul[id^='submenu'] {
-        display: none;
-        background-color: #00c4f6;
-        position: absolute;
-        list-style: none;
-        padding: 20px;
-        border-radius: 5px;
-        z-index: 1000; /* Asegura que el submenú esté por encima de otros elementos */
+  /* === ESTILOS BASE COPIADOS DEL HOME MÉDICO === */
+  main::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
+    background-size: cover;
+    opacity: 0.25;
+    z-index: -1;
+  }
+
+  :root {
+    --med-navy:#0d47a1;
+    --med-royal:#1565c0;
+    --med-cyan:#00C4F6;
+  }
+
+  .med-summary-band {
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    background: linear-gradient(90deg,
+                rgba(13,71,161,.98) 0%,
+                rgba(21,101,192,.98) 50%,
+                rgba(0,196,246,.98) 100%);
+    color:#fff;
+    padding: 18px 24px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+
+  .med-summary-grid {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 24px;
+    align-items: center;
+  }
+
+  .ms-item {
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+
+  .ms-ico { font-size: 1.9rem; line-height: 1; }
+  .ms-text small { display:block; font-weight:700; opacity:.95; }
+  .ms-text strong { display:block; line-height:1.15; font-size: 1.8rem; }
+
+  #search-container {
+    background: linear-gradient(180deg, rgba(21,101,192,.03), rgba(0,0,0,.03)), #f4f7fb !important;
+    border: 3px solid #dfe7f1;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    margin-top: 16px;
+  }
+
+  @media (max-width: 992px){
+    .med-summary-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .ms-ico{ font-size: 1.6rem; }
+    .ms-text strong{ font-size: 1.6rem; }
+  }
+
+  @media (max-width: 576px){
+    .med-summary-grid{ grid-template-columns: 1fr; }
+    .ms-text strong{ font-size: 1.45rem; }
+    .ms-text small{ font-size: .95rem; }
+  }
+
+  @media (max-width: 768px) {
+    .table-responsive {
+      overflow-x: auto;
     }
-    
-    ul[id^='submenu'] li a {
-        color: white;
-        text-decoration: none;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        display: block;
-       
-        cursor: pointer; /* ✅ Hace que el cursor sea una manito */
+    .table {
+      display: block;
     }
-    
-    /* Cambio de color cuando se pasa el mouse sobre los enlaces */
-    ul[id^='submenu'] li a:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 5px;
+    .table thead {
+      display: none;
     }
+    .table tbody, .table tr, .table td {
+      display: block;
+      width: 100%;
+    }
+    .table tr {
+      margin-bottom: 1rem;
+      border: 1px solid #dee2e6;
+      padding: 0.5rem;
+      background: white;
+      border-radius: 5px;
+    }
+    .table td {
+      text-align: left;
+      padding: 0.5rem;
+      border-bottom: none;
+    }
+    .table td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      display: block;
+      text-transform: uppercase;
+      color: #1565c0;
+    }
+  }
+
+  /* === ESTILOS ORIGINALES DEL MENÚ DE SUBMENÚS === */
+  ul[id^='submenu'] {
+      display: none;
+      background-color: #00c4f6;
+      position: absolute;
+      list-style: none;
+      padding: 20px;
+      border-radius: 5px;
+      z-index: 1000;
+  }
+  
+  ul[id^='submenu'] li a {
+      color: white;
+      text-decoration: none;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      display: block;
+      cursor: pointer;
+  }
+  
+  ul[id^='submenu'] li a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+  }
 </style>
 
-    <div class="row" style="margin: 0; padding: 0;">
-        <div class="container-fluid ficha-medica-container" style="margin: 0; padding: 0;">
-        
-        <nav class="navbar navbar-expand-lg py-3" style="background-color: #00c4f6; color: white; margin: 0; padding: 0;">
-            <div class="container-fluid">
-                <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#menuItems"
-                aria-controls="menuItems"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-                >
-                <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="menuItems">
-                <ul class="navbar-nav w-100 gap-3">
-                     <!-- Ver Cus con submenu -->
-                     <li class="nav-item dropdown" style="position: relative;">
-                        <a
-                            class="nav-link dropdown-toggle fs-5"
-                            href="#"
-                            id="consultarApto"
-                            data-menu="link"
-                            style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);"
-                        >
-                            <i class="bi bi-file-medical"></i>  Ver CUS
-                        </a>
-                        <ul id="submenuConsultarApto" style="
-                            display: none;
-                            background-color: #00c4f6;
-                            position: absolute;
-                            list-style: none;
-                            padding: 10px;
-                            border-radius: 5px;
-                        ">
-                            <li style="margin-bottom: 5px;">
-                                <a class="dropdown-item" href="{% url 'consultar_apto' %}" id="consultarApto"  aria-expanded="false" style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                                    <i class="bi bi-file-medical"></i>  Ver CUS
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'lista_estudiantes_para_cus' %}">
-                                    <i class="bi bi-file-plus"></i> Generar nuevo CUS
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                     <!-- Familiares con submenú -->
-                            <li class="nav-item dropdown" style="position: relative;">
-                                <a
-                                    class="nav-link dropdown-toggle fs-5"
-                                    href="#"
-                                    id="familiares"
-                                    data-menu="link"
-                                    style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);"
-                                >
-                                    <i class="bi bi-people"></i> Familiares
-                                </a>
-                                <ul id="submenuFamiliares" style="
-                                    display: none;
-                                    background-color: #00c4f6;
-                                    position: absolute;
-                                    list-style: none;
-                                    padding: 10px;
-                                    border-radius: 5px;
-                                ">
-                                    <li style="margin-bottom: 5px;">
-                                        <a href="{% url 'cargar_estudiante' %}" style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                                            <i class="bi bi-file-medical"></i> Cargar Familiar
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'listar_estudiantes' %}" style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                                            <i class="bi bi-eye"></i> Ver Familiar
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'curva_crecimiento' %}" 
-                                            title="Ver curva de crecimiento del estudiante" 
-                                            style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                                            <i class="bi bi-eye"></i> Ver crecimiento
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-
-                    <!-- Datos Médicos con submenú -->
-                    <li class="nav-item dropdown" style="position: relative;">
-                    <a
-                        class="nav-link dropdown-toggle fs-5"
-                        href="#"
-                        data-menu="link"
-                        id="datomedico"
-                        style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);"
-                    >
-                        <i class="bi bi-journal-text"></i> Datos Médicos
-                    </a>
-                    <ul id="submenuDatosMedicos" style="
-                        display: none;
-                        
-                        background-color: #00c4f6;
-                
-                    ">
-                    
-                        <li style="margin-bottom: 5px;">
-                        <a href="{% url 'ver_antecedentes' %}" style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                            Ver Antecedentes
-                        </a>
-                        </li>
-                    
-                    <li style="margin-bottom: 5px;">
-                        <a href="{% url 'seleccionar_estudiante' %}" style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                        Cargar Antecedentes
-                        </a>
-                    </li>
-                    
-                       
-                        
-                      
-                        
-                    </ul>
-                    </li>
-            
-                    <!-- Estudios con submenú -->
-                    <li class="nav-item dropdown" style="position: relative;">
-                    <a
-                        class="nav-link dropdown-toggle fs-5"
-                        href="#"
-                        data-menu="link"
-                        id="estudios"
-                        style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);"
-                    >
-                        <i class="bi bi-book"></i> Estudios
-                    </a>
-                    <ul id="submenuEstudios" style="
-                        display: none;
-                        
-                        background-color: #00c4f6;
-                        
-                    ">
-                    
-                    <li style="margin-bottom: 5px;">
-                        <a href="{% url 'seleccionar_estudiante_para_estudio' %}?accion=cargar"
-                           style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                            Cargar Estudios
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'seleccionar_estudiante_para_estudio' %}?accion=listar"
-                           style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                            Ver Estudios
-                        </a>
-                    </li>
-                    
-                       
-                    
-                    </ul>
-                    </li>
-            
-                    <!-- Datos Personales -->
-                    <li class="nav-item">
-                    <a class="nav-link fs-5" href="{% url 'datos_personales' %}" id="datospersonales"  style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                        <i class="bi bi-person"></i> Datos Personales
-                    </a>
-                    </li>
-            
-
-                <!-- Notificaciones -->
-                    <li class="nav-item dropdown" style="position: relative;">
-                        <a class="nav-link fs-5"
-                        href="#" id="notificaciones"
-                        style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
-                            <i class="bi bi-bell"></i> Notificaciones
-                        </a>
-
-                        <ul id="submenuNotificaciones" style="
-                            display: none;
-                            background-color: #00c4f6;
-                            position: absolute;
-                            list-style: none;
-                            padding: 10px;
-                            border-radius: 5px;
-                            z-index: 1000;
-                            min-width: 300px;">
-                            
-                            {% if notificaciones_cus %}
-                            {% for cus in notificaciones_cus %}
-                                <li style="margin-bottom: 5px;">
-                                    <a href="#" style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); display: block;">
-                                        <strong>{{ cus.estudiante.nombre }} {{ cus.estudiante.apellido }}</strong><br>
-                                        <small>
-                                            Vence: {{ cus.fecha_caducidad|date:"d/m/Y" }} - Estado: {{ cus.estado }}
-                                            
-                                            {% if cus.actualizaciones.count >= 1 %}
-                                                <br><span style="color: #0f0;">✔ Actualizado</span>
-                                                
-                                                {% with cus.actualizaciones.first as ultima_actualizacion %}
-                                                    {% if ultima_actualizacion.vencimiento %}
-                                                        <br><span style="color: #ffd700;">Vencimiento actualización: {{ ultima_actualizacion.vencimiento|date:"d/m/Y" }}</span>
-                                                    {% endif %}
-                                                {% endwith %}
-                                            {% endif %}
-                                        </small>
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        {% else %}
-                            <li>No hay notificaciones de CUS.</li>
-                        {% endif %}
-                        </ul>
-                    </li>
-                </ul>
-                </div>
-            </div>
-        </nav> 
+<div class="row" style="margin: 0; padding: 0;">
+  <div class="container-fluid ficha-medica-container" style="margin: 0; padding: 0;">
     
-        
-        
-            
-            
-    
-                <!-- Main content with background image -->
-            <main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
-                    <style>
-                    main::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: url('{% static "core/img/estudiante_home.jpeg" %}') no-repeat center center;
-                        background-size: cover;
-                        opacity: 0.4; /* Controla la transparencia de la imagen */
-                        z-index: -1; /* Coloca la imagen detrás del contenido */
-                    }
-                    </style>
-                    <div style="position: relative; z-index: 1;">
-                          
-                     
-                      
-                        
-         
-                        <!-- Mensaje de Bienvenida para sección CUS -->
-                            <div class="container-welcome d-flex justify-content-start" id="welcome" style="margin-top: 0px;">
-                            <div class="p-4 rounded shadow" style="max-width: 800px; margin-left: 0; margin-top: 80px; background-color: rgba(255, 255, 255, 0.85);">
-                                
-                                <h1 class="text-primary mb-3" style="font-size: 2.2rem; font-weight: bold;">
-                                ¡Bienvenido a tu espacio de gestión médica!
-                                </h1>
-                                
-                                <p class="text-secondary fs-5">
-                                En esta sección podrás cargar la cantidad de hijos a tu cargo y registrar sus antecedentes de enfermedades.
-                                Una vez que hayas aceptado la declaración jurada, los médicos podrán llenar el 
-                                <strong>Certificado Único Escolar</strong> para ser presentados a las autoridades pertinentes.
-                                </p>
+    <!-- NAVBAR PRINCIPAL -->
+    <nav class="navbar navbar-expand-lg py-3" style="background-color: #00c4f6; color: white; margin: 0; padding: 0;">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#menuItems" aria-controls="menuItems" aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-                                <p class="text-secondary fs-5">
-                                Utilizá el menú de navegación para explorar las distintas opciones. 
-                                Estamos aquí para ayudarte a mantener la salud de tus hijos al día.
-                                </p>
+        <div class="collapse navbar-collapse" id="menuItems">
+          <ul class="navbar-nav w-100 gap-3">
 
-                            </div>
-                            </div>
+            <!-- Ver CUS -->
+            <li class="nav-item dropdown" style="position: relative;">
+              <a class="nav-link dropdown-toggle fs-5" href="#" id="consultarApto" data-menu="link"
+                style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                <i class="bi bi-file-medical"></i> Ver CUS
+              </a>
+              <ul id="submenuConsultarApto"
+                style="display: none; background-color: #00c4f6; position: absolute; list-style: none; padding: 10px; border-radius: 5px;">
+                <li style="margin-bottom: 5px;">
+                  <a class="dropdown-item" href="{% url 'consultar_apto' %}" id="consultarApto"
+                    aria-expanded="false"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                    <i class="bi bi-file-medical"></i> Ver CUS
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'lista_estudiantes_para_cus' %}">
+                    <i class="bi bi-file-plus"></i> Generar nuevo CUS
+                  </a>
+                </li>
+              </ul>
+            </li>
 
-                  
-                    
-      
-               
+            <!-- Familiares -->
+            <li class="nav-item dropdown" style="position: relative;">
+              <a class="nav-link dropdown-toggle fs-5" href="#" id="familiares" data-menu="link"
+                style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                <i class="bi bi-people"></i> Familiares
+              </a>
+              <ul id="submenuFamiliares"
+                style="display: none; background-color: #00c4f6; position: absolute; list-style: none; padding: 10px; border-radius: 5px;">
+                <li style="margin-bottom: 5px;">
+                  <a href="{% url 'cargar_estudiante' %}"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                    <i class="bi bi-file-medical"></i> Cargar Familiar
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'listar_estudiantes' %}"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                    <i class="bi bi-eye"></i> Ver Familiar
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'curva_crecimiento' %}" title="Ver curva de crecimiento del estudiante"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                    <i class="bi bi-graph-up"></i> Ver crecimiento
+                  </a>
+                </li>
+              </ul>
+            </li>
 
+            <!-- Datos Médicos -->
+            <li class="nav-item dropdown" style="position: relative;">
+              <a class="nav-link dropdown-toggle fs-5" href="#" data-menu="link" id="datomedico"
+                style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                <i class="bi bi-journal-text"></i> Datos Médicos
+              </a>
+              <ul id="submenuDatosMedicos" style="display: none; background-color: #00c4f6;">
+                <li style="margin-bottom: 5px;">
+                  <a href="{% url 'ver_antecedentes' %}"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">Ver
+                    Antecedentes</a>
+                </li>
+                <li style="margin-bottom: 5px;">
+                  <a href="{% url 'seleccionar_estudiante' %}"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">Cargar
+                    Antecedentes</a>
+                </li>
+              </ul>
+            </li>
 
-                    </div>
-                
-            
-                </main>
+            <!-- Estudios -->
+            <li class="nav-item dropdown" style="position: relative;">
+              <a class="nav-link dropdown-toggle fs-5" href="#" data-menu="link" id="estudios"
+                style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                <i class="bi bi-book"></i> Estudios
+              </a>
+              <ul id="submenuEstudios" style="display: none; background-color: #00c4f6;">
+                <li style="margin-bottom: 5px;">
+                  <a href="{% url 'seleccionar_estudiante_para_estudio' %}?accion=cargar"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">Cargar
+                    Estudios</a>
+                </li>
+                <li>
+                  <a href="{% url 'seleccionar_estudiante_para_estudio' %}?accion=listar"
+                    style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">Ver
+                    Estudios</a>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Datos Personales -->
+            <li class="nav-item">
+              <a class="nav-link fs-5" href="{% url 'datos_personales' %}" id="datospersonales"
+                style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                <i class="bi bi-person"></i> Datos Personales
+              </a>
+            </li>
+
+            <!-- Notificaciones -->
+            <li class="nav-item dropdown" style="position: relative;">
+              <a class="nav-link fs-5" href="#" id="notificaciones"
+                style="color: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);">
+                <i class="bi bi-bell"></i> Notificaciones
+              </a>
+              <ul id="submenuNotificaciones"
+                style="display: none; background-color: #00c4f6; position: absolute; list-style: none; padding: 10px; border-radius: 5px; z-index: 1000; min-width: 300px;">
+                {% if notificaciones_cus %}
+                  {% for cus in notificaciones_cus %}
+                    <li style="margin-bottom: 5px;">
+                      <a href="#" style="color: white; text-decoration: none; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); display: block;">
+                        <strong>{{ cus.estudiante.nombre }} {{ cus.estudiante.apellido }}</strong><br>
+                        <small>Vence: {{ cus.fecha_caducidad|date:"d/m/Y" }} - Estado: {{ cus.estado }}</small>
+                      </a>
+                    </li>
+                  {% endfor %}
+                {% else %}
+                  <li>No hay notificaciones de CUS.</li>
+                {% endif %}
+              </ul>
+            </li>
+          </ul>
         </div>
-    </div>
+      </div>
+    </nav>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Función para alternar la visibilidad de un submenú
-            function toggleSubMenu(menuId) {
-                let submenu = document.getElementById(menuId);
-        
-                // Si el submenú está abierto, lo cierra
-                if (submenu.style.display === "block") {
-                    submenu.style.display = "none";
-                } else {
-                    closeAllSubMenus();
-                    submenu.style.display = "block";
-                }
-            }
-        
-            // Cierra todos los submenús antes de abrir uno nuevo
-            function closeAllSubMenus() {
-                document.querySelectorAll("ul[id^='submenu']").forEach(function (submenu) {
-                    submenu.style.display = "none";
-                });
-            }
-        
-            // Agregar eventos de clic a los enlaces con submenús
-            const menuItems = [
-                { trigger: "datomedico", submenu: "submenuDatosMedicos" },
-                { trigger: "estudios", submenu: "submenuEstudios" },
-                { trigger: "notificaciones", submenu: "submenuNotificaciones" },
-                { trigger: "familiares", submenu: "submenuFamiliares" },
-                { trigger: "consultarApto", submenu: "submenuConsultarApto" },
-            ];
-        
-            menuItems.forEach(item => {
-                let triggerElement = document.getElementById(item.trigger);
-                let submenuElement = document.getElementById(item.submenu);
-        
-                if (triggerElement && submenuElement) {
-                    triggerElement.addEventListener("click", function (event) {
-                        event.preventDefault();
-                        toggleSubMenu(item.submenu);
-                    });
-                }
-            });
-        
-            // Cierra los submenús al hacer clic fuera de ellos
-            document.addEventListener("click", function (event) {
-                let isClickInsideMenu = event.target.closest(".nav-item.dropdown");
-                if (!isClickInsideMenu) {
-                    closeAllSubMenus();
-                }
-            });
-        
-            // Evita el cierre del menú al hacer clic dentro del submenú
-            document.querySelectorAll("ul[id^='submenu']").forEach(function (submenu) {
-                submenu.addEventListener("click", function (event) {
-                    event.stopPropagation();
-                });
-            });
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
+      <style>
+        main::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: url('{% static "core/img/estudiante_home.jpeg" %}') no-repeat center center;
+          background-size: cover;
+          opacity: 0.4;
+          z-index: -1;
+        }
+      </style>
+
+      <div style="position: relative; z-index: 1;">
+        <div class="container-welcome d-flex justify-content-start" id="welcome" style="margin-top: 0px;">
+          <div class="p-4 rounded shadow" style="max-width: 800px; margin-left: 0; margin-top: 80px; background-color: rgba(255, 255, 255, 0.85);">
+            <h1 class="text-primary mb-3" style="font-size: 2.2rem; font-weight: bold;">
+              ¡Bienvenido a tu espacio de gestión médica!
+            </h1>
+            <p class="text-secondary fs-5">
+              En esta sección podrás cargar la cantidad de hijos a tu cargo y registrar sus antecedentes de enfermedades.
+              Una vez que hayas aceptado la declaración jurada, los médicos podrán llenar el
+              <strong>Certificado Único Escolar</strong> para ser presentados a las autoridades pertinentes.
+            </p>
+            <p class="text-secondary fs-5">
+              Utilizá el menú de navegación para explorar las distintas opciones. 
+              Estamos aquí para ayudarte a mantener la salud de tus hijos al día.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function toggleSubMenu(menuId) {
+      let submenu = document.getElementById(menuId);
+      if (submenu.style.display === "block") {
+        submenu.style.display = "none";
+      } else {
+        closeAllSubMenus();
+        submenu.style.display = "block";
+      }
+    }
+
+    function closeAllSubMenus() {
+      document.querySelectorAll("ul[id^='submenu']").forEach(function (submenu) {
+        submenu.style.display = "none";
+      });
+    }
+
+    const menuItems = [
+      { trigger: "datomedico", submenu: "submenuDatosMedicos" },
+      { trigger: "estudios", submenu: "submenuEstudios" },
+      { trigger: "notificaciones", submenu: "submenuNotificaciones" },
+      { trigger: "familiares", submenu: "submenuFamiliares" },
+      { trigger: "consultarApto", submenu: "submenuConsultarApto" },
+    ];
+
+    menuItems.forEach(item => {
+      let triggerElement = document.getElementById(item.trigger);
+      let submenuElement = document.getElementById(item.submenu);
+      if (triggerElement && submenuElement) {
+        triggerElement.addEventListener("click", function (event) {
+          event.preventDefault();
+          toggleSubMenu(item.submenu);
         });
-        </script>
-        
-        
-       
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      let isClickInsideMenu = event.target.closest(".nav-item.dropdown");
+      if (!isClickInsideMenu) {
+        closeAllSubMenus();
+      }
+    });
+
+    document.querySelectorAll("ul[id^='submenu']").forEach(function (submenu) {
+      submenu.addEventListener("click", function (event) {
+        event.stopPropagation();
+      });
+    });
+  });
+</script>
 
 {% endblock %}

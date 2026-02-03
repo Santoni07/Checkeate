@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container text-center mt-5">
     <h3>Seleccione el torneo, la categoría y el equipo</h3>
-    
+
     <!-- Formulario principal -->
     <form id="seleccion-form" method="post">
         {% csrf_token %}
@@ -59,11 +59,11 @@
                 .then(data => {
                     const categoriaSelect = document.getElementById('categoria-select');
                     categoriaSelect.innerHTML = '<option value="">-- Seleccione una categoría --</option>'; // Limpiar opciones anteriores
-    
+
                     data.categorias.forEach(categoria => {
                         categoriaSelect.innerHTML += `<option value="${categoria.id}">${categoria.nombre}</option>`;
                     });
-    
+
                     document.getElementById('categoria-section').style.display = 'block'; // Mostrar la sección de categorías
                 })
                 .catch(error => {

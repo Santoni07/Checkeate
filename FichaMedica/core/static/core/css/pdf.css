@@ -1,0 +1,223 @@
+/* ===== Configuración de página ===== */
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  color: #333;
+}
+
+/* ===== Cards ===== */
+.card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  background: #fff;
+}
+
+.card-header {
+  background: #0d6efd;   /* Azul Bootstrap */
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  padding: 6px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.card-body {
+  background: #f0f0f0;
+  padding: 10px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+/* ===== Títulos ===== */
+h1, h2, h3, h4, h5 {
+  margin: 4px 0;
+  font-weight: bold;
+  color: #0056b3;
+}
+
+h1 { font-size: 16px; text-align: center; }
+h2 { font-size: 13px; }
+h3, h4, h5 { font-size: 11px; }
+
+/* ===== Tablas ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+
+th, td {
+  border: 1px solid #bbb;
+  padding: 4px 6px;
+  font-size: 9px;
+  text-align: left;
+}
+
+th {
+  background: #f7f7f7;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ===== Otros ===== */
+p {
+  margin: 2px 0;
+  line-height: 1.3;
+}
+
+img {
+  max-height: 100px;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  color: #fff;
+  background: #28a745; /* Verde Bootstrap */
+}
+/* ===== Encabezado tipo membrete solo en PDF ===== */
+.row.encabezado-pdf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid #0d6efd; /* línea azul */
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+.row.encabezado-pdf .col-info {
+  text-align: left;
+  font-size: 11px;
+}
+
+.row.encabezado-pdf .col-info h4 {
+  color: #0d6efd;
+  margin: 0 0 4px 0;
+}
+
+.row.encabezado-pdf .col-logo {
+  text-align: right;
+}
+
+.row.encabezado-pdf .col-logo img {
+  max-height: 80px;
+  object-fit: contain;
+}
+
+.info-personal {
+  background: #f7f7f7;
+  padding: 5px;          /* menos padding */
+  font-size: 10px;       /* letra más chica */
+  line-height: 1.2;      /* menos espacio vertical */
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 5px;              /* pequeño espacio entre columnas */
+}
+
+.col-pdf {
+  width: 50%;            /* ocupa exactamente la mitad */
+  text-align: left;
+}
+
+.col-pdf p {
+  margin: 2px 0;         /* casi sin margen entre líneas */
+  padding: 0;
+}
+/* Antecedentes */
+.antecedentes-pdf {
+  background: #f7f7f7;
+  padding: 6px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.antecedentes-pdf .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.antecedentes-pdf .col-pdf {
+  width: 50%;
+  text-align: left;
+}
+
+.antecedentes-pdf p {
+  margin: 2px 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/*  examen medicos  */
+
+.examenes-pdf {
+  background: #f7f7f7;
+  padding: 6px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.examenes-pdf h5 {
+  margin: 6px 0 4px 0;
+  font-size: 11px;
+  color: #0056b3;
+}
+
+.fila-examen {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.fila-examen p {
+  margin: 2px 6px;
+  white-space: nowrap;
+  flex: 1;
+}
+.separador-examen {
+  border: 0 !important;
+  border-top: 3px solid #0d6efd !important; /* azul fuerte */
+  margin: 10px 0 !important;
+}
+/* salto de página para PDF */
+.salto-pagina {
+  page-break-before: always;
+}
+
+/* centra todo el contenedor de certificación */
+.certificacion-container {
+  display: flex;
+  justify-content: center;   /* centra horizontal */
+  align-items: center;       /* centra vertical */
+  min-height: 100vh;         /* ocupa toda la hoja */
+  text-align: center;
+}
+
+/* bloque de firma médico centrado */
+.firma-medico {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centra horizontal */
+  justify-content: center;
+  text-align: center;
+  margin-top: 30px;
+}

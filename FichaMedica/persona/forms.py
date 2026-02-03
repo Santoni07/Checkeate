@@ -1,10 +1,13 @@
 from django import forms
-from .models import Persona, Jugador, Torneo, Categoria, Equipo, CategoriaEquipo, JugadorCategoriaEquipo
+from .models import Persona, Jugador, Torneo, Categoria, Equipo, CategoriaEquipo, JugadorCategoriaEquipo,ActividadGeneral, JugadorActividadGeneral
+from django.contrib.auth.forms import PasswordChangeForm
+
+
 
 class PersonaForm(forms.ModelForm):
     class Meta:
         model = Persona
-        
+
         fields = [ 'direccion', 'telefono', 'telefono_alternativo']
         widgets = {
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
@@ -47,7 +50,7 @@ class JugadorForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
-    
+
 
 class TorneoForm(forms.ModelForm):
     class Meta:
@@ -92,3 +95,51 @@ class JugadorCategoriaEquipoForm(forms.ModelForm):
             'jugador': forms.Select(attrs={'class': 'form-control'}),
             'categoria_equipo': forms.Select(attrs={'class': 'form-control'}),
         }
+
+
+class ActividadGeneralForm(forms.ModelForm):
+    class Meta:
+        model = ActividadGeneral
+        fields = ["nombre", "descripcion", "direccion", "telefono", "imagen", "activo"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+            "descripcion": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "direccion": forms.TextInput(attrs={"class": "form-control"}),
+            "telefono": forms.TextInput(attrs={"class": "form-control"}),
+            "imagen": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "activo": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+class JugadorActividadGeneralForm(forms.ModelForm):
+    class Meta:
+        model = JugadorActividadGeneral
+        fields = ["jugador", "actividad"]
+        widgets = {
+            "jugador": forms.Select(attrs={"class": "form-select"}),
+            "actividad": forms.Select(attrs={"class": "form-select"}),
+        }
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        label="Contraseña Actual",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        required=True
+    )
+    new_password1 = forms.CharField(
+        label="Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        required=True
+    )
+    new_password2 = forms.CharField(
+        label="Confirmar Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        required=True
+    )
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get('old_password')
+        if not self.user.check_password(old_password):
+            raise forms.ValidationError("La contraseña actual no es correcta.")
+        return old_password

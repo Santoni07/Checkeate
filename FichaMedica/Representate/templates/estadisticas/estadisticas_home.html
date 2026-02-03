@@ -1,0 +1,209 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Estadísticas del Colegio{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="fw-bold text-center text-primary mb-4">{{ colegio.nombre }}</h1>
+  <p class="text-center text-muted">Análisis integral de salud de los estudiantes</p>
+
+ <!-- 📋 Resumen general -->
+<div class="card shadow-sm p-4 mb-4">
+  <h5 class="fw-bold text-secondary mb-3">
+    📋 Estado de los CUS
+  </h5>
+
+  <div class="row text-center">
+    <div class="col-md-2 col-6 mb-3">
+      <h6 class="text-muted">Total estudiantes</h6>
+      <p class="fs-5 fw-bold">{{ total_alumnos }}</p>
+    </div>
+    <div class="col-md-2 col-6 mb-3">
+      <h6 class="text-muted">CUS cargadas</h6>
+      <p class="fs-5 fw-bold">{{ total_cus }}</p>
+    </div>
+    <div class="col-md-2 col-6 mb-3">
+      <h6 class="text-success">Aprobadas</h6>
+      <p class="fs-5 fw-bold text-success">{{ total_aprobadas }}</p>
+    </div>
+    <div class="col-md-2 col-6 mb-3">
+      <h6 class="text-warning">En proceso</h6>
+      <p class="fs-5 fw-bold text-warning">{{ total_proceso }}</p>
+    </div>
+    <div class="col-md-2 col-6 mb-3">
+      <h6 class="text-danger">Rechazadas</h6>
+      <p class="fs-5 fw-bold text-danger">{{ total_rechazadas }}</p>
+    </div>
+    <div class="col-md-2 col-6 mb-3">
+      <h6 class="text-muted">Vencidas</h6>
+      <p class="fs-5 fw-bold text-muted">{{ total_vencidas }}</p>
+    </div>
+  </div>
+</div>
+   <div class="text-center my-3">
+    <h4 class="fw-bold text-secondary">📈 Seleccioná qué estadísticas querés observar</h4>
+    <p class="text-muted">Elegí una categoría para visualizar los gráficos correspondientes.</p>
+  </div>
+
+  <!-- 🔘 Botones de selección de secciones -->
+  <div class="text-center my-4">
+     <!--<button class="btn btn-outline-primary mx-2" onclick="mostrarSeccion('cus')">📊 Estados CUS</button> -->
+    <button class="btn btn-outline-primary mx-2" onclick="mostrarSeccion('imc')">⚖️ Diagnósticos IMC</button>
+    <button class="btn btn-outline-danger mx-2" onclick="mostrarSeccion('cardio')">❤️ Cardiovascular</button>
+    <button class="btn btn-outline-success mx-2" onclick="mostrarSeccion('osteo')">💪 Osteoarticular</button>
+  </div>
+
+  <!-- SECCIONES CON GRÁFICOS
+  <div id="seccion-cus" class="seccion-grafico d-none fade-in">
+    <div class="card shadow p-3">
+      <h5 class="text-center fw-bold text-primary">Distribución de Estados CUS</h5>
+      <canvas id="cusChart"></canvas>
+    </div>
+  </div> -->
+
+  <div id="seccion-imc" class="seccion-grafico d-none fade-in">
+    <div class="col-md-6 mx-auto">
+      <div class="card shadow-sm p-4 mb-4">
+        <h5 class="fw-bold text-secondary">⚖️ Promedios Antropométricos</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Peso promedio: <strong>{{ peso_promedio }} kg</strong></li>
+          <li class="list-group-item">Talla promedio: <strong>{{ talla_promedio }} cm</strong></li>
+          <li class="list-group-item">IMC promedio: <strong>{{ imc_promedio }}</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card shadow p-3">
+      <h5 class="text-center fw-bold text-primary">Distribución de Diagnósticos IMC</h5>
+      <canvas id="imcChart"></canvas>
+    </div>
+  </div>
+
+  <div id="seccion-cardio" class="seccion-grafico d-none fade-in">
+    <div class="card shadow p-4">
+      <h4 class="text-center text-danger fw-bold mb-3">❤️ Salud Cardiovascular</h4>
+      <p class="text-center text-muted">Resumen de los datos de exámenes cardiovasculares cargados por los médicos.</p>
+
+      <div class="row text-center mt-3">
+        <div class="col-md-2"><h6>Total</h6><p class="fs-5">{{ total_cardio }}</p></div>
+        <div class="col-md-2"><h6>Sistólica</h6><p class="fs-5 text-primary">{{ promedio_sistolica }} mmHg</p></div>
+        <div class="col-md-2"><h6>Diastólica</h6><p class="fs-5 text-primary">{{ promedio_diastolica }} mmHg</p></div>
+        <div class="col-md-2"><h6>Arritmias</h6><p class="fs-5 text-danger">{{ porc_arritmia }}%</p></div>
+        <div class="col-md-2"><h6>Soplos</h6><p class="fs-5 text-warning">{{ porc_soplos }}%</p></div>
+        <div class="col-md-2"><h6>Presión Alta</h6><p class="fs-5 text-danger">{{ hipertensos }}</p></div>
+      </div>
+
+      <div class="mt-4"><canvas id="cardioChart"></canvas></div>
+    </div>
+  </div>
+
+  <div id="seccion-osteo" class="seccion-grafico d-none fade-in">
+    <div class="card shadow p-4">
+      <h4 class="text-center text-success fw-bold mb-3">💪 Salud Osteoarticular</h4>
+      <p class="text-center text-muted">Evaluación de columna y alteraciones posturales detectadas.</p>
+
+      <div class="row text-center mt-3">
+        <div class="col-md-2"><h6>Total</h6><p class="fs-5">{{ total_osteo }}</p></div>
+        <div class="col-md-2"><h6>Normal</h6><p class="fs-5 text-primary">{{ columna_normal }}</p></div>
+        <div class="col-md-2"><h6>Cifosis</h6><p class="fs-5 text-danger">{{ cifosis }}</p></div>
+        <div class="col-md-2"><h6>Lordosis</h6><p class="fs-5 text-danger">{{ lordosis }}</p></div>
+        <div class="col-md-2"><h6>Escoliosis</h6><p class="fs-5 text-danger">{{ escoliosis }}</p></div>
+        <div class="col-md-2"><h6>Alteraciones</h6><p class="fs-5 text-warning">{{ porc_alteraciones }}%</p></div>
+      </div>
+
+      <div class="mt-4"><canvas id="osteoChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Botón de volver -->
+  <div class="text-center mt-5">
+    <a href="{% url 'colegio_home' %}" class="btn btn-outline-primary">⬅ Volver al Listado</a>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+.fade-in {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+.fade-in.show {
+  opacity: 1;
+}
+
+</style>
+
+<!-- Control de secciones -->
+<script>
+function mostrarSeccion(nombre) {
+  // Oculta todas las secciones
+  document.querySelectorAll('.seccion-grafico').forEach(div => {
+    div.classList.add('d-none');
+    div.classList.remove('show');
+  });
+
+  // Muestra la seleccionada con efecto fade-in
+  const seccion = document.getElementById(`seccion-${nombre}`);
+  if (seccion) {
+    seccion.classList.remove('d-none');
+    setTimeout(() => seccion.classList.add('show'), 50);
+  }
+}
+
+// 🚫 No mostrar ninguna al cargar
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.seccion-grafico').forEach(div => div.classList.add('d-none'));
+});
+
+// --- Gráficos ---
+const cusData = [{{ total_aprobadas }}, {{ total_proceso }}, {{ total_rechazadas }}, {{ total_vencidas }}];
+new Chart(document.getElementById('cusChart'), {
+  type: 'pie',
+  data: {
+    labels: ['Aprobadas','En proceso','Rechazadas','Vencidas'],
+    datasets:[{ data: cusData, backgroundColor:['#4CAF50','#FFC107','#F44336','#9E9E9E'] }]
+  },
+  options:{ plugins:{ legend:{ position:'bottom' } } }
+});
+
+const imcData = [{{ bajo_peso }}, {{ peso_ideal }}, {{ sobrepeso }}, {{ obesidad }}];
+new Chart(document.getElementById('imcChart'), {
+  type:'bar',
+  data:{
+    labels:['Bajo peso','Peso ideal','Sobrepeso','Obesidad'],
+    datasets:[{ data:imcData, backgroundColor:['#2196F3','#4CAF50','#FF9800','#E91E63'] }]
+  },
+  options:{ scales:{ y:{ beginAtZero:true } }, plugins:{ legend:{ display:false } } }
+});
+
+const cardioData = {
+  labels: ['Sistólica','Diastólica'],
+  datasets: [{
+    data: [{{ promedio_sistolica }}, {{ promedio_diastolica }}],
+    backgroundColor:['#f44336','#2196f3']
+  }]
+};
+new Chart(document.getElementById('cardioChart'), {
+  type:'bar',
+  data:cardioData,
+  options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, max:200 } } }
+});
+
+const osteoData = {
+  labels: ['Normal','Cifosis','Lordosis','Escoliosis'],
+  datasets: [{
+    data: [{{ columna_normal }}, {{ cifosis }}, {{ lordosis }}, {{ escoliosis }}],
+    backgroundColor:['#2196F3','#E91E63','#FF9800','#9C27B0']
+  }]
+};
+new Chart(document.getElementById('osteoChart'), {
+  type:'bar',
+  data:osteoData,
+  options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }
+});
+</script>
+{% endblock %}
+
+

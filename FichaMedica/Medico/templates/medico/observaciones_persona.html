@@ -1,0 +1,130 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Observaciones Médicas | Checkeate{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- TÍTULO -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-primary">
+      🩺 Observaciones Médicas
+    </h2>
+    <p class="text-muted">
+      Historial de observaciones clínicas por paciente
+    </p>
+  </div>
+  <!-- BOTÓN VOLVER -->
+  <a href="{% url 'medico_aptos_generales_home' %}"
+     class="btn btn-outline-secondary mb-4">
+    ← Volver a Aptos Generales
+  </a>
+  <!-- BUSCADOR DNI -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-8">
+          <input
+  type="text"
+  name="dni"
+  value="{% if dni %}{{ dni }}{% endif %}"
+  class="form-control"
+  placeholder="Ingresá el DNI del paciente"
+  maxlength="8"
+  required
+>
+        </div>
+        <div class="col-md-4 d-grid">
+          <button class="btn btn-primary">
+            🔍 Buscar paciente por DNI
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if persona %}
+  <!-- DATOS DEL PACIENTE -->
+  <div class="card shadow-sm mb-4 border-primary">
+    <div class="card-body">
+      <h5 class="fw-bold mb-1">
+        👤 {{ persona.profile.apellido }}, {{ persona.profile.nombre }}
+      </h5>
+      <p class="mb-0 text-muted">
+        DNI: {{ persona.profile.dni }}
+      </p>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-light fw-semibold">
+      📜 Historial de Observaciones
+    </div>
+    <div class="card-body p-0">
+
+      <ul class="list-group list-group-flush">
+        {% for obs in observaciones %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+              <small class="text-muted">
+                {{ obs.creado_en|date:"d/m/Y H:i" }}
+              </small>
+              <span class="badge bg-primary">
+                {{ obs.rol_autor }}
+              </span>
+            </div>
+
+            <div class="mt-2">
+              {{ obs.observacion }}
+            </div>
+
+            {% if obs.autor_profile %}
+              <small class="text-muted d-block mt-1">
+                Autor: {{ obs.autor_profile.nombre }} {{ obs.autor_profile.apellido }}
+              </small>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted text-center py-4">
+            No hay observaciones registradas para este paciente.
+          </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- NUEVA OBSERVACIÓN -->
+  <div class="card shadow-sm border-success">
+    <div class="card-header bg-success text-white fw-semibold">
+      ✍️ Nueva observación médica
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="persona_id" value="{{ persona.id }}">
+
+        <div class="mb-3">
+          {{ form.observacion }}
+        </div>
+
+        <div class="d-grid">
+          <button class="btn btn-success">
+            💾 Guardar observación
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% elif dni %}
+  <!-- NO ENCONTRADO -->
+  <div class="alert alert-warning text-center">
+    ⚠️ No se encontró ningún paciente con ese DNI.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

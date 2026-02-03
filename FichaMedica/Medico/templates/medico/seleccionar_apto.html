@@ -2,163 +2,209 @@
 {% load widget_tweaks %}
 {% load static %}
 <style>
-    body{
-        background-color: #ecf0f1; 
-    }
-    .card-header {
-        width:100%;
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #ced4da;
-        text-align: center;
-    }
-    .align-left {
-        text-align: left;
-    }
+  body{
+    background-color: #ecf0f1;
+  }
+  .card-header {
+    width:100%;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ced4da;
+    text-align: center;
+  }
+  .align-left { text-align: left; }
 
-    .table {
-        border-collapse: collapse;
-        background-color: beige;
-    }
-
-    .table-bordered td,
-    .table-bordered th {
-        border: 2px solid black; /* Color de las líneas */
-    }
-
-    .thead-dark {
-        background-color: #343a40; /* Color de fondo para el encabezado */
-        color: white; /* Color del texto del encabezado */
-    }
-
-    @media (max-width: 680px) {
-        .table-responsive {
-            overflow-x: auto; /* Permite el desplazamiento en dispositivos pequeños */
-        }
-    }
-    
+  .table {
+    border-collapse: collapse;
+    background-color: beige;
+  }
+  .table-bordered td,
+  .table-bordered th {
+    border: 2px solid black;
+  }
+  .thead-dark {
+    background-color: #343a40;
+    color: white;
+  }
+  @media (max-width: 680px) {
+    .table-responsive { overflow-x: auto; }
+  }
 </style>
+
 {% block content %}
 <main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
-    <style>
-        main::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center;
-            background-size: cover;
-            opacity: 0.2;
-            z-index: -1;
-        }
+  <style>
+    :root{
+      --med-navy:#0d47a1;
+      --med-royal:#1565c0;
+      --med-cyan:#00C4F6;
+      --med-ink:#20304a;
+    }
 
-        @media (max-width: 768px) {
-            .table-responsive {
-                overflow-x: auto;
-            }
-            .card-header {
-                padding: 1rem;
-                font-size: 1.2rem;
-            }
-            .table {
-                display: block;
-            }
-            .table thead {
-                display: none;
-            }
-            .table tbody, .table tr, .table td {
-                display: block;
-                width: 100%;
-            }
-            .table tr {
-                margin-bottom: 1rem;
-                border: 1px solid #dee2e6;
-                padding: 0.5rem;
-                background: white;
-                border-radius: 5px;
-            }
-            .table td {
-                text-align: left;
-                padding: 0.5rem;
-                border-bottom: none;
-            }
-            .table td::before {
-                content: attr(data-label);
-                font-weight: bold;
-                display: block;
-                text-transform: uppercase;
-                color: #17a2b8;
-            }
-        }
-    </style>
+    main::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: url('{% static "core/img/medico_home.jpg" %}') no-repeat center center / cover;
+      opacity: 0.2; z-index: -1;
+    }
 
-    <div style="position: relative; z-index: 1;">
-        <div class="container mt-5" style="background-color:transparencia; padding: 2rem; border-radius: 10px;">
+    /* Tarjetas “formales” */
+    .feature-card{
+      border: 1px solid rgba(13,71,161,.15);
+      border-radius: 1rem;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(0,0,0,.10);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .feature-card:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 14px 32px rgba(0,0,0,.16);
+    }
+    .feature-card .card-header{
+      border: none;
+      padding: 18px 16px;
+      color: #fff;
+      letter-spacing:.2px;
+    }
+    .feature-card .card-body{
+      padding: 18px;
+      color: var(--med-ink);
+    }
+    .feature-card h3{
+      font-weight: 800; margin: 0; font-size: 1.25rem;
+    }
+    .feature-card p{
+      margin: 0; line-height: 1.55; font-size: 1.05rem;
+    }
+    .feature-card .btn{
+      border-radius: .8rem; font-weight: 700;
+      box-shadow: 0 6px 14px rgba(0,0,0,.12);
+    }
 
-            <h1 class="text-center fw-bold py-4">
-                <span class="text-primary">Bienvenido,</span> 
-                <span class="text-dark">Dr. {{ profile.nombre }} {{ profile.apellido }}</span> 
-                {% if medico %}
-                    <span class="text-dark">- Matrícula N°: {{ medico.matricula }}</span>
-                {% else %}
-                    <span class="text-dark">- Matrícula no disponible</span>
-                {% endif %}
-            </h1> 
+    /* Paletas */
+    .hdr-primary { background: linear-gradient(90deg, #0d47a1, #1565c0); }
+    .hdr-success { background: linear-gradient(90deg, #0f9d58, #34a853); }
+    .hdr-info    { background: linear-gradient(90deg, #0ea5b7, #06b6d4); }
+    .hdr-warning { background: linear-gradient(90deg, #b08900, #f6b100); color:#1f2a37; }
 
-            <div class="container py-5">
-                <div class="row justify-content-center gap-5">
-            
-                    <!-- 🏋️‍♂️ Aptos Físicos -->
-                    <div class="col-md-5">
-                        <div class="card shadow-lg border-0 h-100">
-                            <div class="card-header bg-primary text-white text-center rounded-top">
-                                <h3 class="fw-bold mb-0">🏋️ Aptos Físicos</h3>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-dark fs-5">
-                                    Gestioná los <strong>certificados médicos</strong> de jugadores que participan en torneos deportivos. 
-                                    Cargá, visualizá y aprobá sus aptos físicos con total control y seguridad.
-                                </p>
-                                <div class="text-center mt-4">
-                                    <a href="{% url 'medico_home' %}" class="btn btn-primary btn-lg px-4 fw-bold">Ingresar</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-            
-                    <!-- 🎓 Certificado Único Escolar -->
-                    <div class="col-md-5">
-                        <div class="card shadow-lg border-0 h-100">
-                            <div class="card-header bg-success text-white text-center rounded-top">
-                                <h3 class="fw-bold mb-0">🎓 CUS Escolar</h3>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-dark fs-5">
-                                    Accedé a los <strong>Certificados Únicos Escolares (CUS)</strong> para realizar controles médicos de estudiantes.
-                                    Cargá los estudios, revisalos y completá los formularios necesarios.
-                                </p>
-                                <div class="text-center mt-4">
-                                    <a href="{% url 'cus_home' %}" class="btn btn-success btn-lg px-4 fw-bold">Ingresar</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-            
+    /* Título sección */
+    .section-title{
+      background: linear-gradient(90deg,
+                  rgba(13,71,161,.08),
+                  rgba(21,101,192,.06),
+                  rgba(0,196,246,.08));
+      border: 1px solid rgba(13,71,161,.15);
+      border-radius: 14px;
+      padding: 16px 18px;
+      backdrop-filter: saturate(1.02);
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+  </style>
+
+  <div style="position: relative; z-index: 1;">
+    <div class="container mt-5" style="background-color:transparencia; padding: 2rem; border-radius: 10px;">
+
+      <h1 class="text-center fw-bold py-4">
+        <span class="text-primary">Bienvenido,</span>
+        <span class="text-dark">Dr. {{ profile.nombre }} {{ profile.apellido }}</span>
+        {% if medico %}
+          <span class="text-dark">· Matrícula N°: {{ medico.matricula }}</span>
+        {% else %}
+          <span class="text-dark">· Matrícula no disponible</span>
+        {% endif %}
+      </h1>
+
+      <!-- ✨ Título de sección -->
+      <div class="text-center mb-3 section-title">
+        <h2 class="fw-bold mb-1">Elegí entre las diferentes opciones</h2>
+        <p class="text-muted mb-0">Seleccioná el módulo con el que querés trabajar</p>
+      </div>
+
+      <div class="container py-4">
+        <div class="row justify-content-center g-4">
+
+          <!-- 🏋️ Torneos y Competencias -->
+          <div class="col-md-6 col-lg-5">
+            <div class="card feature-card h-100">
+              <div class="card-header hdr-primary text-white text-center">
+                <h3 class="mb-0">Torneos y Competencias</h3>
+              </div>
+              <div class="card-body">
+                <p>
+                  Gestioná los <strong>certificados médicos</strong> de jugadores que participan en torneos y competencias.
+                  Cargá, visualizá y aprobá sus aptos físicos con trazabilidad y seguridad.
+                </p>
+                <div class="text-center mt-4">
+                  <a href="{% url 'medico_home' %}" class="btn btn-primary btn-lg px-4">Ingresar</a>
                 </div>
+              </div>
             </div>
-                
-                    
-                    
-              
-        </div>
-            
+          </div>
 
+          <!-- 🎓 CUS Escolar -->
+          <div class="col-md-6 col-lg-5">
+            <div class="card feature-card h-100">
+              <div class="card-header hdr-success text-white text-center">
+                <h3 class="mb-0">CUS Escolar</h3>
+              </div>
+              <div class="card-body">
+                <p>
+                  Accedé a los <strong>Certificados Únicos Escolares (CUS)</strong> para controles de estudiantes.
+                  Cargá estudios, revisalos y completá los formularios requeridos.
+                </p>
+                <div class="text-center mt-4">
+                  <a href="{% url 'cus_home' %}" class="btn btn-success btn-lg px-4">Ingresar</a>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                          
+          <!-- 🩺 Aptos Físicos Generales -->
+          <div class="col-md-6 col-lg-5">
+            <div class="card feature-card h-100">
+              <div class="card-header hdr-info text-white text-center">
+                <h3 class="mb-0">Aptos Físicos Generales</h3>
+              </div>
+              <div class="card-body">
+                <p>
+                  Realizá <strong>aptos físicos</strong> para actividades deportivas generales,
+                  independientes de torneos o competencias. Emití certificados de manera simple.
+                </p>
+                <div class="text-center mt-4">
+                  <a href="{% url 'medico_aptos_generales_home' %}" class="btn btn-info btn-lg px-4">Ingresar</a>
+                </div>
+              </div>
+            </div>
+          </div>
 
-           
+         <div class="col-md-6 col-lg-5">
+  <div class="card feature-card h-100 position-relative">
+    <!-- Etiqueta “Próximamente” -->
+    <span class="badge bg-secondary position-absolute top-0 end-0 m-3 px-3 py-2" style="font-size:0.9rem;">
+      Próximamente
+    </span>
+
+    <div class="card-header hdr-warning text-center">
+      <h3 class="mb-0">Exámenes Prelaborales</h3>
     </div>
-</main>
+    <div class="card-body">
+      <p>
+        Gestioná <strong>exámenes preocupacionales</strong>: historia clínica, laboratorio, estudios complementarios y
+        emisión del <strong>apto de ingreso</strong>. Seguimiento y registro conforme a normativa.
+      </p>
+      <div class="text-center mt-4">
+        <button class="btn btn-warning btn-lg px-4 text-dark" disabled>Ingresar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
+        </div> <!-- /row -->
+      </div> <!-- /container -->
+
+    </div>
+  </div>
+
+</main>
 {% endblock %}
+

@@ -12,7 +12,7 @@
             <div class="registration-form bg-light p-4 rounded shadow-sm">
                 <form method="post" id="registroForm">
                     {% csrf_token %}
-                    
+
                     <!-- Formulario de Persona -->
                     <div class="form-group mt-3">
                         {{ form_persona.direccion.label_tag }}
@@ -72,12 +72,33 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+// ✅ Formatear número de teléfono automáticamente (principal y alternativo)
+document.addEventListener("input", function (e) {
+    if (e.target.name === "telefono" || e.target.name === "telefono_alternativo") {
+        let input = e.target;
+        let value = input.value.replace(/\D/g, ""); // eliminar todo lo que no sea número
+
+        // Formato: 3 dígitos (código área) + espacio + 3 + guión + 4 (ej: 351 456-7890)
+        if (value.length > 3 && value.length <= 6) {
+            input.value = value.replace(/(\d{3})(\d{1,3})/, "$1 $2");
+        } else if (value.length > 6) {
+            input.value = value.replace(/(\d{3})(\d{3})(\d{1,4})/, "$1 $2-$3");
+        } else {
+            input.value = value;
+        }
+    }
+});
+
+
+
+
+
     // Validación de campos requeridos antes de enviar el formulario
     document.getElementById('registroForm').addEventListener('submit', function(event) {
         const direccion = document.getElementById('{{ form_persona.direccion.id_for_label }}').value.trim();
         const telefono = document.getElementById('{{ form_persona.telefono.id_for_label }}').value.trim();
         const grupoSanguineo = document.getElementById('{{ form_jugador.grupo_sanguineo.id_for_label }}').value.trim();
-    
+
         if (!direccion || !telefono || !grupoSanguineo) {
             event.preventDefault();
             alert('Por favor, complete los campos obligatorios: Dirección, Teléfono y Grupo Sanguíneo.');

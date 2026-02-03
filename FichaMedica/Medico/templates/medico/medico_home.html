@@ -3,7 +3,7 @@
 {% load static %}
 <style>
     body{
-        background-color: #ecf0f1; 
+        background-color: #ecf0f1;
     }
     .card-header {
         width:100%;
@@ -35,7 +35,8 @@
             overflow-x: auto; /* Permite el desplazamiento en dispositivos pequeños */
         }
     }
-    
+
+
 </style>
 {% block content %}
 <main class="px-3" style="position: relative; min-height: 100vh; width: 100%; margin: 0; padding: 0;">
@@ -91,64 +92,181 @@
                 color: #17a2b8;
             }
         }
+           :root{
+    --med-navy:#0d47a1;
+    --med-royal:#1565c0;
+    --med-cyan:#00C4F6;
+  }
+
+  .med-summary-band{
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    background: linear-gradient(90deg,
+                rgba(13,71,161,.98) 0%,
+                rgba(21,101,192,.98) 50%,
+                rgba(0,196,246,.98) 100%);
+    color:#fff;
+    padding: 18px 24px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+
+  .med-summary-grid{
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 24px;
+    align-items: center;
+  }
+
+  .ms-item{
+    display:flex; align-items:center; gap:14px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .ms-ico{
+    font-size: 1.9rem;
+    line-height: 1;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
+  }
+  .ms-text small{
+    display:block; font-weight:700; opacity:.95; letter-spacing:.2px;
+    font-size: 1.05rem;
+  }
+  .ms-text strong{
+    display:block; line-height:1.15;
+    font-size: 1.8rem;
+    text-shadow: 0 1px 1px rgba(0,0,0,.15);
+  }
+
+  @media (max-width: 992px){
+    .med-summary-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .ms-ico{ font-size: 1.6rem; }
+    .ms-text strong{ font-size: 1.6rem; }
+  }
+  @media (max-width: 576px){
+    .med-summary-grid{ grid-template-columns: 1fr; }
+    .ms-text strong{ font-size: 1.45rem; }
+    .ms-text small{ font-size: .95rem; }
+  }
+
+  #search-container{
+    /* opción translúcida sutil */
+    background:
+         linear-gradient(180deg, rgba(21,101,192,.03), rgba(0,0,0,.03)),
+         #f4f7fb !important;
+    border: 3px solid #dfe7f1;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    backdrop-filter: saturate(1.02);
+    margin-top: clamp(8px, 1.5vw, 16px);
+  }
     </style>
 
     <div style="position: relative; z-index: 1;">
         <div class="container mt-5" style="background-color:transparencia; padding: 2rem; border-radius: 10px;">
+    <header class="container px-0 my-4">
+      <div class="d-flex flex-column">
+        <h1 class="display-4 fw-bold lh-1 mb-3 text-dark">
+          <span class="text-primary">Bienvenido,</span>
+          <span class="ms-2">Dr. {{ profile.nombre }} {{ profile.apellido }}</span>
+          {% if medico %}
+            <span class="d-block d-lg-inline-block text-secondary fw-semibold ms-0 ms-lg-3 fs-5">
+              · Matrícula N°: {{ medico.matricula }}
+            </span>
+          {% else %}
+            <span class="d-block d-lg-inline-block text-muted fw-semibold ms-0 ms-lg-3 fs-5">
+              · Matrícula no disponible
+            </span>
+          {% endif %}
+        </h1>
 
-            <h1 class="text-center fw-bold py-4">
-                <span class="text-primary">Bienvenido,</span> 
-                <span class="text-dark">Dr. {{ profile.nombre }} {{ profile.apellido }}</span> 
-                {% if medico %}
-                    <span class="text-dark">- Matrícula N°: {{ medico.matricula }}</span>
-                {% else %}
-                    <span class="text-dark">- Matrícula no disponible</span>
-                {% endif %}
-            </h1> 
+        <!-- Barra decorativa azul → celeste -->
+        <div class="rounded-pill"
+             style="
+               height:10px; width:100%; max-width:820px;
+               background:linear-gradient(90deg,#0d47a1 0%, #1565c0 40%, #00C4F6 100%);
+               box-shadow:0 6px 14px rgba(13,71,161,.25);
+             ">
+        </div>
+      </div>
+    </header>
 
-            
+            <!-- Banda de resumen del día -->
+                <div class="med-summary-band">
+              <div class="med-summary-grid">
+                <div class="ms-item">
+                  <i class="bi bi-calendar-event ms-ico"></i>
+                  <div class="ms-text">
+                    <small>Fecha</small>
+                    <strong>{{ hoy|date:"d/m/Y" }}</strong>
+                  </div>
+                </div>
+
+                <div class="ms-item">
+                  <i class="bi bi-chat-square-text ms-ico"></i>
+                  <div class="ms-text">
+                    <small>Pendientes</small>
+                    <strong>{{ pendientes_count|default:0 }}</strong>
+                  </div>
+                </div>
+
+                <div class="ms-item">
+                  <i class="bi bi-check2-circle ms-ico"></i>
+                  <div class="ms-text">
+                    <small>Aprobadas</small>
+                    <strong>{{ aprobadas_hoy_count|default:0 }}</strong>
+                  </div>
+                </div>
+
+                <div class="ms-item">
+                  <i class="bi bi-x-circle ms-ico"></i>
+                  <div class="ms-text">
+                    <small>Rechazadas</small>
+                    <strong>{{ rechazadas_hoy_count|default:0 }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
                     <div id="search-container" class="bg-white p-4 rounded shadow">
                         <form method="get" action="{% url 'medico_home' %}" class="my-4">
-                            {% if messages %}
-                                <div class="alert alert-danger mt-3">
-                                    {% for message in messages %}
-                                        {{ message }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                    
+
+
                             <!-- Título -->
-                            <h3 class="text-info fw-bold text-center py-3" >Buscador de Pacientes</h3>
-                    
+                            <h3 class="text-black fw-bold text-left py-3" >Buscador de Pacientes</h3>
+
                             <div class="row">
                                 <!-- Búsqueda por DNI -->
                                 <div class="col-md-6">
-                                    <label for="search_dni" class="form-label fw-bold text-info">Buscar por DNI</label>
+                                    <label for="search_dni" class="form-label fw-bold text-black">Buscar por DNI</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-primary text-white"><i class="fas fa-id-card"></i></span>
-                                        <input 
-                                            type="text" 
-                                            name="search_dni" 
-                                            id="search_dni" 
-                                            class="form-control" 
-                                            placeholder="Ingrese DNI" 
+                                        <input
+                                            type="text"
+                                            name="search_dni"
+                                            id="search_dni"
+                                            class="form-control"
+                                            placeholder="Ingrese DNI"
                                             value="{{ request.GET.search_dni }}"
                                         >
                                         <button type="submit" class="btn btn-primary text-white fw-bold px-4">Buscar</button>
                                     </div>
                                 </div>
-                    
+
                                 <!-- Búsqueda por Nombre o Apellido -->
                                 <div class="col-md-6">
-                                    <label for="search_name" class="form-label fw-bold text-info">Buscar por Nombre o Apellido</label>
+                                    <label for="search_name" class="form-label fw-bold text-black">Buscar por Nombre o Apellido</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-primary text-white"><i class="fas fa-user"></i></span>
-                                        <input 
-                                            type="text" 
-                                            name="search_name" 
-                                            id="search_name" 
-                                            class="form-control" 
-                                            placeholder="Ingrese Nombre o Apellido" 
+                                        <input
+                                            type="text"
+                                            name="search_name"
+                                            id="search_name"
+                                            class="form-control"
+                                            placeholder="Ingrese Nombre o Apellido"
                                             value="{{ request.GET.search_name }}"
                                         >
                                         <button type="submit" class="btn btn-primary text-white fw-bold px-4">Buscar</button>
@@ -156,7 +274,7 @@
                                 </div>
                             </div>
                         </form>
-                    
+
                         <!-- 🔹 Botón "Refrescar" centrado -->
                         <div class="text-center mt-3">
                             <button type="button" class="btn btn-primary fw-bold px-5" onclick="window.location.href='{% url 'medico_home' %}'">
@@ -164,89 +282,166 @@
                             </button>
                         </div>
                     </div>
-                    
-                    
-              
+
+
+
         </div>
-            
+
+       {% for jugador in jugadores_info %}
+          {% if forloop.first %}
+            <div
+              class="d-flex justify-content-between align-items-center p-3 p-md-4 rounded-3 shadow mt-4"
+              style="
+                background: linear-gradient(90deg,
+                  rgba(13,71,161,.98) 0%,
+                  rgba(21,101,192,.98) 50%,
+                  rgba(0,196,246,.98) 100%);
+                color:#fff;
+              "
+            >
+              <h4 class="mb-0 fw-bold text-white">
+                Paciente: {{ jugador.nombre }} {{ jugador.apellido }} — DNI: {{ jugador.dni }}
+              </h4>
+              <a href="{% url 'registroMedico:ver_historial_aptos' jugador.id %}"
+                 class="btn btn-outline-light">
+                📄 Ver Historial
+              </a>
+            </div>
+          {% endif %}
+        {% endfor %}
 
 
-                                        <!-- Tabla de jugadores -->
-                            <div class="table-responsive bg-white p-3 rounded shadow">
-                                <div class="card-header bg-info text-white text-center p-4 w-100">
-                                    <h2 class="mb-0 fw-bold"></h2>
-                                </div>
-                                <table class="table table-bordered align-middle" >
-                                    <thead class="table-light text-center "  >
-                                        <tr class="text-center" >
-                                            <th scope="col" class="fw-bold" style="font-size: 16px" >Apellido</th>
-                                            <th scope="col" class="fw-bold">Nombre</th>
-                                            <th scope="col" class="fw-bold">DNI</th>
-                                            <th scope="col" class="fw-bold">Estado del Apto</th>
-                                            <th scope="col" class="d-none d-lg-table-cell fw-bold">Categoría</th>
-                                            <th scope="col" class="d-none d-lg-table-cell fw-bold">Equipo</th>
-                                            <th scope="col" class="d-none d-lg-table-cell fw-bold">Torneo</th>
-                                            <th scope="col" class="fw-bold">Acciones</th>
-                                        </tr>
-                                    </thead>
-                              
-                                
-                                    <tbody>
-                                        {% for jugador in jugadores_info %}
-                                            <tr class="text-center">
-                                                <td>{{ jugador.apellido }}</td>
-                                                <td>{{ jugador.nombre }}</td>
-                                                <td>{{ jugador.dni }}</td>
-                                                <td>{{ jugador.estado }}</td>
-                                                <td class="d-none d-lg-table-cell">{{ jugador.categoria }}</td>
-                                                <td class="d-none d-lg-table-cell">{{ jugador.equipo }}</td>
-                                                <td class="d-none d-lg-table-cell">{{ jugador.torneo }}</td>
-                                                <td>
-                                                    {% if jugador.registro_id %}
-                                                        {% if jugador.estado == "PROCESO" %}
-                                                        <a href="{% url 'registro_medico_update_view' jugador.registro_id %}" 
-                                                        class="btn btn-warning btn-seleccionar"
-                                                        onclick="window.location.href=this.href; return false;">
-                                                        Cargar Ficha 
-                                                        </a>
-                                                     
-                                                        {% elif jugador.estado == "APROBADA" %}
-                                                            <a href="{% url 'ficha_medica' jugador.registro_id %}" 
-                                                            class="btn btn-success">
-                                                            Ver Ficha
-                                                            </a>
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <span>Sin Registro</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% empty %}
-                                            <tr>
-                                                <td colspan="8" class="text-center">No se encontraron jugadores con registros médicos.</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    
 
-                                
-                                
-                            
-                                </table>
-                            
-                            
-                            </div>
-                        
-     
-            
+                 <!-- Tablas separadas: Torneos y Competencias -->
+                    <div id="resultados" class="bg-white p-3 rounded shadow">
+
+                      {# ====================== TORNEOS ====================== #}
+                      {% if has_torneos %}
+                        <h4 class="fw-bold text-primary mb-3">Registros en Torneos</h4>
+                        <div class="table-responsive">
+                          <table class="table table-bordered align-middle">
+                            <thead class="table-light text-center">
+                              <tr class="text-center">
+                                <th class="fw-bold" style="font-size:16px;">Apellido</th>
+                                <th class="fw-bold">Nombre</th>
+                                <th class="fw-bold">DNI</th>
+                                <th class="fw-bold">Estado del Apto</th>
+                                <th class="d-none d-lg-table-cell fw-bold">Categoría</th>
+                                <th class="d-none d-lg-table-cell fw-bold">Equipo</th>
+                                <th class="d-none d-lg-table-cell fw-bold">Torneo</th>
+                                <th class="fw-bold">Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for jugador in jugadores_info %}
+                                {% if jugador.evento_tipo == "TORNEO" %}
+                                  <tr class="text-center">
+                                    <td>{{ jugador.apellido }}</td>
+                                    <td>{{ jugador.nombre }}</td>
+                                    <td>{{ jugador.dni }}</td>
+                                    <td>{{ jugador.estado }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ jugador.categoria }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ jugador.equipo }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ jugador.torneo }}</td>
+                                    <td class="text-center">
+                                      {% if jugador.registro_id %}
+                                        {% if jugador.estado == "PROCESO" %}
+                                          <a href="{% url 'registro_medico_update_view' jugador.registro_id %}"
+                                             class="btn btn-warning btn-seleccionar"
+                                             onclick="window.location.href=this.href; return false;">
+                                            Cargar Ficha
+                                          </a>
+                                        {% elif jugador.estado == "APROBADA" or jugador.estado == "VENCIDO" %}
+                                          <a href="{% url 'ficha_medica' jugador.registro_id %}"
+                                             class="btn btn-primary">
+                                            Ver Ficha
+                                          </a>
+                                        {% endif %}
+                                      {% else %}
+                                        <span>Sin Registro</span>
+                                      {% endif %}
+                                    </td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      {% endif %}
+
+                      {# ==================== COMPETENCIAS ==================== #}
+                      {% if has_competencias %}
+                        <h4 class="fw-bold text-primary mt-4 mb-3">Registros en Competencias</h4>
+                        <div class="table-responsive">
+                          <table class="table table-bordered align-middle">
+                            <thead class="table-light text-center">
+                              <tr class="text-center">
+                                <th class="fw-bold" style="font-size:16px;">Apellido</th>
+                                <th class="fw-bold">Nombre</th>
+                                <th class="fw-bold">DNI</th>
+                                <th class="fw-bold">Estado del Apto</th>
+                                <th class="d-none d-lg-table-cell fw-bold">Categoría</th>
+                                <th class="d-none d-lg-table-cell fw-bold">Equipo</th>
+                                <th class="d-none d-lg-table-cell fw-bold">Competencia</th>
+                                <th class="fw-bold">Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for jugador in jugadores_info %}
+                                {% if jugador.evento_tipo == "COMPETENCIA" %}
+                                  <tr class="text-center">
+                                    <td>{{ jugador.apellido }}</td>
+                                    <td>{{ jugador.nombre }}</td>
+                                    <td>{{ jugador.dni }}</td>
+                                    <td>{{ jugador.estado }}</td>
+                                    <td class="d-none d-lg-table-cell">—</td>
+                                    <td class="d-none d-lg-table-cell">—</td>
+                                    <td class="d-none d-lg-table-cell">{{ jugador.torneo }}</td>
+                                    <td class="text-center">
+                                      {% if jugador.registro_id %}
+                                        {% if jugador.estado == "PROCESO" %}
+                                          <a href="{% url 'registro_medico_update_view' jugador.registro_id %}"
+                                             class="btn btn-warning btn-seleccionar"
+                                             onclick="window.location.href=this.href; return false;">
+                                            Cargar Ficha
+                                          </a>
+                                        {% elif jugador.estado == "APROBADA" or jugador.estado == "VENCIDO" %}
+                                          <a href="{% url 'ficha_medica' jugador.registro_id %}"
+                                             class="btn btn-primary">
+                                            Ver Ficha
+                                          </a>
+                                        {% endif %}
+                                      {% else %}
+                                        <span>Sin Registro</span>
+                                      {% endif %}
+                                    </td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      {% endif %}
+
+                      {# Si no hay nada de nada, no mostramos tablas; opcionalmente podés mostrar un aviso: #}
+                      {% if not has_torneos and not has_competencias %}
+                        <p class="text-center text-muted my-3">No hay registros para mostrar.</p>
+                      {% endif %}
+
+                    </div>
+
+
+
+
+
 
                 </div>
 
-           
+
     </div>
 </main>
 <script>
-    
+
 
     // Set the default date to today's date for the "Fecha de Llenado" field
     document.addEventListener('DOMContentLoaded', function() {
@@ -387,13 +582,13 @@
             let formularios = document.querySelectorAll(".ajax-form");
             let botonGuardar = document.getElementById("guardarFichaBtn");
             let todosCompletos = true;
-    
+
             formularios.forEach(formulario => {
                 // Excluir el formulario de Certificado Médico (por ID o Clase)
                 if (formulario.id === "certificadoMedicoForm") {
                     return; // Salta este formulario
                 }
-    
+
                 let inputs = formulario.querySelectorAll("input, select, textarea");
                 inputs.forEach(input => {
                     if (input.hasAttribute("required") && input.value.trim() === "") {
@@ -401,17 +596,17 @@
                     }
                 });
             });
-    
+
             // Habilitar el botón si todos los formularios están completos
             botonGuardar.disabled = !todosCompletos;
         }
-    
+
         // Escuchar eventos en todos los formularios
         let formularios = document.querySelectorAll(".ajax-form");
         formularios.forEach(formulario => {
             formulario.addEventListener("input", verificarFormularios);
         });
-    
+
         // Verificación inicial
         verificarFormularios();
     });
@@ -425,6 +620,32 @@
                 formSection.style.display = "block"; // Mostrar el formulario
             }
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // tu formulario de búsqueda (es el que está dentro de #search-container)
+      const form = document.querySelector('#search-container form');
+      const results = document.getElementById('resultados');
+
+      if (!form || !results) return;
+
+      // Antes de enviar, agregamos el hash para que el navegador aterrice ahí
+      form.addEventListener('submit', () => {
+        if (!form.action.includes('#resultados')) {
+          form.action = form.action + '#resultados';
+        }
+      });
+
+      // Si llegamos con parámetros de búsqueda o ya con el hash, enfocamos la tabla
+      const params = new URLSearchParams(window.location.search);
+      if (window.location.hash === '#resultados' || params.get('search_dni') || params.get('search_name')) {
+        // pequeño delay para asegurar que todo esté pintado
+        setTimeout(() => {
+          results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          results.setAttribute('tabindex', '-1'); // permite focus a un div
+          results.focus({ preventScroll: true });
+        }, 80);
+      }
     });
 </script>
 {% endblock %}

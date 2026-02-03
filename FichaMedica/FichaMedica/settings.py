@@ -25,8 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!cy-2z7&5o=i(#euh@gvqr_o)!@-twm_&=6!o-487&79dybjsq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = False
+ALLOWED_HOSTS = ['www.checkeate.com.ar', 'checkeate.com.ar', '127.0.0.1', 'localhost']
 
 # Tiempo máximo de inactividad (en segundos) antes de que la sesión expire
 SESSION_COOKIE_AGE = 900  # 15 minutos
@@ -39,6 +39,7 @@ SESSION_SAVE_EVERY_REQUEST = False  # No renueva la expiración de la sesión en
 INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'django.contrib.admin',
+    'django.contrib.sitemaps',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -52,7 +53,9 @@ INSTALLED_APPS = [
     'InfoNovedades',
     'estudiante',
     'Cus',
-    
+    'aptos_generales',
+    'aptos_externos',
+
 
     'Representate',
 
@@ -66,21 +69,47 @@ SITE_ID = 1
 
 
 # Configuracion del servidor para el email
+# settings.py
+
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-    EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')  # Carpeta donde se guardarán los correos
+    EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 else:
-    # Configuración para producción
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = 'tu_email@gmail.com'
-    EMAIL_HOST_PASSWORD = 'tu_contraseña'
-    DEFAULT_FROM_EMAIL = 'tu_email@gmail.com'
+    EMAIL_HOST = 'c2621570.ferozo.com'
+    EMAIL_PORT = 465
+    EMAIL_USE_SSL = True  # ✅ correcto para Ferozo
+    EMAIL_USE_TLS = False  # ⚠️ debe ser False
+    DEFAULT_FROM_EMAIL = 'info@checkeate.com.ar'
+
+    # ✅ Múltiples cuentas de correo
+    EMAIL_ACCOUNTS = {
+        'soporte': {
+            'EMAIL_HOST_USER': 'soporte@checkeate.com.ar',
+            'EMAIL_HOST_PASSWORD': os.getenv('EMAIL_PASSWORD_SOPORTE')
+        },
+        'notificaciones': {
+            'EMAIL_HOST_USER': 'notificaciones@checkeate.com.ar',
+            'EMAIL_HOST_PASSWORD': os.getenv('EMAIL_PASSWORD_NOTIFICACIONES')
+        },
+        'atencion': {
+            'EMAIL_HOST_USER': 'atencion@checkeate.com.ar',
+            'EMAIL_HOST_PASSWORD': os.getenv('EMAIL_PASSWORD_ATENCION')
+        },
+        'info': {
+            'EMAIL_HOST_USER': 'info@checkeate.com.ar',
+            'EMAIL_HOST_PASSWORD': os.getenv('EMAIL_PASSWORD_INFO')
+        },
+        'admin': {
+            'EMAIL_HOST_USER': 'admin@checkeate.com.ar',
+            'EMAIL_HOST_PASSWORD': os.getenv('EMAIL_PASSWORD_ADMIN')
+        },
+    }
+
+SECRET_CRON_TOKEN = 'clave-123456'
 
 AUTHENTICATION_BACKENDS = [
-    'account.backends.EmailBackend',  
+    'account.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -101,13 +130,14 @@ ROOT_URLCONF = 'FichaMedica.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
 
                 'django.template.context_processors.request',
+
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -147,9 +177,9 @@ DATABASES = {
 """ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'checkeate_db',         
+        'NAME': 'checkeate_db',
         'USER': 'postgres',
-        'PASSWORD': 'ale123',     
+        'PASSWORD': 'ale123',
         'HOST': 'localhost',
         'PORT': '5433',
     }
@@ -201,6 +231,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 #Media Files
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGOUT_REDIRECT_URL = 'home'  # URL a la que redirige después de hacer logout
 LOGIN_URL = '/account/login/'  # Página de login si no está autenticado

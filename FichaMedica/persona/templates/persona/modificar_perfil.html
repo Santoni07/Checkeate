@@ -15,7 +15,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="id_telefono">Teléfono</label>
-                        {{ form_persona.telefono }}  
+                        {{ form_persona.telefono }}
                         {% if form_persona.telefono.errors %}
                             <div class="text-danger">
                                 {{ form_persona.telefono.errors }}
@@ -24,7 +24,7 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="id_telefono_alternativo">Teléfono Alternativo</label>
-                        {{ form_persona.telefono_alternativo }}  
+                        {{ form_persona.telefono_alternativo }}
                         {% if form_persona.telefono_alternativo.errors %}
                             <div class="text-danger">
                                 {{ form_persona.telefono_alternativo.errors }}
@@ -35,7 +35,7 @@
                 <div class="row">
                     <div class="col-12 mb-3">
                         <label for="id_direccion">Dirección</label>
-                        {{ form_persona.direccion }}  
+                        {{ form_persona.direccion }}
                         {% if form_persona.direccion.errors %}
                             <div class="text-danger">
                                 {{ form_persona.direccion.errors }}
@@ -81,12 +81,28 @@
                 </div>
             </div>
         </div>
-        
 
-        <div class="d-flex justify-content-between">
-            <a href="{% url 'menu_jugador' %}" class="btn btn-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-        </div>
+
+    <div class="d-flex justify-content-between">
+ {% if profile.rol == 'jugador' %}
+                <a href="{% url 'menu_jugador' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+            {% elif profile.rol == 'medico' %}
+                <a href="{% url 'medico_home' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+            {% elif profile.rol == 'representante' %}
+                <a href="{% url 'representante_home' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+            {% elif profile.rol == 'actividad' %}
+                <a href="{% url 'representante_actividad_general_home' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+            {% elif profile.rol == 'paciente' %}
+                <a href="{% url 'menu_paciente' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+            {% elif profile.rol == 'estudiante' %}
+                <a href="{% url 'menu_estudiante' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+            {% else %}
+                <a href="{% url 'menu_jugador' %}" class="btn btn-outline-secondary fw-bold">Volver</a>
+            {% endif %}
+  <button type="submit" class="btn btn-outline-primary px-4 py-2 fw-bold shadow-sm">
+    Guardar Cambios
+  </button>
+</div>
     </form>
 </div>
 {% endblock %}

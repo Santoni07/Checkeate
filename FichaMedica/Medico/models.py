@@ -5,14 +5,16 @@ from PIL import Image
 from pyzbar.pyzbar import decode
 import requests
 import os
-
+from django.utils import timezone
+from persona.models import Persona
 
 class Medico(models.Model):
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name="medico")  
-   
-    matricula = models.CharField(max_length=20, unique=True)  
-    especialidad = models.CharField(max_length=100, blank=True, null=True)  
-    telefono_consultorio = models.CharField(max_length=15, blank=True, null=True)  
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name="medico")
+
+    matricula = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    direccion = models.CharField(max_length=255, blank=True, null=True)
+    especialidad = models.CharField(max_length=100, blank=True, null=True)
+    telefono_consultorio = models.CharField(max_length=15, blank=True, null=True)
     firma = models.ImageField(upload_to='firmas/', null=True, blank=True)
 
     class Meta:
@@ -24,7 +26,7 @@ class Medico(models.Model):
         return f"Dr./Dra. {self.profile.nombre} {self.profile.apellido} - {self.especialidad}"
 
 # Modelo para la documentacion del medico
-    
+
 
 def upload_to_matricula(instance, filename):
     return f"documentacion/medico_{instance.medico.id}/matricula/{filename}"
@@ -70,4 +72,38 @@ class Documentos(models.Model):
         except Exception as e:
             print(f"Error al procesar el QR: {e}")
             return None
-    
+
+
+class ObservacionPersona(models.Model):
+    ROL_AUTOR_CHOICES = (
+        ("MEDICO", "Médico"),
+        ("REPRESENTANTE", "Representante"),
+    )
+
+    persona = models.ForeignKey(
+        Persona,
+        on_delete=models.CASCADE,
+        related_name="observaciones"
+    )
+
+    autor_profile = models.ForeignKey(
+        Profile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    rol_autor = models.CharField(
+        max_length=20,
+        choices=ROL_AUTOR_CHOICES
+    )
+
+    observacion = models.TextField()
+
+    creado_en = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-creado_en"]
+
+    def __str__(self):
+        return f"{self.persona} - {self.rol_autor}"

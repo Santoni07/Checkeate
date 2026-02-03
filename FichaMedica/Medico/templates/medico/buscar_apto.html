@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4 mx-auto" style="max-width: 500px;">
+        <h3 class="mb-4 text-primary text-center">Validar Certificado Médico</h3>
+
+        {% if mensaje %}
+            <div class="alert alert-warning text-center">{{ mensaje }}</div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+
+            <div class="mb-3">
+                <label for="dni" class="form-label">DNI del Jugador</label>
+                <input type="number" name="dni" id="dni" class="form-control"
+                       placeholder="Ej: 40123456">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                🔍 Validar
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

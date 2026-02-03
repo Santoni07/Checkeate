@@ -1,0 +1,114 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+  <h2 class="fw-bold mb-2">Cargar Estudios Médicos</h2>
+
+  <!-- BOTÓN VOLVER -->
+  <a href="{% url 'medico_aptos_generales_home' %}"
+     class="btn btn-outline-secondary mb-4">
+    ← Volver a Aptos Generales
+  </a>
+
+  <!-- BUSCADOR DNI -->
+  <form method="get" class="card p-3 mb-4 shadow">
+    <label class="fw-bold">Buscar jugador por DNI</label>
+    <div class="input-group">
+      <input type="text" name="dni" value="{{ dni }}" class="form-control">
+      <button class="btn btn-primary">Buscar</button>
+    </div>
+  </form>
+
+  {% if jugador %}
+    <!-- INFO JUGADOR -->
+    <div class="card p-3 mb-4 shadow">
+      <h5 class="fw-bold">Jugador</h5>
+      <p class="mb-1"><strong>{{ jugador.persona.profile.apellido }}, {{ jugador.persona.profile.nombre }}</strong></p>
+      <p class="mb-1">DNI: {{ jugador.persona.profile.dni }}</p>
+
+      {% if apto %}
+        <p class="text-success mb-0">
+          Apto vigente: {{ apto.estado }} ({{ apto.fecha_creacion|date:"d/m/Y" }})
+        </p>
+      {% else %}
+        <p class="text-muted mb-0">No tiene apto cargado</p>
+      {% endif %}
+    </div>
+
+    <!-- FORM CARGA ESTUDIO -->
+    <div class="card p-4 shadow">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="dni" value="{{ dni }}">
+        {% if apto %}
+          <input type="hidden" name="apto_id" value="{{ apto.id }}">
+        {% endif %}
+
+        {{ form.as_p }}
+
+        <button class="btn btn-success mt-3">
+          Guardar Estudio
+        </button>
+      </form>
+    </div>
+  {% endif %}
+
+{% if form_saved %}
+<div class="modal fade" id="successModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title text-success">✅ Estudio cargado con éxito</h5>
+      </div>
+
+      <div class="modal-body">
+        <p>¿Desea cargar otro estudio para este jugador?</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="volverACargar()">
+          Sí
+        </button>
+
+        <a href="{% url 'medico_aptos_generales_home' %}" class="btn btn-secondary">
+          No
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+</div>
+{% if form_saved %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const modalEl = document.getElementById('successModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  });
+
+  function volverACargar() {
+    const form = document.querySelector('form[method="post"]');
+    if (form) {
+      form.reset();
+    }
+
+    const modalEl = document.getElementById('successModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) {
+      modal.hide();
+    }
+  }
+</script>
+{% endif %}
+
+
+{% endblock %}
+

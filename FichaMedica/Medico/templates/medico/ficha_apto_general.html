@@ -1,0 +1,660 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .card-body{
+        background-color: #f0f0f0;
+    }
+    header {
+        display: none !important;
+    }
+</style>
+
+<section id="content">
+
+
+          <div class="row align-items-center mb-4 p-3 border rounded shadow-sm bg-light mx-auto encabezado-pdf"
+     style="max-width: 900px;">
+                <!-- Información -->
+                <div class="col-md-9 d-flex flex-column justify-content-center text-start">
+                    {% if apto.actividad %}
+                        <h4 class="fw-bold text-primary">{{ apto.actividad.nombre }}</h4>
+                        <div class="mt-2">
+                            {% if apto.actividad.descripcion %}
+                                <p class="mb-1 text-muted">{{ apto.actividad.descripcion }}</p>
+                            {% endif %}
+                            <p class="mb-1">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                <strong>{{ apto.actividad.direccion|default:"-" }}</strong>
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-phone-alt text-success me-2"></i>
+                                <strong>{{ apto.actividad.telefono|default:"-" }}</strong>
+                            </p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted fst-italic">No hay actividad registrada</p>
+                    {% endif %}
+                </div>
+
+                <!-- Logo -->
+                <div class="col-md-3 d-flex justify-content-center">
+                    {% if apto.actividad and apto.actividad.imagen %}
+                        <div class="p-2 bg-white border rounded shadow-sm">
+                            <img src="{{ apto.actividad.imagen.url }}"
+                                 class="img-fluid rounded"
+                                 alt="logo actividad"
+                                 style="max-height: 100px; object-fit: contain;">
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay logo disponible</p>
+                    {% endif %}
+                </div>
+            </div>
+
+
+            <div class="container mt-5">
+                <h1 class="text-center mb-4">Ficha Apto General</h1>
+
+                <!-- Información Personal -->
+                <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white text-center">
+        <h2 class="mb-0"><i class="fas fa-user me-2"></i>1 - Información Personal</h2>
+    </div>
+
+    {% if descargar_pdf %}
+        <!-- Versión para PDF (horizontal en filas) -->
+        <div class="card-body info-personal">
+            <div class="row">
+                <!-- Columna izquierda -->
+                <div class="col-pdf">
+                    <p><strong>Nombre:</strong> {{ jugador_info.nombre }}</p>
+                    <p><strong>Apellido:</strong> {{ jugador_info.apellido }}</p>
+                    <p><strong>Edad:</strong> {{ jugador_info.edad }}</p>
+                    <p><strong>DNI:</strong> {{ jugador_info.dni }}</p>
+                    <p><strong>Dirección:</strong> {{ jugador_info.direccion }}</p>
+                </div>
+
+                <!-- Columna derecha -->
+                <div class="col-pdf">
+                    <p><strong>Teléfono:</strong> {{ jugador_info.telefono }}</p>
+                    <p><strong>Grupo Sanguíneo:</strong> {{ jugador_info.grupo_sanguineo }}</p>
+                    <p><strong>Cobertura Médica:</strong> {{ jugador_info.cobertura_medica }}</p>
+                    <p><strong>Número de Afiliado:</strong> {{ jugador_info.numero_afiliado }}</p>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Versión normal para la web -->
+        <div class="card-body info-personal">
+            <div class="row text-center">
+                <div class="col-md-6">
+                    <p><strong>Nombre:</strong> {{ jugador_info.nombre }}</p>
+                    <p><strong>Apellido:</strong> {{ jugador_info.apellido }}</p>
+                    <p><strong>Edad:</strong> {{ jugador_info.edad }}</p>
+                    <p><strong>DNI:</strong> {{ jugador_info.dni }}</p>
+                    <p><strong>Dirección:</strong> {{ jugador_info.direccion }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Teléfono:</strong> {{ jugador_info.telefono }}</p>
+                    <p><strong>Grupo Sanguíneo:</strong> {{ jugador_info.grupo_sanguineo }}</p>
+                    <p><strong>Cobertura Médica:</strong> {{ jugador_info.cobertura_medica }}</p>
+                    <p><strong>Número de Afiliado:</strong> {{ jugador_info.numero_afiliado }}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+                <!-- Motivo de Actividad -->
+                  <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h2 class="mb-0"><i class="fas fa-running me-2"></i>Motivo de Actividad</h2>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if motivo %}
+                                {% if motivo.competitivo %}
+                                    <p><strong>Competitivo:</strong> Sí</p>
+                                {% endif %}
+                                {% if motivo.recreativo %}
+                                    <p><strong>Recreativo:</strong> Sí</p>
+                                {% endif %}
+                                {% if motivo.por_salud %}
+                                    <p><strong>Por Salud:</strong> Sí</p>
+                                    {% if motivo.salud_detalle %}
+                                        <p><strong>Detalle Salud:</strong> {{ motivo.salud_detalle }}</p>
+                                    {% endif %}
+                                {% endif %}
+                                {% if motivo.por_lesion %}
+                                    <p><strong>Por Lesión:</strong> Sí</p>
+                                    {% if motivo.lesion_detalle %}
+                                        <p><strong>Detalle Lesión:</strong> {{ motivo.lesion_detalle }}</p>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <p class="text-muted fst-italic">No cargado.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+
+
+           <!-- Antecedentes -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Antecedentes Médicos</h2>
+            </div>
+
+            {% if antecedentes %}
+                {% if descargar_pdf %}
+                    <!-- Versión compacta para PDF -->
+                    <div class="card-body antecedentes-pdf">
+                        <div class="row">
+                            <!-- Columna izquierda -->
+                            <div class="col-pdf">
+                                <p><span>¿Usted fue sometido a alguna cirugía?</span> <strong>{{ antecedentes.fue_operado|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Actualmente toma medicación de forma regular?</span> <strong>{{ antecedentes.toma_medicacion|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Estuvo internado en el último año?</span> <strong>{{ antecedentes.estuvo_internado|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Presenta hormigueos o pérdida de sensibilidad?</span> <strong>{{ antecedentes.sufre_hormigueos|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Tiene diagnóstico de diabetes?</span> <strong>{{ antecedentes.es_diabetico|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Padece asma?</span> <strong>{{ antecedentes.es_asmatico|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Tiene algún tipo de alergia?</span> <strong>{{ antecedentes.es_alergico|yesno:"Sí,No" }}</strong></p>
+                                <p><span><em>Observaciones sobre sus alergias:</em></span> <strong>{{ antecedentes.alerg_observ|default:"-" }}</strong></p>
+                                <p><span>¿Tiene antecedentes de epilepsia?</span> <strong>{{ antecedentes.antecedente_epilepsia|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Le han diagnosticado desviación de columna?</span> <strong>{{ antecedentes.desviacion_columna|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Sufre dolores de cintura frecuentes?</span> <strong>{{ antecedentes.dolor_cintura|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Ha tenido fracturas óseas?</span> <strong>{{ antecedentes.fracturas|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Presenta dolores articulares?</span> <strong>{{ antecedentes.dolores_articulares|yesno:"Sí,No" }}</strong></p>
+                            </div>
+
+                            <!-- Columna derecha -->
+                            <div class="col-pdf">
+                                <p><span>¿Ha sufrido traumatismos de cráneo?</span> <strong>{{ antecedentes.traumatismos_craneo|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Siente dolor en el pecho con frecuencia?</span> <strong>{{ antecedentes.dolor_pecho|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Ha tenido episodios de pérdida de conocimiento?</span> <strong>{{ antecedentes.perdida_conocimiento|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Tiene antecedentes de presión arterial elevada?</span> <strong>{{ antecedentes.presion_arterial|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Hubo muerte súbita en su familia?</span> <strong>{{ antecedentes.muerte_subita_familiar|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Tiene familiares con enfermedades cardíacas?</span> <strong>{{ antecedentes.enfermedad_cardiaca_familiar|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Le diagnosticaron soplo cardíaco?</span> <strong>{{ antecedentes.soplo_cardiaco|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Alguna vez le recomendaron abstenerse de competir?</span> <strong>{{ antecedentes.abstenerse_competencia|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Existen antecedentes coronarios en su familia?</span> <strong>{{ antecedentes.antecedentes_coronarios_familiares|yesno:"Sí,No" }}</strong></p>
+                                <p><span>¿Fuma o tiene hipertensión/diabetes?</span> <strong>{{ antecedentes.fumar_hipertension_diabetes|yesno:"Sí,No" }}</strong></p>
+                                <p><span><em>Observaciones adicionales sobre tabaquismo, HTA o diabetes:</em></span> <strong>{{ antecedentes.fhd_observacion|default:"-" }}</strong></p>
+                                <p><span>¿Consume cocaína o anabólicos?</span> <strong>{{ antecedentes.consumo_cocaina_anabolicos|yesno:"Sí,No" }}</strong></p>
+                                <p><span><em>Observaciones sobre consumo de sustancias:</em></span> <strong>{{ antecedentes.cca_observaciones|default:"-" }}</strong></p>
+                                <p><span>¿Tiene el esquema de vacunación completo?</span> <strong>{{ antecedentes.vacunacion|yesno:"Sí,No" }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Versión normal para la web -->
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Usted fue sometido a alguna cirugía?</span>
+                                    <strong>{{ antecedentes.fue_operado|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Actualmente toma medicación de forma regular?</span>
+                                    <strong>{{ antecedentes.toma_medicacion|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Estuvo internado en el último año?</span>
+                                    <strong>{{ antecedentes.estuvo_internado|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Presenta hormigueos o pérdida de sensibilidad?</span>
+                                    <strong>{{ antecedentes.sufre_hormigueos|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Tiene diagnóstico de diabetes?</span>
+                                    <strong>{{ antecedentes.es_diabetico|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Padece asma?</span>
+                                    <strong>{{ antecedentes.es_asmatico|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Tiene algún tipo de alergia?</span>
+                                    <strong>{{ antecedentes.es_alergico|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span><em>Observaciones sobre sus alergias:</em></span>
+                                    <strong>{{ antecedentes.alerg_observ|default:"-" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Tiene antecedentes de epilepsia?</span>
+                                    <strong>{{ antecedentes.antecedente_epilepsia|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Le han diagnosticado desviación de columna?</span>
+                                    <strong>{{ antecedentes.desviacion_columna|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Sufre dolores de cintura frecuentes?</span>
+                                    <strong>{{ antecedentes.dolor_cintura|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Ha tenido fracturas óseas?</span>
+                                    <strong>{{ antecedentes.fracturas|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Presenta dolores articulares?</span>
+                                    <strong>{{ antecedentes.dolores_articulares|yesno:"Sí,No" }}</strong>
+                                </p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Ha sufrido traumatismos de cráneo?</span>
+                                    <strong>{{ antecedentes.traumatismos_craneo|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Siente dolor en el pecho con frecuencia?</span>
+                                    <strong>{{ antecedentes.dolor_pecho|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Ha tenido episodios de pérdida de conocimiento?</span>
+                                    <strong>{{ antecedentes.perdida_conocimiento|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Tiene antecedentes de presión arterial elevada?</span>
+                                    <strong>{{ antecedentes.presion_arterial|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Hubo muerte súbita en su familia?</span>
+                                    <strong>{{ antecedentes.muerte_subita_familiar|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Tiene familiares con enfermedades cardíacas?</span>
+                                    <strong>{{ antecedentes.enfermedad_cardiaca_familiar|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Le diagnosticaron soplo cardíaco?</span>
+                                    <strong>{{ antecedentes.soplo_cardiaco|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Alguna vez le recomendaron abstenerse de competir?</span>
+                                    <strong>{{ antecedentes.abstenerse_competencia|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Existen antecedentes coronarios en su familia?</span>
+                                    <strong>{{ antecedentes.antecedentes_coronarios_familiares|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Fuma o tiene hipertensión/diabetes?</span>
+                                    <strong>{{ antecedentes.fumar_hipertension_diabetes|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span><em>Observaciones adicionales sobre tabaquismo, HTA o diabetes:</em></span>
+                                    <strong>{{ antecedentes.fhd_observacion|default:"-" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Consume cocaína o anabólicos?</span>
+                                    <strong>{{ antecedentes.consumo_cocaina_anabolicos|yesno:"Sí,No" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span><em>Observaciones sobre consumo de sustancias:</em></span>
+                                    <strong>{{ antecedentes.cca_observaciones|default:"-" }}</strong>
+                                </p>
+                                <p class="d-flex justify-content-between">
+                                    <span>¿Tiene el esquema de vacunación completo?</span>
+                                    <strong>{{ antecedentes.vacunacion|yesno:"Sí,No" }}</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p class="text-muted text-center fst-italic">No hay antecedentes cargados.</p>
+            {% endif %}
+        </div>
+
+        <!-- Exámenes Médicos -->
+            <div class="card mb-4 shadow-lg">
+                <div class="card-header text-center bg-primary text-white">
+                    <h2 class="mb-0">Exámenes Médicos</h2>
+                </div>
+
+                {% if descargar_pdf %}
+                    <!-- Versión compacta para PDF -->
+                     <div class="card-body examenes-pdf">
+
+                    <!-- Examen Físico -->
+                    <h5><i class="fas fa-dumbbell me-2"></i>Examen Físico</h5>
+                    {% if fisico %}
+                        <div class="fila-examen">
+                            <p><strong>Peso:</strong> {{ fisico.peso }} kg</p>
+                            <p><strong>Altura:</strong> {{ fisico.altura }} cm</p>
+                            <p>
+                              <strong>IMC:</strong> {{ fisico.imc }}
+                              {% if categoria_imc %}
+                                {% if categoria_imc == "Bajo peso" %}
+                                  <span class="badge bg-warning text-dark">{{ categoria_imc }}</span>
+                                {% elif categoria_imc == "Peso normal" %}
+                                  <span class="badge bg-success">{{ categoria_imc }}</span>
+                                {% elif categoria_imc == "Sobrepeso" %}
+                                  <span class="badge bg-info text-dark">{{ categoria_imc }}</span>
+                                {% elif categoria_imc == "Obesidad grado I" %}
+                                  <span class="badge bg-warning">{{ categoria_imc }}</span>
+                                {% elif categoria_imc == "Obesidad grado II" %}
+                                  <span class="badge bg-danger">{{ categoria_imc }}</span>
+                                {% elif categoria_imc == "Obesidad grado III (mórbida)" %}
+                                  <span class="badge bg-danger">{{ categoria_imc }}</span>
+                                {% endif %}
+                              {% endif %}
+                            </p>
+                            <p><strong>Perímetro cintura:</strong> {{ fisico.perimetro_cintura }} cm</p>
+                            <p><strong>Diagnóstico:</strong> {{ fisico.diagnostico }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No disponible.</p>
+                    {% endif %}
+                    <hr class="separador-examen">
+
+                    <!-- Cardiovascular -->
+                    <h5><i class="fas fa-heartbeat me-2"></i>Cardiovascular</h5>
+                    {% if cardio %}
+                        <div class="fila-examen">
+                            <p><strong>Auscultación:</strong> {{ cardio.auscultacion }}</p>
+                            <p><strong>TA1:</strong> {{ cardio.ta1 }}</p>
+                            <p><strong>TA2:</strong> {{ cardio.ta2 }}</p>
+                            <p><strong>Pulso:</strong> {{ cardio.pulso }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No disponible.</p>
+                    {% endif %}
+                    <hr class="separador-examen">
+
+                    <!-- Respiratorio -->
+                    <h5><i class="fas fa-lungs me-2"></i>Respiratorio</h5>
+                    {% if respiratorio %}
+                        <div class="fila-examen">
+                            <p><strong>Murmullo Vesicular:</strong> {{ respiratorio.murmullo_vesicular }}</p>
+                            <p><strong>Ruidos Agregados:</strong> {{ respiratorio.ruidos_agregados }}</p>
+                            <p><strong>Saturación O₂:</strong> {{ respiratorio.saturacion_o2 }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No disponible.</p>
+                    {% endif %}
+                    <hr class="separador-examen">
+
+                    <!-- Abdomen -->
+                    <h5><i class="fas fa-stethoscope me-2"></i>Abdomen</h5>
+                    {% if abdomen %}
+                        <div class="fila-examen">
+                            <p><strong>Observaciones:</strong> {{ abdomen.observacion }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No disponible.</p>
+                    {% endif %}
+                    <hr class="separador-examen">
+
+                    <!-- Genitourinario -->
+                    <h5><i class="fas fa-user-md me-2"></i>Genitourinario</h5>
+                    {% if genitourinario %}
+                        <div class="fila-examen">
+                            <p><strong>Observaciones:</strong> {{ genitourinario.observacion }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No disponible.</p>
+                    {% endif %}
+                    <hr class="separador-examen">
+
+                    <!-- Soma -->
+                    <h5><i class="fas fa-brain me-2"></i>Soma</h5>
+                    {% if soma %}
+                        <div class="fila-examen">
+                            <p><strong>Observaciones:</strong> {{ soma.observacion }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No disponible.</p>
+                    {% endif %}
+                </div>
+
+                {% else %}
+                    <!-- Versión normal para la web -->
+                    <div class="card-body">
+                        <!-- Examen Físico -->
+                        <div class="mb-4 p-3 border rounded bg-light shadow-sm">
+                            <h5 class="text-left text-primary mb-3">
+                                <i class="fas fa-dumbbell me-2"></i>Examen Físico
+                            </h5>
+                            {% if fisico %}
+                                <div class="row text-center">
+                                    <div class="col-md-4"><p><strong>Peso:</strong> {{ fisico.peso }} kg</p></div>
+                                    <div class="col-md-4"><p><strong>Altura:</strong> {{ fisico.altura }} cm</p></div>
+                                    <div class="col-md-4 text-center">
+
+                                         <p>
+                                <strong>IMC:</strong> {{ fisico.imc }}
+                                {% if categoria_imc %}
+                                    {% if categoria_imc == "Bajo peso" %}
+                                        <span class="badge bg-warning text-dark">{{ categoria_imc }}</span>
+                                    {% elif categoria_imc == "Peso normal" %}
+                                        <span class="badge bg-success">{{ categoria_imc }}</span>
+                                    {% elif categoria_imc == "Sobrepeso" %}
+                                        <span class="badge bg-info text-dark">{{ categoria_imc }}</span>
+                                    {% elif categoria_imc == "Obesidad grado I" %}
+                                        <span class="badge bg-warning">{{ categoria_imc }}</span>
+                                    {% elif categoria_imc == "Obesidad grado II" %}
+                                        <span class="badge bg-danger">{{ categoria_imc }}</span>
+                                    {% elif categoria_imc == "Obesidad grado III (mórbida)" %}
+                                        <span class="badge bg-danger">{{ categoria_imc }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                                    </div>
+                                </div>
+                                <div class="row text-center mt-3">
+                                    <div class="col-md-6"><p><strong>Perímetro cintura:</strong> {{ fisico.perimetro_cintura }} cm</p></div>
+                                    <div class="col-md-6"><p><strong>Diagnóstico:</strong> {{ fisico.diagnostico }}</p></div>
+                                </div>
+                            {% else %}
+                                <p class="text-muted fst-italic text-center">No disponible.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Cardiovascular -->
+                        <div class="mb-4 p-3 border rounded bg-light shadow-sm">
+                            <h5 class="text-left text-danger mb-3"><i class="fas fa-heartbeat me-2"></i>Cardiovascular</h5>
+                            {% if cardio %}
+                                <div class="row text-left">
+                                    <div class="col-md-3"><p><strong>Auscultación:</strong> {{ cardio.auscultacion }}</p></div>
+                                    <div class="col-md-3"><p><strong>TA1:</strong> {{ cardio.ta1 }}</p></div>
+                                    <div class="col-md-3"><p><strong>TA2:</strong> {{ cardio.ta2 }}</p></div>
+                                    <div class="col-md-3"><p><strong>Pulso:</strong> {{ cardio.pulso }}</p></div>
+                                </div>
+                            {% else %}
+                                <p class="text-muted fst-italic text-center">No disponible.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Respiratorio -->
+                        <div class="mb-4 p-3 border rounded bg-light shadow-sm">
+                            <h5 class="text-center text-success mb-3"><i class="fas fa-lungs me-2"></i>Respiratorio</h5>
+                            {% if respiratorio %}
+                                <div class="row text-center">
+                                    <div class="col-md-4"><p><strong>Murmullo Vesicular:</strong> {{ respiratorio.murmullo_vesicular }}</p></div>
+                                    <div class="col-md-4"><p><strong>Ruidos Agregados:</strong> {{ respiratorio.ruidos_agregados }}</p></div>
+                                    <div class="col-md-4"><p><strong>Saturación O₂:</strong> {{ respiratorio.saturacion_o2 }}</p></div>
+                                </div>
+                            {% else %}
+                                <p class="text-muted fst-italic text-center">No disponible.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Abdomen -->
+                        <div class="mb-4 p-3 border rounded bg-light shadow-sm">
+                            <h5 class="text-left text-warning mb-3"><i class="fas fa-stethoscope me-2"></i>Abdomen</h5>
+                            {% if abdomen %}
+                                <p><strong>Observaciones:</strong> {{ abdomen.observacion }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic text-center">No disponible.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Genitourinario -->
+                        <div class="mb-4 p-3 border rounded bg-light shadow-sm">
+                            <h5 class="text-left text-info mb-3"><i class="fas fa-user-md me-2"></i>Genitourinario</h5>
+                            {% if genitourinario %}
+                                <p><strong>Observaciones:</strong> {{ genitourinario.observacion }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic text-center">No disponible.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Soma -->
+                        <div class="p-3 border rounded bg-light shadow-sm">
+                            <h5 class="text-left text-secondary mb-3"><i class="fas fa-brain me-2"></i>Soma</h5>
+                            {% if soma %}
+                                <p><strong>Observaciones:</strong> {{ soma.observacion }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic text-center">No disponible.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+
+
+
+                <!-- Firma -->
+                <!-- Salto de página antes de Certificación Médica -->
+
+                <!-- Salto de página antes del certificado (para que arranque en segunda hoja del PDF) -->
+<div class="salto-pagina"></div>
+
+<div class="certificacion-container">
+    <div class="card mt-4 mb-4 shadow-sm border-0">
+        <div class="p-4 bg-white rounded text-center">
+            <h5 class="text-primary mb-4">
+                <i class="fas fa-file-signature me-2"></i>Certificación Médica
+            </h5>
+
+            <p>
+                Habiendo evaluado minuciosamente los <strong>antecedentes médicos</strong>,
+                así como los <strong>exámenes clínicos y estudios complementarios</strong>
+                realizados al paciente <strong>{{ jugador_info.nombre }} {{ jugador_info.apellido }}</strong>,
+                identificado con DNI <strong>{{ jugador_info.dni }}</strong>, se certifica que su estado
+                de salud ha sido evaluado en su totalidad.
+            </p>
+
+            <p>
+                De acuerdo a la valoración médica integral, se determina que el presente
+                <strong>Apto General</strong> queda registrado con el estado:
+                <span class="badge bg-success fs-6">{{ apto.estado }}</span>.
+                Este certificado tiene validez legal y se encuentra sujeto al tiempo de vigencia
+                estipulado, caducando en la siguiente fecha:
+                <strong>{{ apto.fecha_caducidad|date:"d/m/Y" }}</strong>.
+            </p>
+
+            <!-- Bloque firma médico -->
+            <div class="firma-medico">
+                <p class="mb-1">
+                    <strong>{{ apto.medico }}</strong>
+                </p>
+                <p class="mb-3">Matrícula: <strong>{{ apto.medico.matricula }}</strong></p>
+
+                {% if apto.medico.firma_url_abs %}
+                    <div class="p-2 bg-white shadow-sm rounded d-inline-block">
+                        <img src="{{ apto.medico.firma_url_abs }}" alt="Firma del médico"
+                             class="img-fluid" style="max-width: 180px;">
+                    </div>
+                {% else %}
+                    <p class="text-muted">No se ha proporcionado una firma.</p>
+                {% endif %}
+
+                <p class="mt-2"><em>Firma y sello del Médico</em></p>
+            </div>
+
+            <hr class="mt-4">
+
+            <p class="text-center text-muted fst-italic">
+                <small>
+                    Esta certificación es válida únicamente en original y sin enmiendas.
+                    El mismo avala la condición física del paciente para participar en
+                    actividades generales según lo declarado en la presente ficha.
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+                <div class="qr-validacion mt-4 text-center">
+                    <p><em>Escanee para validar este certificado:</em></p>
+                    <img src="{{ qr_code }}" alt="QR de validación" style="max-width:120px;">
+                </div>
+
+
+            </div>
+</section>
+
+        <div class="mt-4 text-center d-flex justify-content-center">
+            {% if rol_usuario == "medico" %}
+                <a href="{% url 'medico_aptos_generales_home' %}" class="btn btn-secondary me-3">Volver</a>
+            {% elif rol_usuario == "actividad" %}
+                <a href="{% url 'representante_actividad_general_home' %}" class="btn btn-secondary me-3">Volver</a>
+            {% elif rol_usuario == "paciente" %}
+                <a href="{% url 'menu_paciente' %}" class="btn btn-secondary me-3">Volver</a>
+            {% else %}
+                <a href="/" class="btn btn-secondary me-3">Volver</a>
+            {% endif %}
+
+            <form method="get" action="{% url 'ficha_apto_general_view' apto.id %}">
+                <input type="hidden" name="descargar_pdf" value="true">
+                <button type="submit" class="btn btn-primary">Descargar</button>
+            </form>
+        </div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-seleccionar").forEach(btn => {
+            btn.addEventListener("click", function () {
+                console.log("Clic en:", this.dataset.id);
+            });
+        });
+    });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const imcText = document.querySelector("#categoria_imc_web");
+    const imcValue = parseFloat("{{ fisico.imc|default:0 }}");
+
+    if (!isNaN(imcValue) && imcValue > 0) {
+        let categoria = "";
+        let clase = "bg-secondary";
+
+        if (imcValue < 18.5) {
+            categoria = "Bajo peso";
+            clase = "bg-warning text-dark";
+        } else if (imcValue < 25) {
+            categoria = "Peso normal";
+            clase = "bg-success";
+        } else if (imcValue < 30) {
+            categoria = "Sobrepeso";
+            clase = "bg-info text-dark";
+        } else if (imcValue < 35) {
+            categoria = "Obesidad grado I";
+            clase = "bg-warning";
+        } else if (imcValue < 40) {
+            categoria = "Obesidad grado II";
+            clase = "bg-danger";
+        } else {
+            categoria = "Obesidad grado III (mórbida)";
+            clase = "bg-danger";
+        }
+
+        imcText.textContent = categoria;
+        imcText.className = `badge ${clase} fs-6 mt-1`;
+    }
+});
+</script>
+
+{% endblock %}
+

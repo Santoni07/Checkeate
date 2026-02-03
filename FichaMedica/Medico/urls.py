@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('medico_home/', MedicoHomeView.as_view(), name='medico_home'),
      # Ruta para el formulario Electro Basal
-   
+
     # Ruta para el formulario de Registo medico
     path('registro_medico_update/<int:registro_id>/', views.registro_medico_update_view, name='registro_medico_update_view'),
     path('medico/electro_basal/<int:jugador_id>/<int:registro_id>/', views.electro_basal_view, name='electro_basal_view'),
@@ -15,7 +15,17 @@ urlpatterns = [
     path('medico/laboratorio/<int:jugador_id>/<int:registro_id>/', views.laboratorio_view, name='laboratorio_view'),
     path('medico/torax/<int:jugador_id>/<int:registro_id>/', views.torax_view, name='torax_view'),
     path('medico/oftalmologico/<int:jugador_id>/<int:registro_id>/', views.oftalmologico_view, name='oftalmologico_view'),
-   
+     path(
+        'cargar-estudios/',
+        MedicoCargarEstudiosView.as_view(),
+        name='medico_cargar_estudios'
+    ),
+    path(
+    "observaciones/",
+    MedicoObservacionesPersonaView.as_view(),
+    name="medico_observaciones_persona"
+    ),
+
 
     path('ficha_medica/<int:registro_id>/', views.ficha_medica_views, name='ficha_medica'),
     path('eliminar-ficha/<int:jugador_id>/', views.eliminar_ficha_medica, name='eliminar_ficha_medica'),
@@ -28,8 +38,19 @@ urlpatterns = [
     path('documentacion/cargar/', views.cargar_documentacion, name='cargar_documentacion'),
     path('verificar-qr/', views.verificar_qr_pdf, name='verificar_qr_pdf'),
     path('contrato/', views.contrato, name='contrato'),
-    
-    
+
+
+    # PATH RUTA MEDICOS APTOS GENERALES
+    path("aptos_generales/",MedicoAptosGeneralesHomeView.as_view(),name="medico_aptos_generales_home"),
+    path("apto/<int:apto_id>/update/",views.apto_general_update_view,name="apto_general_update_view"),
+    path('apto/<int:apto_id>/ficha/', views.ficha_apto_general_view, name='ficha_apto_general_view'),
+
+    # VALIDACION DELCODIGO QR
+    path("validar-apto/", views.buscar_apto_general_view, name="buscar_apto_general"),
+    #path("validar-apto/<int:apto_id>/", views.validar_apto_general_view, name="validar_apto_general"),
+
+    path("validar-certificado/<str:tipo>/<int:id_certificado>/", validar_certificado_view, name="validar_certificado"),
+
 
 
 ]

@@ -1,0 +1,179 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  /* Paleta deportiva */
+  :root{
+    --sport-navy:#0d47a1;
+    --sport-royal:#1565c0;
+    --sport-grass:#2e7d32;
+    --sport-lime:#43a047;
+  }
+
+  /* Banda pegada al header */
+  .sport-hero-band h2{
+    margin:0; font-weight:700; letter-spacing:.3px;
+    text-shadow: 0 1px 1px rgba(0,0,0,.15);
+  }
+  .sport-hero-band{
+    padding:18px 16px;
+    display:flex; justify-content:center; align-items:center;
+    background: linear-gradient(90deg, var(--sport-navy) 0%, var(--sport-royal) 45%, var(--sport-grass) 100%);
+    border-bottom:1px solid rgba(255,255,255,.15);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+    color:#fff;
+  }
+
+  /* Tabla estilo Consultar Apto */
+  .sport-table thead th{
+    background: var(--sport-royal) !important;
+    color:#fff; border-color: rgba(255,255,255,.25) !important;
+    text-transform: uppercase; letter-spacing:.02em;
+  }
+  .sport-table tr th,
+  .sport-table tr td{
+    vertical-align: middle;
+  }
+
+  /* Responsive: tabla apilada */
+  @media (max-width: 768px){
+    .sport-table{ display:block; }
+    .sport-table thead{ display:none; }
+    .sport-table tbody, .sport-table tr, .sport-table td{ display:block; width:100%; }
+    .sport-table tr{
+      margin-bottom:1rem; border:1px solid #dee2e6; border-radius:8px; padding:.5rem; background:#fff;
+    }
+    .sport-table td{ border:0 !important; padding:.4rem .25rem !important; text-align:left !important; }
+    .sport-table td::before{
+      content: attr(data-label);
+      display:block; font-weight:700; color: var(--sport-royal);
+      margin-bottom:.15rem; text-transform: uppercase;
+    }
+  }
+</style>
+
+<!-- Banda superior -->
+<div class="sport-hero-band">
+  <div class="container inner d-flex flex-column align-items-center">
+    <h2 class="mb-1 text-center">
+      <i class="bi bi-person-vcard"></i> Médicos Inscriptos
+    </h2>
+    <small class="opacity-75">Listado de profesionales autorizados en el sistema</small>
+  </div>
+</div>
+
+<main class="px-3" style="position:relative; min-height:100vh; width:100%; margin:0; padding:0;">
+  <style>
+   main::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      z-index:-1;
+
+      {% if user.is_authenticated %}
+        background: url('{% static "core/img/home1.png" %}') no-repeat center center;
+        background-size: cover;
+        opacity:.35;
+      {% else %}
+        background: white;
+      {% endif %}
+    }
+  </style>
+
+  <div style="position: relative; z-index: 1;">
+    <div class="container my-5">
+      <div class="card shadow border-0">
+        <div class="card-header text-white text-center py-4 rounded-top" style="background-color:#00C4F6;">
+          <h2 class="mb-0 text-light">Profesionales</h2>
+        </div>
+
+        <div class="card-body bg-white rounded-bottom">
+          {% if medicos %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle border text-center sport-table">
+                <thead>
+                  <tr>
+                    <th scope="col"><i class="bi bi-person"></i> Nombre</th>
+                    <th scope="col"><i class="bi bi-person"></i> Apellido</th>
+                    <th scope="col"><i class="bi bi-award"></i> Matrícula</th>
+                    <th scope="col"><i class="bi bi-clipboard-pulse"></i> Especialidad</th>
+                    <th scope="col"><i class="bi bi-geo-alt"></i> Dirección</th>
+                    <th scope="col"><i class="bi bi-telephone"></i> Teléfono</th>
+                    <th scope="col"><i class="bi bi-envelope-at"></i> Email</th>
+                    <th scope="col"><i class="bi bi-geo"></i> Mapa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for medico in medicos %}
+                    <tr>
+                      <td data-label="Nombre">{{ medico.profile.nombre }}</td>
+                      <td data-label="Apellido">{{ medico.profile.apellido }}</td>
+                      <td data-label="Matrícula">{{ medico.matricula }}</td>
+                      <td data-label="Especialidad">{{ medico.especialidad|default:"-" }}</td>
+                      <td data-label="Dirección">{{ medico.direccion|default:"-" }}</td>
+                      <td data-label="Teléfono">{{ medico.telefono_consultorio|default:"-" }}</td>
+                      <td data-label="Email">
+                        <a href="mailto:{{ medico.profile.email }}" class="text-decoration-none">
+                          {{ medico.profile.email }}
+                        </a>
+                      </td>
+                      <td data-label="Mapa">
+                      {% if medico.direccion %}
+                        <a class="btn btn-sm btn-outline-success"
+                           href="https://www.google.com/maps/search/?api=1&query={{ medico.direccion|urlencode }}"
+                           target="_blank" rel="noopener">
+                          <i class="bi bi-geo-alt-fill"></i> Ver mapa
+                        </a>
+                      {% else %}
+                        <span class="text-muted">-</span>
+                      {% endif %}
+                    </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="alert alert-warning text-center" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i> No hay médicos registrados aún.
+            </div>
+          {% endif %}
+
+<div class="text-center mt-4">
+
+    {% if user.is_authenticated %}
+
+        {% if request.user.profile.rol == "JUGADOR" %}
+            <a href="{% url 'menu_jugador' %}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-arrow-left-circle"></i> Volver al Menú
+            </a>
+
+        {% elif request.user.profile.rol == "PACIENTE" %}
+            <a href="{% url 'menu_paciente' %}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-arrow-left-circle"></i> Volver al Menú
+            </a>
+
+        {% else %}
+            <a href="{% url 'menu_paciente' %}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-arrow-left-circle"></i> Volver al Menú
+            </a>
+        {% endif %}
+
+    {% else %}
+        <!-- Si NO hay usuario autenticado -->
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-house"></i> Ir al Inicio
+        </a>
+    {% endif %}
+
+</div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endblock %}

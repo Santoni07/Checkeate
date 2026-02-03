@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+  <h2 class="mb-4 text-primary">Antecedentes por Actividad</h2>
+
+  {% if not aptos %}
+    <div class="alert alert-warning">
+      No tenés inscripciones a actividades. Primero inscribite para poder cargar antecedentes.
+    </div>
+  {% else %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="table-primary text-center">
+          <tr>
+            <th>Actividad</th>
+            <th>Fecha de inscripción</th>
+            <th>Consentimiento</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apto in aptos %}
+          <tr class="text-center">
+            <td>{{ apto.actividad.nombre }}</td>
+            <td>{{ apto.fecha_creacion|date:"d/m/Y H:i" }}</td>
+            <td>
+              {% if apto.consentimiento_persona %}
+                <span class="badge bg-success">Otorgado</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Pendiente</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if apto.consentimiento_persona %}
+                <!-- Solo lectura -->
+                <a href="{% url 'aptos_generales:antecedentes_detail' apto.id %}"
+                   class="btn btn-sm btn-primary">
+                  Ver Antecedentes
+                </a>
+              {% else %}
+                <!-- Editable -->
+                <a href="{% url 'aptos_generales:antecedentes_update' apto.id %}"
+                   class="btn btn-sm btn-warning">
+                  Modificar / Completar
+                </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

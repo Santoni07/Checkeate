@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Página no encontrada | Checkeate{% endblock %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center"
+     style="min-height: 80vh;">
+
+  <div class="text-center p-4 p-md-5 rounded shadow-sm"
+       style="max-width: 520px; background-color: #ffffff;">
+
+    <!-- LOGO -->
+    <div class="mb-4">
+      <img src="{% static 'core/img/milogo3.png' %}"
+           alt="Checkeate"
+           style="max-width: 180px;">
+    </div>
+
+    <!-- TÍTULO -->
+    <h1 class="fw-bold text-primary mb-3">
+      Página no encontrada
+    </h1>
+
+    <!-- MENSAJE -->
+    <p class="text-muted fs-5 mb-4">
+      No pudimos encontrar la página que estás buscando.
+      <br>
+      Es posible que el enlace esté mal escrito o que el contenido ya no exista.
+    </p>
+
+    <!-- MENSAJE TRANQUILIZADOR -->
+    <div class="alert alert-info mb-4">
+      Tranquilo, el sistema funciona correctamente.
+      <br>
+      Podés continuar navegando  sin problemas luego de iniciar sesion nuevamente.
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="d-grid gap-2">
+      <a href="{% url 'logout' %}?next={% url 'login' %}"
+   class="btn btn-primary btn-lg">
+  Volver al inicio
+</a>
+
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
