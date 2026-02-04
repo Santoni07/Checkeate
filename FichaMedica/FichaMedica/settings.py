@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!cy-2z7&5o=i(#euh@gvqr_o)!@-twm_&=6!o-487&79dybjsq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 ALLOWED_HOSTS = ['www.checkeate.com.ar', 'checkeate.com.ar', '127.0.0.1', 'localhost']
 
 # Tiempo máximo de inactividad (en segundos) antes de que la sesión expire
@@ -237,4 +237,8 @@ LOGOUT_REDIRECT_URL = 'home'  # URL a la que redirige después de hacer logout
 LOGIN_URL = '/account/login/'  # Página de login si no está autenticado
 
 
-
+# esto lo agregue para poder trabajar en local 
+try:
+    from .settings_local import *
+except ImportError:
+    pass
