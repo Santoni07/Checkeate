@@ -137,11 +137,39 @@ Físicos</h1>
 <section class="cards-section">
   <div class="container py-5 cards-home">
 
-     <div class="text-center mb-5"> <h2 class="mb-2">
-          <span class="fw-bold display-6 text-gradient"> Bienvenido a Checkeate </span>
-          </h2> <p class="fw-semibold fs-5 mb-1"> Elegí la opción según quién te solicita el certificado médico </p>
-          <p class="text-muted small mb-0"> Si ya tenés una cuenta, el servicio se sumará a la misma. </p>
+<div class="mx-auto mb-5 p-4 rounded-4 shadow-sm bg-white border border-primary-subtle"
+     style="max-width: 900px;">
+
+  <div class="row align-items-center text-center text-md-start">
+
+    <!-- Texto -->
+    <div class="col-md-8 mb-3 mb-md-0">
+      <h4 class="fw-bold text-primary mb-2">
+        👋 ¿Es tu primera vez en Checkeate?
+      </h4>
+
+      <p class="text-muted mb-0">
+        En pocos pasos vas a crear tu cuenta y seleccionar
+        <strong>para qué institución, torneo o colegio necesitás
+        el certificado médico</strong>.
+      </p>
     </div>
+
+    <!-- Botón -->
+    <div class="col-md-4 text-center">
+      <a href="{% url 'verificar_email' %}"
+         class="btn btn-primary btn-lg w-100">
+        🚀 Registrate por primera vez
+      </a>
+
+      <p class="small text-muted mt-2 mb-0">
+        ¿Ya tenés cuenta? Bajá y elegí una opción.
+      </p>
+    </div>
+
+  </div>
+</div>
+
 
 
 
