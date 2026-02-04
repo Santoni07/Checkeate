@@ -27,6 +27,11 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.conf import settings
+from persona.models import (
+    Torneo,
+    Competencia,
+    ActividadGeneral
+)
 
 
 # Vista personalizada para recuperar contraseña
@@ -667,5 +672,39 @@ def verificar_email_registro(request):
     return render(
         request,
         "account/verificar_email_registro.html",
+        context
+    )
+
+
+
+def seleccionar_institucion_registro(request):
+    email = request.session.get("registro_email")
+
+    if not email:
+        messages.error(request, "Primero debés ingresar tu email.")
+        return redirect("verificar_email_registro")
+
+    if request.method == "POST":
+        tipo = request.POST.get("tipo")
+        objeto_id = request.POST.get("objeto_id")
+
+        if not tipo or not objeto_id:
+            messages.error(request, "Seleccioná una opción para continuar.")
+        else:
+            request.session["registro_tipo"] = tipo
+            request.session["registro_objeto_id"] = objeto_id
+
+            return redirect("registro_completar_datos")
+
+    context = {
+        "email": email,
+        "actividades": ActividadGeneral.objects.filter(activo=True),
+        "torneos": Torneo.objects.all(),
+        "competencias": Competencia.objects.filter(activo=True),
+    }
+
+    return render(
+        request,
+        "account/seleccionar_institucion_registro.html",
         context
     )

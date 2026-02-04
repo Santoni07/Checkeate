@@ -1,0 +1,89 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<main class="container py-5" style="min-height: 80vh;">
+
+  <div class="mx-auto p-4 rounded-4 shadow-sm bg-white border border-primary-subtle"
+       style="max-width: 900px;">
+
+    <h4 class="fw-bold text-primary mb-2 text-center">
+      🏥 ¿Dónde vas a presentar el apto médico?
+    </h4>
+
+    <p class="text-muted text-center mb-4">
+      Seleccioná una opción para continuar con tu registro en Checkeate.
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="row g-4">
+
+        <!-- ACTIVIDADES -->
+        <div class="col-md-4">
+          <h6 class="fw-bold text-center mb-3">🏃 Actividades</h6>
+
+          {% for a in actividades %}
+            <button type="submit"
+                    name="objeto_id"
+                    value="{{ a.id }}"
+                    class="btn btn-outline-primary w-100 mb-2"
+                    onclick="setTipo('actividad')">
+              {{ a.nombre }}
+            </button>
+          {% empty %}
+            <p class="text-muted text-center small">No hay actividades</p>
+          {% endfor %}
+        </div>
+
+        <!-- TORNEOS -->
+        <div class="col-md-4">
+          <h6 class="fw-bold text-center mb-3">🏆 Torneos</h6>
+
+          {% for t in torneos %}
+            <button type="submit"
+                    name="objeto_id"
+                    value="{{ t.id }}"
+                    class="btn btn-outline-success w-100 mb-2"
+                    onclick="setTipo('torneo')">
+              {{ t.nombre }}
+            </button>
+          {% empty %}
+            <p class="text-muted text-center small">No hay torneos</p>
+          {% endfor %}
+        </div>
+
+        <!-- COMPETENCIAS -->
+        <div class="col-md-4">
+          <h6 class="fw-bold text-center mb-3">🥇 Competencias</h6>
+
+          {% for c in competencias %}
+            <button type="submit"
+                    name="objeto_id"
+                    value="{{ c.id }}"
+                    class="btn btn-outline-warning w-100 mb-2"
+                    onclick="setTipo('competencia')">
+              {{ c.nombre }}
+            </button>
+          {% empty %}
+            <p class="text-muted text-center small">No hay competencias</p>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <input type="hidden" name="tipo" id="tipoSeleccionado">
+
+    </form>
+
+  </div>
+
+</main>
+
+<script>
+  function setTipo(tipo) {
+    document.getElementById("tipoSeleccionado").value = tipo;
+  }
+</script>
+
+{% endblock %}

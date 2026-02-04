@@ -16,10 +16,15 @@ urlpatterns = [
     path('register_paciente/', register, name='register_paciente'),
     
     #path verificar email por primera vez 
-      path(
+     path(
         "registro/verificar-email/",
         verificar_email_registro,
         name="verificar_email_registro"
+    ),
+     path(
+        "registro/seleccionar-institucion/",
+        views.seleccionar_institucion_registro,
+        name="seleccionar_institucion_registro"
     ),
 
 
