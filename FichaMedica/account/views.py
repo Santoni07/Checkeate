@@ -605,3 +605,67 @@ def verificar_dni(request):
     if dni and Profile.objects.filter(dni=dni).exists():
         data['existe'] = True
     return JsonResponse(data)
+
+# funcion para verificar email por primera vez 
+def verificar_email_registro(request):
+    context = {}
+
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip().lower()
+        context["email"] = email
+
+        if not email:
+            context["error"] = "Ingresá un email válido."
+            return render(
+                request,
+                "registro_nuevo/verificar_email.html",
+                context
+            )
+
+        existe = User.objects.filter(email__iexact=email).exists()
+
+        if existe:
+            # Email ya registrado → no creamos nada
+            context["existe"] = True
+        else:
+            # Email nuevo → seguimos flujo primera vez
+            request.session["registro_email"] = email
+            return redirect("seleccionar_institucion_registro")
+
+    return render(
+        request,
+        "account/verificar_email.html",
+        context
+    )
+    
+    
+# Funcion para verificar el email por primera vez 
+def verificar_email_registro(request):
+    context = {}
+
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip().lower()
+        context["email"] = email
+
+        if not email:
+            context["error"] = "Ingresá un email válido."
+            return render(
+                request,
+                "account/verificar_email_registro.html",
+                context
+            )
+
+        existe = User.objects.filter(email__iexact=email).exists()
+
+        if existe:
+            context["existe"] = True
+        else:
+            request.session["registro_email"] = email
+            context["mostrar_modal"] = True
+            
+
+    return render(
+        request,
+        "account/verificar_email_registro.html",
+        context
+    )

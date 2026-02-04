@@ -14,6 +14,13 @@ urlpatterns = [
     path('select_role/', select_role, name='select_role'),
     path('register_medico/', register_medico, name='register_medico'),
     path('register_paciente/', register, name='register_paciente'),
+    
+    #path verificar email por primera vez 
+      path(
+        "registro/verificar-email/",
+        verificar_email_registro,
+        name="verificar_email_registro"
+    ),
 
 
 
@@ -29,6 +36,6 @@ urlpatterns = [
     path('check_session/', views.check_session, name='check_session'),
     path('terminos_condiciones/', views.terminos_condiciones, name='terminos_condiciones'),
     path('verificar-email/', views.verificar_email, name='verificar_email'),
-    path('verificar-dni/', views.verificar_dni, name='verificar_dni')
+    path('verificar-dni/', views.verificar_dni, name='verificar_dni'),
 
     ]
