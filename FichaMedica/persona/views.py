@@ -55,7 +55,7 @@ def registrar_persona(request):
             if profile.rol == "paciente":
                 return redirect("menu_paciente")
             else:
-                return redirect("seleccionar_categoria_equipo")
+                 return redirect("menu_jugador")
         else:
             messages.error(request, "Por favor, corregí los errores en el formulario.")
     else:
@@ -234,22 +234,21 @@ def menu_jugador(request):
     except (Persona.DoesNotExist, Jugador.DoesNotExist):
         return redirect('registrar_persona')
 
-   # =========================
-# CONTROL DE FLUJO JUGADOR
-# =========================
+    # 1️⃣ Datos personales incompletos → completar registro
+    if not persona or not persona.direccion or not persona.telefono or not jugador.grupo_sanguineo:
+        return redirect('registrar_persona')
 
-    # 1️⃣ Primera vez: nunca se inscribió a torneo / competencia
+    # 2️⃣ Primera vez → inscribirse a torneo
     if not RegistroMedico.objects.filter(jugador=jugador).exists():
         return redirect('inscribirse_a_torneo')
 
-    # 2️⃣ Tiene ficha en PROCESO
+    # 3️⃣ Ficha médica en proceso → antecedentes / consentimiento
     ficha_pendiente = RegistroMedico.objects.filter(
         jugador=jugador,
         estado='PROCESO'
     ).first()
 
     if ficha_pendiente:
-        # 2.a → no tiene antecedentes cargados
         antecedentes = AntecedenteEnfermedades.objects.filter(jugador=jugador).first()
         if not antecedentes:
             return redirect(
@@ -257,7 +256,6 @@ def menu_jugador(request):
                 jugador_id=jugador.id
             )
 
-        # 2.b → tiene antecedentes pero falta consentimiento
         if not ficha_pendiente.consentimiento_persona:
             return redirect(
                 'registroMedico:consentimiento',
@@ -668,6 +666,15 @@ def menu_paciente(request):
     persona = get_persona_from_user(request.user)
     jugador = Jugador.objects.filter(persona=persona).first() if persona else None
 
+    # =========================
+    # 1️⃣ CONTROL DATOS PERSONALES (PRIORIDAD)
+    # =========================
+    if not persona or not persona.direccion or not persona.telefono or not jugador or not jugador.grupo_sanguineo:
+        return redirect("registrar_persona")
+
+    # =========================
+    # APTOS DEL PACIENTE
+    # =========================
     aptos = (
         AptoGeneral.objects.filter(jugador__persona=persona)
         .select_related("actividad", "medico")
@@ -683,13 +690,18 @@ def menu_paciente(request):
             apto_actual = apto
             break
 
-    # 🚀 REDIRECCIÓN AUTOMÁTICA AL FLUJO DE ANTECEDENTES
+    # =========================
+    # 2️⃣ REDIRECCIÓN A ANTECEDENTES
+    # =========================
     if apto_actual:
         return redirect(
-        "aptos_generales:antecedentes_update",
-        apto_id=apto_actual.id
-    )
+            "aptos_generales:antecedentes_update",
+            apto_id=apto_actual.id
+        )
 
+    # =========================
+    # MENÚ NORMAL
+    # =========================
     tiene_actividad = aptos.filter(actividad__isnull=False).exists()
     actividades = ActividadGeneral.objects.all()
 
@@ -727,6 +739,7 @@ def menu_paciente(request):
     }
 
     return render(request, "persona/menu_paciente.html", context)
+
 
 
 
