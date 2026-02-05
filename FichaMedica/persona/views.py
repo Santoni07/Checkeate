@@ -212,14 +212,17 @@ def error_registro(request):
 
 
 
-
 @login_required
 @never_cache
 def menu_jugador(request):
-    # Médicos
+    # =========================
+    # MÉDICOS
+    # =========================
     medicos = Medico.objects.select_related('profile').all()
 
-    # Perfil / persona / jugador
+    # =========================
+    # PERFIL / PERSONA / JUGADOR
+    # =========================
     try:
         profile = Profile.objects.get(user=request.user, rol='jugador')
     except Profile.DoesNotExist:
@@ -231,22 +234,59 @@ def menu_jugador(request):
     except (Persona.DoesNotExist, Jugador.DoesNotExist):
         return redirect('registrar_persona')
 
-    # Todas las fichas del jugador (torneos y competencias)
+   # =========================
+# CONTROL DE FLUJO JUGADOR
+# =========================
+
+    # 1️⃣ Primera vez: nunca se inscribió a torneo / competencia
+    if not RegistroMedico.objects.filter(jugador=jugador).exists():
+        return redirect('inscribirse_a_torneo')
+
+    # 2️⃣ Tiene ficha en PROCESO
+    ficha_pendiente = RegistroMedico.objects.filter(
+        jugador=jugador,
+        estado='PROCESO'
+    ).first()
+
+    if ficha_pendiente:
+        # 2.a → no tiene antecedentes cargados
+        antecedentes = AntecedenteEnfermedades.objects.filter(jugador=jugador).first()
+        if not antecedentes:
+            return redirect(
+                'registroMedico:cargar_antecedente',
+                jugador_id=jugador.id
+            )
+
+        # 2.b → tiene antecedentes pero falta consentimiento
+        if not ficha_pendiente.consentimiento_persona:
+            return redirect(
+                'registroMedico:consentimiento',
+                pk=ficha_pendiente.id
+            )
+    # =========================
+    # TODAS LAS FICHAS DEL JUGADOR
+    # =========================
     fichas_qs = (
         RegistroMedico.objects
         .filter(jugador=jugador)
         .select_related('torneo', 'competencia')
         .order_by('-id')
     )
+
     fichas_medicas_data = list(fichas_qs)
     ficha_medica_primera = fichas_qs.first()
 
-    # Antecedentes (OneToOne)
+    # =========================
+    # ANTECEDENTES (OneToOne)
+    # =========================
     antecedentes = AntecedenteEnfermedades.objects.filter(jugador=jugador).first()
 
-    # ¿Hay consentimiento pendiente en alguna ficha?
+    # =========================
+    # CONSENTIMIENTO PENDIENTE
+    # =========================
     mostrar_consentimiento_pendiente = False
     ficha_sin_consentimiento = None
+
     for f in fichas_medicas_data:
         if not f.consentimiento_persona:
             mostrar_consentimiento_pendiente = True
@@ -254,11 +294,14 @@ def menu_jugador(request):
             break
 
     # =========================
-    #   TABLA DE TORNEOS
+    # TABLA DE TORNEOS
     # =========================
     jugador_categoria_equipos = (
         JugadorCategoriaEquipo.objects
-        .select_related('categoria_equipo__categoria__torneo', 'categoria_equipo__equipo')
+        .select_related(
+            'categoria_equipo__categoria__torneo',
+            'categoria_equipo__equipo'
+        )
         .filter(jugador=jugador)
     )
 
@@ -293,20 +336,23 @@ def menu_jugador(request):
         })
 
     # =========================
-    #   TABLA DE COMPETENCIAS
+    # TABLA DE COMPETENCIAS
     # =========================
     fichas_competencias = [f for f in fichas_medicas_data if f.competencia_id]
     competencias_info = []
+
     for rm in fichas_competencias:
         comp = rm.competencia
         competencias_info.append({
             'competencia': {
                 'nombre': comp.nombre,
-                # si querés más datos, agregá aquí (descripcion, fechas, etc.)
             },
             'ficha_medica': rm,
         })
 
+    # =========================
+    # CONTEXTO
+    # =========================
     context = {
         'persona': persona,
         'profile': profile,
@@ -316,26 +362,28 @@ def menu_jugador(request):
         # torneos (con categoría / equipo)
         'jugador_info': jugador_info,
 
-        # competencias (sin categoría / equipo)
+        # competencias
         'competencias_info': competencias_info,
 
-        # banderas para mostrar u ocultar tablas
+        # banderas
         'show_torneo_table': bool(jugador_info['categorias_equipo']),
         'show_competencia_table': bool(competencias_info),
 
+        # fichas / antecedentes
         'antecedentes': antecedentes,
-        'ficha_medica': fichas_qs,                # si lo usás en otros lugares del template
+        'ficha_medica': fichas_qs,
         'ficha_medica_data': fichas_medicas_data,
         'ficha_medica_primera': ficha_medica_primera,
 
+        # médicos
         'medicos': medicos,
+
+        # consentimiento
         'mostrar_consentimiento_pendiente': mostrar_consentimiento_pendiente,
         'ficha_sin_consentimiento': ficha_sin_consentimiento,
     }
 
     return render(request, 'persona/menu_jugador.html', context)
-
-
 
 def medicos_inscriptos_view(request):
 
@@ -525,7 +573,6 @@ def inscribirse_a_torneo(request):
     persona = get_persona_from_user(request.user)
     jugador = get_object_or_404(Jugador, persona=persona)
 
-    # --- Disponibles: excluir los que ya tienen ficha NO vencida ---
     torneos_con_ficha_vigente_ids = RegistroMedico.objects.filter(
         jugador=jugador, torneo__isnull=False
     ).exclude(estado='VENCIDO').values_list('torneo_id', flat=True)
@@ -538,14 +585,12 @@ def inscribirse_a_torneo(request):
     competencias_disponibles = Competencia.objects.exclude(id__in=competencias_con_ficha_vigente_ids)
 
     if request.method == 'POST':
-        # Puede venir por torneo (con categoría y equipo) o por competencia (solo competencia)
         competencia_id = (request.POST.get('competencia_id') or '').strip()
         torneo_id = (request.POST.get('torneo_id') or '').strip()
         categoria_id = (request.POST.get('categoria_id') or '').strip()
         equipo_id = (request.POST.get('equipo_id') or '').strip()
 
-        # ====== RUTA COMPETENCIA ======
-        # (Si eligió competencia, ignoramos torneo/categoría/equipo)
+        # ===== COMPETENCIA =====
         if competencia_id and not torneo_id:
             competencia = get_object_or_404(Competencia, id=competencia_id)
 
@@ -557,42 +602,33 @@ def inscribirse_a_torneo(request):
                 messages.info(request, 'Ya estás inscripto en esta competencia.')
                 return redirect('menu_jugador')
 
-            registro_vencido = RegistroMedico.objects.filter(
-                jugador=jugador, competencia=competencia, estado='VENCIDO'
-            ).first()
-
             RegistroMedico.objects.create(
                 jugador=jugador,
                 competencia=competencia,
                 estado='PROCESO',
-                consentimiento_persona=True,
+                consentimiento_persona=False,
                 observacion='Inscripción a competencia'
-                            + (' (reinscripción por vencimiento)' if registro_vencido else ' nueva')
             )
-            # Aseguramos antecedentes creados
-            AntecedenteEnfermedades.objects.get_or_create(jugador=jugador)
 
-            messages.success(request, 'Te inscribiste a la competencia. Completá la ficha médica.')
+            messages.success(
+                request,
+                'Te inscribiste a la competencia. Completá los antecedentes médicos.'
+            )
             return redirect('menu_jugador')
 
-        # ====== RUTA TORNEO ======
+        # ===== TORNEO =====
         if torneo_id and categoria_id and equipo_id and not competencia_id:
             torneo = get_object_or_404(Torneo, id=torneo_id)
             categoria = get_object_or_404(Categoria, id=categoria_id, torneo=torneo)
             equipo = get_object_or_404(Equipo, id=equipo_id)
 
-            # Vinculación categoría-equipo
             categoria_equipo, _ = CategoriaEquipo.objects.get_or_create(
                 categoria=categoria, equipo=equipo
             )
 
-            # Relación jugador-categoria_equipo
             JugadorCategoriaEquipo.objects.get_or_create(
                 jugador=jugador, categoria_equipo=categoria_equipo
             )
-
-            # Aseguramos antecedentes creados
-            AntecedenteEnfermedades.objects.get_or_create(jugador=jugador)
 
             ya_vigente = RegistroMedico.objects.filter(
                 jugador=jugador, torneo=torneo
@@ -602,23 +638,20 @@ def inscribirse_a_torneo(request):
                 messages.info(request, 'Ya estás inscripto en este torneo.')
                 return redirect('menu_jugador')
 
-            registro_vencido = RegistroMedico.objects.filter(
-                jugador=jugador, torneo=torneo, estado='VENCIDO'
-            ).first()
-
             RegistroMedico.objects.create(
                 jugador=jugador,
                 torneo=torneo,
                 estado='PROCESO',
-                consentimiento_persona=True,
+                consentimiento_persona=False,
                 observacion='Inscripción a torneo'
-                            + (' (reinscripción por vencimiento)' if registro_vencido else ' nueva')
             )
 
-            messages.success(request, 'Te inscribiste al torneo. Completá la ficha médica.')
+            messages.success(
+                request,
+                'Te inscribiste al torneo. Completá los antecedentes médicos.'
+            )
             return redirect('menu_jugador')
 
-        # Si no entró a ninguna ruta válida
         messages.error(request, 'Faltan datos para inscribirte.')
         return redirect('inscribirse_a_torneo')
 
@@ -626,7 +659,6 @@ def inscribirse_a_torneo(request):
         'torneos_disponibles': torneos_disponibles,
         'competencias_disponibles': competencias_disponibles,
     })
-
 
 @login_required
 def menu_paciente(request):
@@ -638,53 +670,47 @@ def menu_paciente(request):
 
     aptos = (
         AptoGeneral.objects.filter(jugador__persona=persona)
-
-        .select_related("actividad", "medico", "antecedentes_snapshot")
+        .select_related("actividad", "medico")
         .order_by("-fecha_creacion")
         if jugador else AptoGeneral.objects.none()
     )
 
-    # 🟦 Buscar primer apto con antecedentes incompletos (VACÍO REAL)
-    apto_actual = next(
-        (
-            a for a in aptos
-            if not a.antecedentes_snapshot or
-               not a.antecedentes_snapshot.esta_completo()
-        ),
-        None
+    apto_actual = None
+
+    for apto in aptos:
+        antecedentes = getattr(apto, "antecedentes_snapshot", None)
+        if not antecedentes or not antecedentes.esta_completo():
+            apto_actual = apto
+            break
+
+    # 🚀 REDIRECCIÓN AUTOMÁTICA AL FLUJO DE ANTECEDENTES
+    if apto_actual:
+        return redirect(
+        "aptos_generales:antecedentes_update",
+        apto_id=apto_actual.id
     )
 
-    antecedente_actual = (
-        apto_actual.antecedentes_snapshot
-        if apto_actual and apto_actual.antecedentes_snapshot
-        else None
-    )
-
-    # ✔ El jugador tiene actividades
     tiene_actividad = aptos.filter(actividad__isnull=False).exists()
-
     actividades = ActividadGeneral.objects.all()
 
-    # ✔ Diccionario para JS: True = completo, False = incompleto
-    antecedentes_por_apto = {
-        apto.id: (
-            apto.antecedentes_snapshot.esta_completo()
-            if apto.antecedentes_snapshot else False
+    antecedentes_por_apto = {}
+    for apto in aptos:
+        antecedentes = getattr(apto, "antecedentes_snapshot", None)
+        antecedentes_por_apto[apto.id] = (
+            antecedentes.esta_completo() if antecedentes else False
         )
-        for apto in aptos
-    }
 
     antecedentes_json = json.dumps(antecedentes_por_apto)
 
-    # ✔ Flags menú
     hay_antecedente_vacio = any(
-        (not apto.antecedentes_snapshot) or
-        (apto.antecedentes_snapshot and not apto.antecedentes_snapshot.esta_completo())
+        not getattr(apto, "antecedentes_snapshot", None) or
+        not getattr(apto, "antecedentes_snapshot", None).esta_completo()
         for apto in aptos
     )
 
     hay_antecedente_completo = any(
-        apto.antecedentes_snapshot and apto.antecedentes_snapshot.esta_completo()
+        getattr(apto, "antecedentes_snapshot", None) and
+        getattr(apto, "antecedentes_snapshot", None).esta_completo()
         for apto in aptos
     )
 
@@ -694,8 +720,6 @@ def menu_paciente(request):
         "jugador": jugador,
         "aptos": aptos,
         "tiene_actividad": tiene_actividad,
-        "apto_actual": apto_actual,
-        "antecedente_actual": antecedente_actual,
         "antecedentes_por_apto": antecedentes_json,
         "hay_antecedente_vacio": hay_antecedente_vacio,
         "hay_antecedente_completo": hay_antecedente_completo,
@@ -703,6 +727,7 @@ def menu_paciente(request):
     }
 
     return render(request, "persona/menu_paciente.html", context)
+
 
 
 def listado_eventos_view(request):

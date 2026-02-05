@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from estudiante.models import Tutor
 from .forms import LoginForm, UserRegistrationForm
-
+from aptos_generales.models import AptoGeneral
 from django.db import transaction
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -727,8 +727,6 @@ def registro_completar_datos(request):
     # 🎯 Determinar rol automáticamente
     if tipo == "actividad":
         rol = "paciente"
-    elif tipo == "competencia":
-        rol = "jugador"
     else:
         rol = "jugador"
 
@@ -746,26 +744,35 @@ def registro_completar_datos(request):
 
                 jugador = Jugador.objects.create(persona=persona)
 
-                # Asociar según selección previa
+                # 🟦 SOLO ACTIVIDAD GENERAL
                 if tipo == "actividad":
                     actividad = ActividadGeneral.objects.get(id=objeto_id)
+
+                    # 1️⃣ Asociación jugador - actividad
                     JugadorActividadGeneral.objects.create(
                         jugador=jugador,
                         actividad=actividad
                     )
 
-                elif tipo == "competencia":
-                    competencia = Competencia.objects.get(id=objeto_id)
-                    JugadorCompetencia.objects.create(
+                    # 2️⃣ Crear AptoGeneral automáticamente
+                    AptoGeneral.objects.get_or_create(
                         jugador=jugador,
-                        competencia=competencia
+                        actividad=actividad,
+                        defaults={
+                            "estado": "PROCESO",
+                            "observacion": "Creado automáticamente durante el registro",
+                            "consentimiento_persona": False,
+                        }
                     )
 
-                # limpiar sesión
+                # 🧹 Limpiar sesión
                 for k in ("registro_email", "registro_tipo", "registro_objeto_id"):
                     request.session.pop(k, None)
 
-            messages.success(request, "Cuenta creada correctamente. Bienvenido a Checkeate.")
+            messages.success(
+                request,
+                "Cuenta creada correctamente. Bienvenido a Checkeate."
+            )
             return redirect("login")
 
     else:

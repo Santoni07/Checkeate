@@ -131,9 +131,9 @@
                     <tr id="rowAccion" class="d-none">
                       <td data-label="Campo" class="fw-semibold">Acción</td>
                       <td data-label="Selección">
-                        <button type="submit" class="btn btn-success">
-                          <i class="bi bi-check2-circle"></i> Confirmar Inscripción
-                        </button>
+                       <button type="button" class="btn btn-success" id="btnAbrirModal">
+  <i class="bi bi-check2-circle"></i> Confirmar Inscripción
+</button>
                       </td>
                     </tr>
                   </tbody>
@@ -156,6 +156,57 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL CONFIRMACIÓN INSCRIPCIÓN -->
+<div class="modal fade" id="confirmInscripcionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      
+      <div class="modal-header text-white"
+           style="background: linear-gradient(90deg, var(--sport-royal), var(--sport-grass));">
+        <h5 class="modal-title">
+          <i class="bi bi-shield-check"></i> Confirmar inscripción
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-2">Estás por inscribirte con los siguientes datos:</p>
+
+        <ul class="list-group">
+          <li class="list-group-item">
+            <strong>Torneo:</strong>
+            <span id="confirmTorneo"></span>
+          </li>
+          <li class="list-group-item">
+            <strong>Categoría:</strong>
+            <span id="confirmCategoria"></span>
+          </li>
+          <li class="list-group-item">
+            <strong>Equipo:</strong>
+            <span id="confirmEquipo"></span>
+          </li>
+        </ul>
+
+        <div class="alert alert-warning mt-3 mb-0 text-center">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          Verificá que los datos sean correctos antes de continuar.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+        <button type="button" class="btn btn-success" id="btnConfirmarEnvio">
+          <i class="bi bi-check-circle"></i> Aceptar y continuar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 </main>
 
 <!-- JS dinámico -->
@@ -228,5 +279,53 @@
     });
   });
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("formInscripcion");
 
+    const torneoSelect = document.getElementById("torneo_id");
+    const categoriaSelect = document.getElementById("categoria_id");
+    const equipoSelect = document.getElementById("equipo_id");
+
+    const btnAbrirModal = document.getElementById("btnAbrirModal");
+    const btnConfirmarEnvio = document.getElementById("btnConfirmarEnvio");
+
+    const confirmTorneo = document.getElementById("confirmTorneo");
+    const confirmCategoria = document.getElementById("confirmCategoria");
+    const confirmEquipo = document.getElementById("confirmEquipo");
+
+    const modal = new bootstrap.Modal(
+      document.getElementById("confirmInscripcionModal")
+    );
+
+    // Abrir modal con datos cargados
+    btnAbrirModal.addEventListener("click", function () {
+      const torneoText =
+        torneoSelect.options[torneoSelect.selectedIndex]?.text || "";
+
+      const categoriaText =
+        categoriaSelect.options[categoriaSelect.selectedIndex]?.text || "";
+
+      const equipoText =
+        equipoSelect.options[equipoSelect.selectedIndex]?.text || "";
+
+      if (!torneoSelect.value || !categoriaSelect.value || !equipoSelect.value) {
+        alert("Debés seleccionar torneo, categoría y equipo.");
+        return;
+      }
+
+      confirmTorneo.textContent = torneoText;
+      confirmCategoria.textContent = categoriaText;
+      confirmEquipo.textContent = equipoText;
+
+      modal.show();
+    });
+
+    // Confirmar y enviar form
+    btnConfirmarEnvio.addEventListener("click", function () {
+      modal.hide();
+      form.submit();
+    });
+  });
+</script>
 {% endblock %}
