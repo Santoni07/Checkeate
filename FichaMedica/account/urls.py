@@ -26,6 +26,12 @@ urlpatterns = [
         views.seleccionar_institucion_registro,
         name="seleccionar_institucion_registro"
     ),
+     
+     path(
+     "registro/completar/",
+     views.registro_completar_datos,
+     name="registro_completar_datos"
+          ),
 
 
 

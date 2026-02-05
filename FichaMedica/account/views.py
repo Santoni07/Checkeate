@@ -2,6 +2,8 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from estudiante.models import Tutor
 from .forms import LoginForm, UserRegistrationForm
+
+from django.db import transaction
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -28,9 +30,13 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.conf import settings
 from persona.models import (
-    Torneo,
+    Persona,
+    Jugador,
+    JugadorActividadGeneral,
+    JugadorCompetencia,
+    ActividadGeneral,
     Competencia,
-    ActividadGeneral
+    Torneo
 )
 
 
@@ -707,4 +713,72 @@ def seleccionar_institucion_registro(request):
         request,
         "account/seleccionar_institucion_registro.html",
         context
+    )
+
+def registro_completar_datos(request):
+    email = request.session.get("registro_email")
+    tipo = request.session.get("registro_tipo")
+    objeto_id = request.session.get("registro_objeto_id")
+
+    if not email or not tipo or not objeto_id:
+        messages.error(request, "El proceso de registro no está completo.")
+        return redirect("home")
+
+    # 🎯 Determinar rol automáticamente
+    if tipo == "actividad":
+        rol = "paciente"
+    elif tipo == "competencia":
+        rol = "jugador"
+    else:
+        rol = "jugador"
+
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST, rol=rol)
+
+        if form.is_valid():
+            with transaction.atomic():
+                user, profile = form.save()
+
+                persona = Persona.objects.create(
+                    user=user,
+                    profile=profile
+                )
+
+                jugador = Jugador.objects.create(persona=persona)
+
+                # Asociar según selección previa
+                if tipo == "actividad":
+                    actividad = ActividadGeneral.objects.get(id=objeto_id)
+                    JugadorActividadGeneral.objects.create(
+                        jugador=jugador,
+                        actividad=actividad
+                    )
+
+                elif tipo == "competencia":
+                    competencia = Competencia.objects.get(id=objeto_id)
+                    JugadorCompetencia.objects.create(
+                        jugador=jugador,
+                        competencia=competencia
+                    )
+
+                # limpiar sesión
+                for k in ("registro_email", "registro_tipo", "registro_objeto_id"):
+                    request.session.pop(k, None)
+
+            messages.success(request, "Cuenta creada correctamente. Bienvenido a Checkeate.")
+            return redirect("login")
+
+    else:
+        form = UserRegistrationForm(
+            initial={"email": email},
+            rol=rol
+        )
+
+    return render(
+        request,
+        "account/registro_completar.html",
+        {
+            "user_form": form,
+            "form_disabled": False,
+        }
     )

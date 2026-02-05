@@ -14,7 +14,7 @@
       Seleccioná una opción para continuar con tu registro en Checkeate.
     </p>
 
-    <form method="post">
+    <form method="post" id="seleccionForm">
       {% csrf_token %}
 
       <div class="row g-4">
@@ -24,11 +24,9 @@
           <h6 class="fw-bold text-center mb-3">🏃 Actividades</h6>
 
           {% for a in actividades %}
-            <button type="submit"
-                    name="objeto_id"
-                    value="{{ a.id }}"
+            <button type="button"
                     class="btn btn-outline-primary w-100 mb-2"
-                    onclick="setTipo('actividad')">
+                    onclick="confirmarSeleccion('{{ a.id }}', 'actividad', '{{ a.nombre }}')">
               {{ a.nombre }}
             </button>
           {% empty %}
@@ -41,11 +39,9 @@
           <h6 class="fw-bold text-center mb-3">🏆 Torneos</h6>
 
           {% for t in torneos %}
-            <button type="submit"
-                    name="objeto_id"
-                    value="{{ t.id }}"
+            <button type="button"
                     class="btn btn-outline-success w-100 mb-2"
-                    onclick="setTipo('torneo')">
+                    onclick="confirmarSeleccion('{{ t.id }}', 'torneo', '{{ t.nombre }}')">
               {{ t.nombre }}
             </button>
           {% empty %}
@@ -58,11 +54,9 @@
           <h6 class="fw-bold text-center mb-3">🥇 Competencias</h6>
 
           {% for c in competencias %}
-            <button type="submit"
-                    name="objeto_id"
-                    value="{{ c.id }}"
+            <button type="button"
                     class="btn btn-outline-warning w-100 mb-2"
-                    onclick="setTipo('competencia')">
+                    onclick="confirmarSeleccion('{{ c.id }}', 'competencia', '{{ c.nombre }}')">
               {{ c.nombre }}
             </button>
           {% empty %}
@@ -72,6 +66,8 @@
 
       </div>
 
+      <!-- Hidden inputs -->
+      <input type="hidden" name="objeto_id" id="objetoId">
       <input type="hidden" name="tipo" id="tipoSeleccionado">
 
     </form>
@@ -80,9 +76,59 @@
 
 </main>
 
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal fade" id="confirmarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Confirmar selección</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <p class="mb-2">Seleccionaste:</p>
+        <h5 class="fw-bold text-primary" id="seleccionNombre"></h5>
+
+        <p class="text-muted mt-3 mb-0">
+          Al continuar vas a completar tu registro para esta institución.
+        </p>
+      </div>
+
+      <div class="modal-footer justify-content-center">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">
+          Cancelar
+        </button>
+
+        <button type="button"
+                class="btn btn-primary"
+                onclick="confirmarEnvio()">
+          Continuar registro
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
-  function setTipo(tipo) {
+  let modal;
+
+  function confirmarSeleccion(id, tipo, nombre) {
+    document.getElementById("objetoId").value = id;
     document.getElementById("tipoSeleccionado").value = tipo;
+    document.getElementById("seleccionNombre").innerText = nombre;
+
+    if (!modal) {
+      modal = new bootstrap.Modal(document.getElementById('confirmarModal'));
+    }
+    modal.show();
+  }
+
+  function confirmarEnvio() {
+    document.getElementById("seleccionForm").submit();
   }
 </script>
 

@@ -1,0 +1,134 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Completar registro | Checkeate{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center m-0 p-0">
+  <div class="row w-100 h-100 g-0">
+
+    <!-- Imagen lateral -->
+    <div class="col-md-7 d-none d-md-flex align-items-center justify-content-center bg-light h-100">
+      <img src="{% static 'core/img/login.jpeg' %}"
+           alt="Checkeate"
+           class="img-fluid w-100 h-100 object-fit-cover opacity-75">
+    </div>
+
+    <!-- Formulario -->
+    <div class="col-12 col-md-5 d-flex flex-column align-items-center justify-content-center bg-white h-100 p-3 p-md-4">
+      <div class="card p-3 p-md-4 shadow-lg w-100"
+           style="border-radius: 12px; border: none; max-width: 80%; max-height: 85vh; overflow-y: auto;">
+
+        <!-- Header -->
+        <div class="text-center mb-3">
+          <img src="{% static 'core/img/milogo3.png' %}" alt="Logo" style="width: 90px;">
+          <h2 class="mt-2 fw-bold">CHECKEATE</h2>
+        </div>
+
+        <div class="card-header text-center bg-white border-0">
+          <h4 class="fw-bold">Completá tu registro</h4>
+          <p class="text-muted small mb-0">
+            Estás a un paso de crear tu cuenta y continuar
+            con el certificado médico.
+          </p>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+
+          {% if user_form.errors %}
+            <div class="alert alert-danger">
+              Revisá los campos marcados en rojo.
+            </div>
+          {% endif %}
+
+          <form method="post" novalidate autocomplete="off">
+            {% csrf_token %}
+
+            <!-- EMAIL (bloqueado) -->
+            <div class="mb-2">
+              <label class="form-label fw-bold">Email</label>
+              {{ user_form.email|add_class:"form-control"|attr:"readonly" }}
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-bold">Nombre</label>
+              {{ user_form.nombre|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-bold">Apellido</label>
+              {{ user_form.apellido|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-bold">DNI</label>
+              {{ user_form.dni|add_class:"form-control"|attr:"autocomplete:off"|attr:"inputmode:numeric" }}
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-bold">Fecha de nacimiento</label>
+             {{ user_form.fecha_nacimiento|add_class:"form-control"|attr:"autocomplete:bday" }}
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-bold">Contraseña</label>
+              {{ user_form.password1|add_class:"form-control"|attr:"autocomplete:new-password" }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Repetir contraseña</label>
+             {{ user_form.password2|add_class:"form-control"|attr:"autocomplete:new-password" }}
+            </div>
+
+            <!-- Términos -->
+            <div class="mb-3 p-3 border rounded"
+                 style="background: rgba(21,101,192,.06);">
+              <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="terms"
+                       required>
+                <label class="form-check-label fw-bold" for="terms">
+                  Acepto los
+                  <a href="{% url 'terminos_condiciones' %}"
+                     target="_blank"
+                     class="fw-bold text-decoration-underline">
+                    Términos y Condiciones
+                  </a>
+                </label>
+              </div>
+            </div>
+
+            <div class="d-grid">
+              <button class="btn btn-primary btn-lg">
+                Crear cuenta y continuar
+              </button>
+            </div>
+
+          </form>
+
+          <div class="text-center mt-3">
+            <a href="{% url 'home' %}" class="text-muted small">
+              Volver al inicio
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  @media (max-width: 767px) {
+    .card {
+      max-width: 100% !important;
+    }
+  }
+</style>
+{% endblock %}
