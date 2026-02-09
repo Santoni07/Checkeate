@@ -237,6 +237,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGOUT_REDIRECT_URL = 'home'  # URL a la que redirige después de hacer logout
 LOGIN_URL = '/account/login/'  # Página de login si no está autenticado
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 # esto lo agregue para poder trabajar en local 
 try:
