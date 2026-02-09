@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'Cus',
     'aptos_generales',
     'aptos_externos',
+    'ApiRest',
 
 
     'Representate',
