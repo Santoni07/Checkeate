@@ -1,7 +1,11 @@
 from django.urls import path
 from ApiRest.views.me import mis_aptos
 from ApiRest.views.aptos import detalle_apto_general
+from ApiRest.views.aptos_pdf import apto_general_pdf
+
+
 urlpatterns = [
     path("me/aptos/", mis_aptos, name="api_me_aptos"),
     path("aptos/general/<int:id>/", detalle_apto_general),
+    path("aptos/general/<int:id>/pdf/", apto_general_pdf),
 ]

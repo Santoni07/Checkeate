@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from django.urls import reverse
 from persona.models import Jugador
 from aptos_generales.models import AptoGeneral
 
@@ -17,32 +18,73 @@ from ApiRest.serializers.motivo_actividad import MotivoActividadGeneralSerialize
 from ApiRest.serializers.estudio_apto import EstudiosAptoGeneralSerializer
 
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def detalle_apto_general(request, id):
+
+    # ===================== JUGADOR =====================
     try:
-        jugador = Jugador.objects.get(persona__user=request.user)
+        jugador = Jugador.objects.select_related(
+            "persona__profile"
+        ).get(persona__user=request.user)
     except Jugador.DoesNotExist:
         return Response({"detail": "Jugador no encontrado"}, status=404)
 
-    apto = AptoGeneral.objects.filter(
-        id=id,
-        jugador=jugador
-    ).select_related(
-        "actividad",
-        "medico"
-    ).first()
+    # ===================== APTO =====================
+    apto = (
+        AptoGeneral.objects
+        .filter(id=id, jugador=jugador)
+        .select_related("actividad", "medico")
+        .first()
+    )
 
     if not apto:
         return Response({"detail": "Apto no encontrado"}, status=404)
 
+    # ===================== JUGADOR DATA =====================
+    jugador_data = {
+        "id": jugador.id,
+        "nombre": jugador.persona.profile.nombre,
+        "apellido": jugador.persona.profile.apellido,
+        "dni": jugador.persona.profile.dni,
+        "edad": jugador.persona.profile.edad,
+    }
+
+    # ===================== PDF LINKS (WEB EXISTENTE) =====================
+    base_url = request.build_absolute_uri(
+        reverse("ficha_apto_general_view", args=[apto.id])
+    )
+
+    pdf_data = {
+        "ver": base_url,  # abre HTML (como en la web)
+        "descargar": f"{base_url}?descargar_pdf=true",  # descarga PDF
+        "requiere_login": True
+    }
+
+    # ===================== RESPONSE =====================
     data = {
-        "tipo": "GENERAL",
+        "tipo": "APTO_GENERAL",
+
         "apto": AptoGeneralSerializer(apto).data,
+
+        "actividad": {
+            "id": apto.actividad.id if apto.actividad else None,
+            "nombre": apto.actividad.nombre if apto.actividad else None,
+        },
+
+        "jugador": jugador_data,
+
+        "medico": {
+            "id": apto.medico.id if apto.medico else None,
+            "nombre": str(apto.medico) if apto.medico else None,
+        },
+
         "antecedentes": (
             AntecedenteAptoGeneralSerializer(apto.antecedentes_snapshot).data
             if hasattr(apto, "antecedentes_snapshot") else None
         ),
+
         "examenes": {
             "fisico": ExamenFisicoGeneralSerializer(apto.examen_fisico).data if hasattr(apto, "examen_fisico") else None,
             "cardiovascular": ExamenCardiovascularGeneralSerializer(apto.examen_cardiovascular).data if hasattr(apto, "examen_cardiovascular") else None,
@@ -51,13 +93,18 @@ def detalle_apto_general(request, id):
             "genitourinario": ExamenGenitourinarioGeneralSerializer(apto.examen_genitourinario).data if hasattr(apto, "examen_genitourinario") else None,
             "soma": ExamenSomaGeneralSerializer(apto.examen_soma).data if hasattr(apto, "examen_soma") else None,
         },
+
         "motivo_actividad": (
             MotivoActividadGeneralSerializer(apto.motivo_actividad).data
             if hasattr(apto, "motivo_actividad") else None
         ),
+
         "estudios": EstudiosAptoGeneralSerializer(
             apto.estudios_apto.all(), many=True
-        ).data
+        ).data,
+
+        "pdf": pdf_data
     }
 
     return Response(data)
+
