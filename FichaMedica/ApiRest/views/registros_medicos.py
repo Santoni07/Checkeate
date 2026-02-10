@@ -16,7 +16,7 @@ from RegistroMedico.models import (
     OtrosExamenesClinicos,
     EstudiosMedico
 )
-
+from persona.models import JugadorCategoriaEquipo
 from ApiRest.serializers.registro_medico import RegistroMedicoSerializer
 from ApiRest.serializers.antecedente_enfermedades import AntecedenteEnfermedadesSerializer
 from ApiRest.serializers.electro_basal import ElectroBasalSerializer
@@ -58,14 +58,53 @@ def detalle_registro_medico(request, id):
     )
 
     # ===================== RESPONSE =====================
+    jce = (
+        JugadorCategoriaEquipo.objects
+        .select_related(
+            "categoria_equipo__categoria",
+            "categoria_equipo__equipo",
+            "categoria_equipo__categoria__torneo"
+        )
+        .filter(
+            jugador=jugador,
+            categoria_equipo__categoria__torneo=registro.torneo
+        )
+        .first()
+    )
     data = {
         "tipo": "REGISTRO_MEDICO",
 
         "registro": RegistroMedicoSerializer(registro).data,
 
         "evento": {
-            "torneo": registro.torneo.nombre if registro.torneo else None,
-            "competencia": registro.competencia.nombre if registro.competencia else None,
+            "torneo": (
+                {
+                    "id": registro.torneo.id,
+                    "nombre": registro.torneo.nombre,
+                }
+                if registro.torneo else None
+            ),
+            "competencia": (
+                {
+                    "id": registro.competencia.id,
+                    "nombre": registro.competencia.nombre,
+                }
+                if registro.competencia else None
+            ),
+            "categoria": (
+                {
+                    "id": jce.categoria_equipo.categoria.id,
+                    "nombre": jce.categoria_equipo.categoria.nombre,
+                }
+                if jce else None
+            ),
+            "equipo": (
+                {
+                    "id": jce.categoria_equipo.equipo.id,
+                    "nombre": jce.categoria_equipo.equipo.nombre,
+                }
+                if jce else None
+            ),
         },
 
         "jugador": {
