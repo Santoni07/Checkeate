@@ -5,4 +5,4 @@ class AptoResumenSerializer(serializers.Serializer):
     nombre = serializers.CharField()
     estado = serializers.CharField()
     vencimiento = serializers.DateField(allow_null=True)
-    uuid = serializers.UUIDField()
+    uuid = serializers.IntegerField()
