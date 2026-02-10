@@ -24,6 +24,8 @@ urlpatterns = [
         'aptos-externos/',
         include('aptos_externos.urls')
     ),
+    #Api_Rest
+    path("api/", include("ApiRest.urls")),
 ]
 
 # Solo en DEBUG: servir archivos estáticos y media
