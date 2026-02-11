@@ -38,6 +38,7 @@ SESSION_SAVE_EVERY_REQUEST = False  # No renueva la expiración de la sesión en
 
 INSTALLED_APPS = [
     'account.apps.AccountConfig',
+    'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.sitemaps',
     'django.contrib.auth',
@@ -239,6 +240,7 @@ LOGIN_URL = '/account/login/'  # Página de login si no está autenticado
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [

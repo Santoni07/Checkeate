@@ -88,7 +88,6 @@ def mis_aptos(request):
     serializer = AptoResumenSerializer(aptos, many=True)
     return Response(serializer.data)
 
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def seleccionar_rol(request):
@@ -97,7 +96,7 @@ def seleccionar_rol(request):
 
     if not profile_id:
         return Response(
-            {"detail": "profile_id es requerido"},
+            {"detail": "El campo 'profile_id' es requerido"},
             status=400
         )
 
@@ -108,19 +107,31 @@ def seleccionar_rol(request):
         )
     except Profile.DoesNotExist:
         return Response(
-            {"detail": "Perfil inválido"},
+            {"detail": "Perfil inválido o no pertenece al usuario"},
             status=403
         )
 
-    # Determinar a dónde debe ir
-    if profile.rol == "jugador":
-        home = "/api/jugador/home/"
-    elif profile.rol == "paciente":
-        home = "/api/paciente/home/"
-    elif profile.rol == "representante":
-        home = "/api/representante/home/"
-    else:
-        home = None
+    # ===================== MAPEO PROFESIONAL =====================
+
+    ROLE_HOME_MAP = {
+        "jugador": "/api/jugador/home/",
+        "paciente": "/api/paciente/home/",
+        "representante": "/api/representante/home/",
+        "medico": "/api/medico/home/",
+    }
+
+    home = ROLE_HOME_MAP.get(profile.rol)
+
+    if not home:
+        return Response(
+            {"detail": "Rol no configurado en el sistema"},
+            status=400
+        )
+
+    # (Opcional profesional)
+    # Guardar rol activo en sesión si querés usarlo en web
+    request.session["rol_activo"] = profile.rol
+    request.session["profile_id_activo"] = profile.id
 
     return Response({
         "rol_activo": {
@@ -128,5 +139,6 @@ def seleccionar_rol(request):
             "codigo": profile.rol,
             "label": profile.get_rol_display() if hasattr(profile, "get_rol_display") else profile.rol,
             "home": home
-        }
+        },
+        "mensaje": "Rol activado correctamente"
     })
