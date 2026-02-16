@@ -5,10 +5,15 @@ from .views.paciente_home import *
 from ApiRest.views.aptos import detalle_apto_general
 from ApiRest.views.registros_medicos import detalle_registro_medico
 from .views.auth import api_login
-
+from .views.register import verificar_email
+from .views.onboarding import seleccionar_servicio
+from .views.auth import register
 
 urlpatterns = [
     path("login/", api_login),
+    path("register/", register),
+    path("register/verificar-email/", verificar_email),
+    path("seleccionar-servicio/", seleccionar_servicio),
     path("me/aptos/", mis_aptos, name="api_me_aptos"),
     path("me/roles/", me_roles, name="api_me_roles"),
     path("me/seleccionar_rol/", seleccionar_rol, name="api_seleccionar_rol"),
@@ -17,5 +22,7 @@ urlpatterns = [
     path("registros-medicos/<int:id>/", detalle_registro_medico),
     path("jugador/home/", jugador_home),
     path("paciente/home/", paciente_home),
+    
+    
 
 ]
