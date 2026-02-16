@@ -169,7 +169,6 @@ document.addEventListener("change", function (e) {
         const fechaValor = new Date(fechaInput.value);
         const hoy = new Date();
 
-        // Buscar o crear contenedor de error
         let errorMsg = fechaInput.parentNode.querySelector(".fecha-error");
         if (!errorMsg) {
             errorMsg = document.createElement("div");
@@ -177,30 +176,26 @@ document.addEventListener("change", function (e) {
             fechaInput.insertAdjacentElement("afterend", errorMsg);
         }
 
-        // Si no hay fecha válida, limpiar
         if (isNaN(fechaValor)) {
             fechaInput.classList.remove("is-invalid");
             errorMsg.textContent = "";
             return;
         }
 
-        // Calcular edad
         const edad =
             hoy.getFullYear() -
             fechaValor.getFullYear() -
             (hoy < new Date(hoy.getFullYear(), fechaValor.getMonth(), fechaValor.getDate()) ? 1 : 0);
 
-        // Validar rango
-        if (edad < 10 || edad > 100) {
+        if (edad < 0 || edad > 100) {
             fechaInput.classList.add("is-invalid");
-            errorMsg.textContent = "La fecha de nacimiento no es válida. Debe tener entre 10 y 100 años.";
+            errorMsg.textContent = "La fecha de nacimiento no es válida.";
         } else {
             fechaInput.classList.remove("is-invalid");
             errorMsg.textContent = "";
         }
     }
 });
-
     function verificarEmail() {
         const emailInput = document.querySelector('input[name="email"]');
         const email = emailInput.value;
