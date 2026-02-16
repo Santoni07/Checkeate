@@ -5,20 +5,29 @@ from django.utils import timezone
 from datetime import timedelta
 
 from persona.models import Jugador
-from aptos_generales.models import AptoGeneral
 from RegistroMedico.models import RegistroMedico
+from ApiRest.utils import get_active_profile
 
-from django.utils import timezone
-from datetime import timedelta
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def jugador_home(request):
 
+    # 🔹 Obtener rol activo desde header
+    profile = get_active_profile(request)
+
+    if profile.rol != "jugador":
+        return Response({"detail": "Rol incorrecto"}, status=403)
+
+    # 🔹 Obtener persona única del user
     try:
-        jugador = Jugador.objects.select_related(
-            "persona__profile"
-        ).get(persona__user=request.user)
+        persona = request.user.persona
+    except:
+        return Response({"detail": "Persona no encontrada"}, status=404)
+
+    # 🔹 Obtener jugador asociado a la persona
+    try:
+        jugador = Jugador.objects.get(persona=persona)
     except Jugador.DoesNotExist:
         return Response({"detail": "Jugador no encontrado"}, status=404)
 
@@ -36,7 +45,6 @@ def jugador_home(request):
         estado="APROBADA"
     )
 
-    # ================= ESTADO GENERAL =================
     if registros_vigentes.exists():
         estado_general = "OK"
     elif registros_aprobados.exists():
@@ -44,7 +52,6 @@ def jugador_home(request):
     else:
         estado_general = "PARCIAL"
 
-    # ================= ALERTAS =================
     alertas = []
 
     if registros.filter(
@@ -56,7 +63,6 @@ def jugador_home(request):
             "mensaje": "Tenés un registro médico que vence en los próximos 15 días"
         })
 
-    # ================= PRÓXIMO VENCIMIENTO =================
     fechas_vencimiento = list(
         registros.filter(
             estado="APROBADA",
@@ -69,9 +75,9 @@ def jugador_home(request):
     data = {
         "perfil": {
             "id": jugador.id,
-            "nombre": jugador.persona.profile.nombre,
-            "apellido": jugador.persona.profile.apellido,
-            "dni": jugador.persona.profile.dni,
+            "nombre": profile.nombre,
+            "apellido": profile.apellido,
+            "dni": profile.dni,
         },
         "resumen": {
             "registros_medicos": registros.count(),

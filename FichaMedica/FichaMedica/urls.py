@@ -3,6 +3,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from core import views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +30,8 @@ urlpatterns = [
     ),
     #Api_Rest
     path("api/", include("ApiRest.urls")),
+    path('api/jwt/login/', TokenObtainPairView.as_view(), name='jwt_login'),
+    path('api/jwt/refresh/', TokenRefreshView.as_view(), name='jwt_refresh'),
 ]
 
 # Solo en DEBUG: servir archivos estáticos y media

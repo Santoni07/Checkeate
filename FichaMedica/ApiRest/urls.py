@@ -1,5 +1,5 @@
 from django.urls import path
-from .views.me import mis_aptos, me_roles, seleccionar_rol
+from .views.me import mis_aptos, me_roles, seleccionar_rol, me_overview
 from .views.jugador_home import *
 from .views.paciente_home import *
 from ApiRest.views.aptos import detalle_apto_general
@@ -14,6 +14,7 @@ urlpatterns = [
     path("register/", register),
     path("register/verificar-email/", verificar_email),
     path("seleccionar-servicio/", seleccionar_servicio),
+    path('api/me/', me_overview, name='me_overview'),
     path("me/aptos/", mis_aptos, name="api_me_aptos"),
     path("me/roles/", me_roles, name="api_me_roles"),
     path("me/seleccionar_rol/", seleccionar_rol, name="api_seleccionar_rol"),

@@ -1,19 +1,30 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from aptos_generales.models import AptoGeneral
-from persona.models import *
-from datetime import timedelta
 from django.utils import timezone
+from datetime import timedelta
+
+from persona.models import Jugador
+from aptos_generales.models import AptoGeneral
+from ApiRest.utils import get_active_profile
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def paciente_home(request):
 
+    profile = get_active_profile(request)
+
+    if profile.rol != "paciente":
+        return Response({"detail": "Rol incorrecto"}, status=403)
+
     try:
-        jugador = Jugador.objects.select_related(
-            "persona__profile"
-        ).get(persona__user=request.user)
+        persona = request.user.persona
+    except:
+        return Response({"detail": "Persona no encontrada"}, status=404)
+
+    try:
+        jugador = Jugador.objects.get(persona=persona)
     except Jugador.DoesNotExist:
         return Response({"detail": "Paciente no encontrado"}, status=404)
 
@@ -31,7 +42,6 @@ def paciente_home(request):
         estado="APROBADA"
     )
 
-    # ================= ESTADO GENERAL =================
     if aptos_vigentes.exists():
         estado_general = "OK"
     elif aptos_aprobados.exists():
@@ -39,7 +49,6 @@ def paciente_home(request):
     else:
         estado_general = "PARCIAL"
 
-    # ================= ALERTAS =================
     alertas = []
 
     if aptos.filter(
@@ -51,7 +60,6 @@ def paciente_home(request):
             "mensaje": "Tenés un apto general que vence en los próximos 15 días"
         })
 
-    # ================= PRÓXIMO VENCIMIENTO =================
     fechas_vencimiento = list(
         aptos.filter(
             estado="APROBADA",
@@ -64,9 +72,9 @@ def paciente_home(request):
     data = {
         "perfil": {
             "id": jugador.id,
-            "nombre": jugador.persona.profile.nombre,
-            "apellido": jugador.persona.profile.apellido,
-            "dni": jugador.persona.profile.dni,
+            "nombre": profile.nombre,
+            "apellido": profile.apellido,
+            "dni": profile.dni,
         },
         "resumen": {
             "aptos_generales": aptos.count(),

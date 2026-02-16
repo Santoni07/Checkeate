@@ -142,3 +142,26 @@ def seleccionar_rol(request):
         },
         "mensaje": "Rol activado correctamente"
     })
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me_overview(request):
+    user = request.user
+    profiles = Profile.objects.filter(user=user)
+
+    roles = []
+    for profile in profiles:
+        roles.append({
+            "profile_id": profile.id,
+            "codigo": profile.rol,
+            "label": profile.get_rol_display() if hasattr(profile, "get_rol_display") else profile.rol,
+        })
+
+    return Response({
+        "usuario": {
+            "id": user.id,
+            "email": user.email,
+        },
+        "roles": roles,
+        "rol_activo": request.session.get("rol_activo", None),
+    })
