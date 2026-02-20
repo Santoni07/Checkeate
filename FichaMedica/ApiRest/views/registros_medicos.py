@@ -1,22 +1,22 @@
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.conf import settings
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from persona.models import Jugador
+from weasyprint import HTML
+
+from persona.models import Jugador, JugadorCategoriaEquipo
 from RegistroMedico.models import (
     RegistroMedico,
-    AntecedenteEnfermedades,
-    ElectroBasal,
-    ElectroEsfuerzo,
-    Cardiovascular,
-    Laboratorio,
-    Torax,
-    Oftalmologico,
-    OtrosExamenesClinicos,
+   
     EstudiosMedico
 )
-from persona.models import JugadorCategoriaEquipo
+
 from ApiRest.serializers.registro_medico import RegistroMedicoSerializer
 from ApiRest.serializers.antecedente_enfermedades import AntecedenteEnfermedadesSerializer
 from ApiRest.serializers.electro_basal import ElectroBasalSerializer
@@ -29,11 +29,14 @@ from ApiRest.serializers.otros_examenes import OtrosExamenesClinicosSerializer
 from ApiRest.serializers.estudios_medico import EstudiosMedicoSerializer
 
 
+# ============================================================
+# 🔎 DETALLE REGISTRO MEDICO (JSON)
+# ============================================================
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def detalle_registro_medico(request, id):
 
-    # ===================== JUGADOR =====================
     try:
         jugador = Jugador.objects.select_related(
             "persona__profile"
@@ -41,7 +44,6 @@ def detalle_registro_medico(request, id):
     except Jugador.DoesNotExist:
         return Response({"detail": "Jugador no encontrado"}, status=404)
 
-    # ===================== REGISTRO =====================
     registro = (
         RegistroMedico.objects
         .filter(id=id, jugador=jugador)
@@ -52,12 +54,10 @@ def detalle_registro_medico(request, id):
     if not registro:
         return Response({"detail": "Registro médico no encontrado"}, status=404)
 
-    # ===================== PDF (WEB) =====================
     base_url = request.build_absolute_uri(
         reverse("ficha_medica", args=[registro.id])
     )
 
-    # ===================== RESPONSE =====================
     jce = (
         JugadorCategoriaEquipo.objects
         .select_related(
@@ -71,6 +71,7 @@ def detalle_registro_medico(request, id):
         )
         .first()
     )
+
     data = {
         "tipo": "REGISTRO_MEDICO",
 
@@ -169,3 +170,49 @@ def detalle_registro_medico(request, id):
     }
 
     return Response(data)
+
+
+# ============================================================
+# 📄 GENERADOR PDF REUTILIZABLE
+# ============================================================
+
+def generar_pdf_registro(registro, request):
+
+    context = {
+        "registro": registro,
+        "jugador": registro.jugador,
+        "torneo": registro.torneo,
+        "competencia": registro.competencia,
+    }
+
+    html_string = render_to_string("registroMedico/ficha_medica.html", context)
+
+    html = HTML(string=html_string, base_url=request.build_absolute_uri("/"))
+    pdf = html.write_pdf()
+
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="ficha_medica_{registro.id}.pdf"'
+
+    return response
+
+
+# ============================================================
+# 📥 DESCARGAR PDF PARA MOBILE (JWT PROTEGIDO)
+# ============================================================
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def descargar_pdf_registro(request, id):
+
+    jugador = get_object_or_404(
+        Jugador.objects.select_related("persona__user"),
+        persona__user=request.user
+    )
+
+    registro = get_object_or_404(
+        RegistroMedico,
+        id=id,
+        jugador=jugador
+    )
+
+    return generar_pdf_registro(registro, request)

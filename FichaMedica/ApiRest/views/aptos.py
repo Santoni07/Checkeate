@@ -108,3 +108,40 @@ def detalle_apto_general(request, id):
 
     return Response(data)
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def mis_aptos_general(request):
+
+    try:
+        jugador = Jugador.objects.select_related(
+            "persona__profile"
+        ).get(persona__user=request.user)
+    except Jugador.DoesNotExist:
+        return Response({"detail": "Jugador no encontrado"}, status=404)
+
+    aptos = (
+        AptoGeneral.objects
+        .filter(jugador=jugador)
+        .select_related("actividad")
+        .order_by("-fecha_creacion")
+    )
+
+    data = [
+    {
+        "id": apto.id,
+        "actividad": apto.actividad.nombre if apto.actividad else None,
+        "estado": apto.estado,
+        "fecha_inscripcion": (
+            apto.fecha_creacion.strftime("%Y-%m-%d")
+            if apto.fecha_creacion else None
+        ),
+        "fecha_vencimiento": (
+            apto. fecha_caducidad.strftime("%Y-%m-%d")
+            if apto. fecha_caducidad else None
+        ),
+        "antecedentes_ok": hasattr(apto, "antecedentes_snapshot"),
+    }
+    for apto in aptos
+]
+
+    return Response({"aptos": data})
