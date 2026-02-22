@@ -1382,6 +1382,7 @@ def ficha_apto_general_view(request, apto_id):
 
     return render(request, 'medico/ficha_apto_general.html', context)
 
+
 class MedicoCargarEstudiosView(View):
     template_name = 'medico/cargar_estudios_dni.html'
 

@@ -3,7 +3,7 @@ from .views.me import mis_aptos, me_roles, seleccionar_rol, me_overview
 from .views.jugador_home import *
 from .views.paciente_home import *
 from ApiRest.views.aptos import detalle_apto_general,mis_aptos_general
-from ApiRest.views.registros_medicos import detalle_registro_medico, descargar_pdf_registro
+from ApiRest.views.registros_medicos import *
 from .views.auth import api_login
 from .views.register import verificar_email
 from .views.onboarding import seleccionar_servicio
@@ -51,6 +51,23 @@ urlpatterns = [
     descargar_pdf_apto_general,
     name="api_descargar_pdf_apto_general"
 ),
+    #Descargar estudios medicos para RegistrosMedicos
+    path(
+    "registros-medicos/estudios/<int:id>/pdf/",
+    descargar_estudio_registro,
+    name="api_descargar_estudio_registro"
+),
+    path(
+    "jugador/estudios/",
+    mis_estudios_registro,
+    name="mis_estudios_registro"
+),
    
-
+    path("paciente/estudios-apto/", paciente_estudios_apto),
+    
+    path(
+    "aptos/estudios/<int:id>/pdf/",
+    descargar_pdf_estudio_apto,
+    name="api_descargar_estudio_apto"
+),
 ]

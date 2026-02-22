@@ -7,9 +7,9 @@ from Medico.views import ficha_apto_general_view
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from aptos_generales.models import EstudiosAptoGeneral
 from weasyprint import HTML
-
+from django.http import FileResponse
 from ApiRest.serializers.aptos import *
 
 from aptos_generales.models import (
@@ -139,3 +139,46 @@ def descargar_pdf_apto_general(request, id):
     request.GET['descargar_pdf'] = 'true'
 
     return ficha_apto_general_view(request, apto_id=id)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def paciente_estudios_apto(request):
+
+    try:
+        jugador = Jugador.objects.select_related(
+            "persona__profile"
+        ).get(persona__user=request.user)
+    except Jugador.DoesNotExist:
+        return Response({"estudios": []})
+
+    estudios = EstudiosAptoGeneral.objects.filter(
+        apto__jugador=jugador
+    ).select_related("apto").order_by("-fecha_creacion")
+
+    return Response({
+        "estudios": EstudiosAptoGeneralSerializer(estudios, many=True).data
+    })
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def descargar_pdf_estudio_apto(request, id):
+
+    jugador = get_object_or_404(
+        Jugador,
+        persona__user=request.user
+    )
+
+    estudio = get_object_or_404(
+        EstudiosAptoGeneral,
+        idestudio=id,
+        apto__jugador=jugador
+    )
+
+    if not estudio.archivo:
+        return Response({"detail": "Archivo no encontrado"}, status=404)
+
+    return FileResponse(
+        estudio.archivo.open("rb"),
+        as_attachment=False
+    )

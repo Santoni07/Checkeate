@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.conf import settings
-
+from RegistroMedico.models import EstudiosMedico
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -216,3 +216,58 @@ def descargar_pdf_registro(request, id):
     )
 
     return generar_pdf_registro(registro, request)
+
+from django.http import FileResponse
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def descargar_estudio_registro(request, id):
+
+    jugador = get_object_or_404(
+        Jugador,
+        persona__user=request.user
+    )
+
+    estudio = get_object_or_404(
+        EstudiosMedico,
+        idestudio=id,   # ⚠️ usamos idestudio
+        jugador=jugador
+    )
+
+    if not estudio.archivo:
+        return Response(
+            {"detail": "El estudio no tiene archivo adjunto"},
+            status=404
+        )
+
+    return FileResponse(
+        estudio.archivo.open("rb"),
+        as_attachment=True,
+        filename=estudio.archivo.name.split("/")[-1]
+    )
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def mis_estudios_registro(request):
+
+    jugador = get_object_or_404(
+        Jugador,
+        persona__user=request.user
+    )
+
+    estudios = EstudiosMedico.objects.filter(jugador=jugador)
+
+    data = [
+    {
+        "idestudio": e.idestudio,
+        "tipo_estudio": e.get_tipo_estudio_display(),
+        "fecha_caducidad": e.fecha_caducidad,
+        "fecha_creacion": e.fecha_creacion,
+        "observaciones": e.observaciones,
+        "filename": e.archivo.name.split("/")[-1] if e.archivo else None,
+        "tiene_archivo": bool(e.archivo),
+    }
+    for e in estudios
+]
+
+    return Response({"estudios": data})
