@@ -840,11 +840,14 @@ class MedicoAptosGeneralesHomeView(ListView):
 
         for apto in context.get('aptos', []):
             jugador = apto.jugador
+            persona = jugador.persona if jugador else None
+            profile = persona.profile if persona else None
+
             jugadores_info.append({
-                'id': jugador.id,
-                'dni': jugador.persona.profile.dni,
-                'nombre': jugador.persona.profile.nombre,
-                'apellido': jugador.persona.profile.apellido,
+                'id': jugador.id if jugador else None,
+                'dni': profile.dni if profile else "Sin DNI",
+                'nombre': profile.nombre if profile else "Sin nombre",
+                'apellido': profile.apellido if profile else "",
                 'actividad': apto.actividad.nombre if apto.actividad else "Sin actividad",
                 'estado': apto.estado,
                 'fecha_creacion': apto.fecha_creacion,
