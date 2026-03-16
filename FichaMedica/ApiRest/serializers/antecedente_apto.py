@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from aptos_generales.models import AntecedenteAptoGeneral
+from RegistroMedico.models import AntecedenteEnfermedades
 
 class AntecedenteAptoGeneralSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AntecedenteAptoGeneral
-        exclude = ("id", "apto", "jugador", "creado_en")
+        model = AntecedenteEnfermedades
+        fields="__all__"

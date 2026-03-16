@@ -172,6 +172,38 @@ def detalle_registro_medico(request, id):
     return Response(data)
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def mis_registros_medicos(request):
+
+    jugador = get_object_or_404(
+        Jugador.objects.select_related("persona__user"),
+        persona__user=request.user
+    )
+
+    registros = (
+        RegistroMedico.objects
+        .select_related("torneo", "competencia")
+        .filter(jugador=jugador)
+        .order_by("-fecha_creacion")
+    )
+
+    data = [
+        {
+            "id": r.id,
+            "estado": r.estado,
+            "fecha_caducidad": r.fecha_caducidad,
+            "evento": (
+                r.torneo.nombre if r.torneo else
+                r.competencia.nombre if r.competencia else "Sin evento"
+            )
+        }
+        for r in registros
+    ]
+
+    return Response(data)
+
+
 # ============================================================
 # 📄 GENERADOR PDF REUTILIZABLE
 # ============================================================

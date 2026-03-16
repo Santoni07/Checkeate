@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from datetime import timedelta
 
+from ApiRest.serializers.antecedente_apto import AntecedenteAptoGeneralSerializer
 from persona.models import Jugador, JugadorCategoriaEquipo
 from RegistroMedico.models import RegistroMedico
 from ApiRest.utils import get_active_profile
@@ -58,3 +59,58 @@ def mis_registros_medicos(request):
         })
 
     return Response({"registros": data})
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def resumen_antecedentes_jugador(request):
+
+    try:
+        jugador = Jugador.objects.select_related(
+            "persona__profile"
+        ).get(persona__user=request.user)
+    except Jugador.DoesNotExist:
+        return Response({
+            "existe": False,
+            "completo": False
+        })
+
+    antecedente = getattr(jugador, "antecedentes", None)
+
+    if not antecedente:
+        return Response({
+            "existe": False,
+            "completo": False
+        })
+
+    # 🔥 acá definimos qué es completo
+    campos = [
+        antecedente.es_diabetico,
+        antecedente.fue_operado,
+        antecedente.es_asmatico,
+        antecedente.presion_arterial,
+        antecedente.soplo_cardiaco,
+    
+    ]
+
+    completo = any(campos)
+
+    return Response({
+        "existe": True,
+        "completo": completo
+    })
+    
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def detalle_antecedente_jugador(request):
+
+    jugador = Jugador.objects.get(persona__user=request.user)
+
+    antecedente = getattr(jugador, "antecedentes", None)
+
+    if not antecedente:
+        return Response({"existe": False})
+
+    serializer = AntecedenteAptoGeneralSerializer(antecedente)
+
+    return Response(serializer.data)
