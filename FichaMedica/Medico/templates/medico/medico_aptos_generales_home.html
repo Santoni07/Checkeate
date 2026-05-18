@@ -229,11 +229,15 @@ main::before {
 
 <!-- RESULTADOS -->
 <div class="bg-white p-3 rounded shadow">
+
 {% if jugadores_info %}
-<table class="table table-hover align-middle">
-    
-    <!-- TITULOS -->
-    <thead>
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle text-center">
+
+    <!-- ENCABEZADOS -->
+    <thead class="table-light">
         <tr>
             <th>Apellido</th>
             <th>Nombre</th>
@@ -241,52 +245,132 @@ main::before {
             <th>Actividad</th>
             <th>Estado</th>
             <th>Fecha</th>
-            <th>Estudios</th>
             <th>Acciones</th>
+            <th>Estudios</th>
         </tr>
     </thead>
-<tbody>
-{% for j in jugadores_info %}
-<tr>
-  <td data-label="Apellido">{{ j.apellido }}</td>
-  <td data-label="Nombre">{{ j.nombre }}</td>
-  <td data-label="DNI">{{ j.dni }}</td>
-  <td data-label="Actividad">{{ j.actividad }}</td>
-  <td data-label="Estado">{{ j.estado }}</td>
-  <td data-label="Fecha">{{ j.fecha_creacion|date:"d/m/Y" }}</td>
-  <td data-label="Acciones">
-    {% if j.estado == "APROBADA" %}
-      <a href="{% url 'ficha_apto_general_view' j.apto_id %}" class="btn btn-success btn-sm">Ver</a>
-    {% else %}
-      <a href="{% url 'apto_general_update_view' j.apto_id %}" class="btn btn-warning btn-sm">Cargar</a>
-    {% endif %}
-  </td>
-  <td data-label="Estudios">
 
-    {% if j.estudios %}
-        
-        {% for estudio in j.estudios %}
-            <div class="mb-1">
-                <a href="{{ estudio.archivo.url }}" 
-                   target="_blank"
-                   class="btn btn-outline-info btn-sm">
-                    {{ estudio.tipo_estudio }}
+    <tbody>
+
+    {% for j in jugadores_info %}
+
+    <tr>
+
+        <td data-label="Apellido">
+            {{ j.apellido }}
+        </td>
+
+        <td data-label="Nombre">
+            {{ j.nombre }}
+        </td>
+
+        <td data-label="DNI">
+            {{ j.dni }}
+        </td>
+
+        <td data-label="Actividad">
+            {{ j.actividad }}
+        </td>
+
+        <td data-label="Estado">
+
+            {% if j.estado == "APROBADA" %}
+                <span class="badge bg-success">
+                    {{ j.estado }}
+                </span>
+
+            {% elif j.estado == "RECHAZADA" %}
+                <span class="badge bg-danger">
+                    {{ j.estado }}
+                </span>
+
+            {% elif j.estado == "PROCESO" %}
+                <span class="badge bg-warning text-dark">
+                    {{ j.estado }}
+                </span>
+
+            {% else %}
+                <span class="badge bg-secondary">
+                    {{ j.estado }}
+                </span>
+            {% endif %}
+
+        </td>
+
+        <td data-label="Fecha">
+            {{ j.fecha_creacion|date:"d/m/Y" }}
+        </td>
+
+        <!-- ACCIONES -->
+        <td data-label="Acciones">
+
+            {% if j.estado == "APROBADA" %}
+
+                <a href="{% url 'ficha_apto_general_view' j.apto_id %}"
+                   class="btn btn-success btn-sm">
+                   Ver
                 </a>
-            </div>
-        {% endfor %}
 
-    {% else %}
-        <span class="text-muted">Sin estudios</span>
-    {% endif %}
+            {% else %}
 
-</td>
-</tr>
-{% endfor %}
-</tbody>
+                <a href="{% url 'apto_general_update_view' j.apto_id %}"
+                   class="btn btn-warning btn-sm">
+                   Cargar
+                </a>
+
+            {% endif %}
+
+        </td>
+
+        <!-- ESTUDIOS -->
+        <td data-label="Estudios">
+
+            {% if j.estudios %}
+
+                <div class="d-flex flex-column gap-1 align-items-center">
+
+                    {% for estudio in j.estudios %}
+
+                        <a href="{{ estudio.archivo.url }}"
+                           target="_blank"
+                           class="btn btn-outline-info btn-sm">
+
+                           {{ estudio.tipo_estudio }}
+
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <span class="text-muted">
+                    Sin estudios
+                </span>
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+    </tbody>
+
 </table>
+
+</div>
+
 {% else %}
-<p class="text-center text-muted">No hay resultados.</p>
+
+<p class="text-center text-muted">
+    No hay resultados.
+</p>
+
 {% endif %}
+
 </div>
 
 </div>
