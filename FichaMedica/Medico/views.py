@@ -13,7 +13,7 @@ from django.db import transaction
 from weasyprint import HTML
 from account.models import Profile
 from persona.models import Jugador,JugadorCategoriaEquipo
-from RegistroMedico.models import RegistroMedico, AntecedenteEnfermedades as AntecedentesModel
+from RegistroMedico.models import RegistroMedico, AntecedenteEnfermedades as AntecedentesModel, 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from Cus.models import Cus
@@ -854,6 +854,8 @@ class MedicoAptosGeneralesHomeView(ListView):
                 'fecha_caducidad': apto.fecha_caducidad,
                 'consentimiento': apto.consentimiento_persona,
                 'apto_id': apto.id,
+                 
+                'estudios': EstudiosAptoGeneral.objects.filter(apto=apto)
             })
 
         context['jugadores_info'] = jugadores_info

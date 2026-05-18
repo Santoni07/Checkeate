@@ -230,7 +230,21 @@ main::before {
 <!-- RESULTADOS -->
 <div class="bg-white p-3 rounded shadow">
 {% if jugadores_info %}
-<table class="table">
+<table class="table table-hover align-middle">
+    
+    <!-- TITULOS -->
+    <thead>
+        <tr>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>DNI</th>
+            <th>Actividad</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Estudios</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
 <tbody>
 {% for j in jugadores_info %}
 <tr>
@@ -247,6 +261,25 @@ main::before {
       <a href="{% url 'apto_general_update_view' j.apto_id %}" class="btn btn-warning btn-sm">Cargar</a>
     {% endif %}
   </td>
+  <td data-label="Estudios">
+
+    {% if j.estudios %}
+        
+        {% for estudio in j.estudios %}
+            <div class="mb-1">
+                <a href="{{ estudio.archivo.url }}" 
+                   target="_blank"
+                   class="btn btn-outline-info btn-sm">
+                    {{ estudio.tipo_estudio }}
+                </a>
+            </div>
+        {% endfor %}
+
+    {% else %}
+        <span class="text-muted">Sin estudios</span>
+    {% endif %}
+
+</td>
 </tr>
 {% endfor %}
 </tbody>
