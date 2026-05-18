@@ -13,7 +13,7 @@ from django.db import transaction
 from weasyprint import HTML
 from account.models import Profile
 from persona.models import Jugador,JugadorCategoriaEquipo
-from RegistroMedico.models import RegistroMedico, AntecedenteEnfermedades as AntecedentesModel, 
+from RegistroMedico.models import RegistroMedico, AntecedenteEnfermedades as AntecedentesModel
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from Cus.models import Cus
